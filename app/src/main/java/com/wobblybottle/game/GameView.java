@@ -1238,7 +1238,12 @@ public class GameView extends View {
             "Son yaptığın utanç verici Google aramasını göster.",
             "Şimdiye kadar aldığın en kötü hediye neydi?",
             "Şu an çantanda/ceplerinde olan en tuhaf şey ne?",
-            "Telefonundaki en gereksiz ama yine de silmediğin uygulama hangisi?"
+            "Telefonundaki en gereksiz ama yine de silmediğin uygulama hangisi?",
+            "Başkalarının bilmediği en büyük gizli yeteneğim ne?",
+            "Okuduğum bölümle hiç alakası olmasa bile, sence ben ne iş yapmalıyım?",
+            "Arkadaş grubumuz bir sitcom olsaydı, senin rolün ne olurdu? (Bilge, dram kraliçesi, unutulan...)",
+            "Birlikte seyahat ederken yaptığım en sinir bozucu şey ne?",
+            "Hayatını buradaki biriyle bir haftalığına değiştirebilseydin, bu kim olurdu ve ilk ne yapardın?"
         },
         { // 1: Derin İtiraflar
             "Neredeyse kimseye anlatmadığın en gizli hayalin veya hedefin nedir?",
@@ -1248,19 +1253,28 @@ public class GameView extends View {
             "İnsanların fark etmediği ama senin çok değer verdiğin bir özelliğin nedir?",
             "Asla anlayamayacağın moda akımı hangisi?",
             "Sadece günlük hayatını kolaylaştırmak için hangi süper güce sahip olmak isterdin?",
-            "Bir parfüm yaratacak olsan adı ve kokusu ne olurdu?"
+            "Bir parfüm yaratacak olsan adı ve kokusu ne olurdu?",
+            "Benim için en uzun süre sakladığın sır neydi?",
+            "Tanıştığımızda benimle ilgili gerçekten ilk izlenimin neydi?",
+            "Sana bu soruyu soran kişiye tek bir hayat tavsiyesi verecek olsan, bu ne olurdu?",
+            "Bendeki hangi huyuna en çok sinir oluyorsun?",
+            "Birlikte yaşadığımız anılardan sadece birini tekrar yaşayabilseydin, hangisini seçerdin?",
+            "Beni korumak için söylediğin en garip yalan neydi?"
         },
         { // 2: Cesur Görevler
             "Bir cesaret oyunu uğruna yaptığın en çılgınca şey neydi?",
             "Başarıyla üstesinden geldiğin en büyük korkun nedir?",
             "Bir sınavda veya oyunda kopya çekip yakalanmadığın oldu mu?",
-            "Ölmeden önce yapılacaklar listendeki en çılgın şey nedir?"
+            "Ölmeden önce yapılacaklar listendeki en çılgın şey nedir?",
+            "Yaptığımı gördüğün en cesurca şey neydi?"
         },
         { // 3: Flört ve Çiftler
             "Bir insanda seni en çok etkileyen 3 özellik nedir?",
             "Hayatındaki ilk çocukluk veya gençlik aşkın nasıldı?",
             "Hayalindeki en romantik buluşmayı tek cümleyle tarif et.",
-            "Birinin senin için yaptığı en tatlı ve unutulmaz jest neydi?"
+            "Birinin senin için yaptığı en tatlı ve unutulmaz jest neydi?",
+            "Sevgili seçme konusundaki becerimi 10 üzerinden puanlaman gerekseydi, kaç verirdin? Neden?",
+            "Bana veya gruptaki başka birine hiç 'crush' oldun mu?"
         },
         { // 4: +18 Ateşli
             "Seni romantik veya tutkulu anlamda en çok ne etkiler?",
@@ -1326,26 +1340,48 @@ public class GameView extends View {
             "If you could trade lives with anyone in this room for a day, who and why?",
             "What is the weirdest habit you have when no one is watching?",
             "What is the biggest lie you ever told with a straight face?",
-            "What is a funny nickname you had as a kid?"
+            "What is a funny nickname you had as a kid?",
+            "What is the most ridiculous thing you bought on an impulse?",
+            "Show the most embarrassing recent Google search you did.",
+            "What is the worst gift you have ever received?",
+            "What is the weirdest thing currently in your bag or pockets?",
+            "Which app on your phone is totally useless but you still haven't deleted?",
+            "What is my biggest hidden talent that most people don't know about?",
+            "Regardless of my degree or job, what career do you secretly think I am built for?",
+            "If our friend group were a sitcom, what would your character trope be?",
+            "What is the most annoying thing I do when we travel together?",
+            "If you could swap lives with someone here for a week, who would it be and what would you do first?"
         },
         { // 1: Deep Confessions
             "What is a secret dream or goal you rarely share with anyone?",
             "What first impression did you really have of the questioner?",
             "Which single decision changed the path of your life the most?",
             "What is a mistake you made that taught you a major life lesson?",
-            "What is something you deeply care about that most people ignore?"
+            "What is something you deeply care about that most people ignore?",
+            "Which fashion trend will you never understand?",
+            "Which practical superpower would you want just to make daily life easier?",
+            "If you were to create a perfume, what would its name and scent be?",
+            "What was the longest secret you kept hidden from me?",
+            "What was your honest first impression of me when we first met?",
+            "If you could give the questioner just one single piece of life advice, what would it be?",
+            "Which habit or trait of mine annoys you the most?",
+            "If you could relive just one memory we shared together, which one would you choose?",
+            "What is the weirdest lie you ever told to protect me?"
         },
         { // 2: Bold Challenges
             "What is the boldest thing you have ever done on a dare?",
             "What is a fear you have successfully overcome?",
             "Have you ever cheated in a game or test and gotten away with it?",
-            "What is something wild on your bucket list?"
+            "What is something wild on your bucket list?",
+            "What is the bravest thing you have ever seen me do?"
         },
         { // 3: Flirt and Couples
             "What three qualities do you find most attractive in someone?",
             "What was your very first crush like?",
             "Describe your ideal romantic date in one sentence.",
-            "What is the sweetest gesture someone has ever done for you?"
+            "What is the sweetest gesture someone has ever done for you?",
+            "If you had to rate my taste in partners out of 10, what score would you give and why?",
+            "Have you ever had a secret crush on me or anyone else in this group?"
         },
         { // 4: +18 Spicy (VIP)
             "What makes romantic chemistry unforgettable to you?",
