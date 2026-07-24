@@ -1280,10 +1280,17 @@ public class GameView extends View {
             "Çocukluğundan bir çizgi filmin jenerik müziğini söyle. Son ses!",
             "En işe yaramaz gizli yeteneğin ne? Göster bakalım!",
             "Sadece senin komik bulduğun bir fıkra anlat. Biz karar veririz.",
-            "En sevdiğin yemeği bir sanat eseriymiş gibi anlat."
+            "En sevdiğin yemeği bir sanat eseriymiş gibi anlat.",
+            "Karşındaki kişiyle bakışma kapışması yap. İlk gülen kaybeder!",
+            "Hayali bir kulaklık tak ve oyunu bir futbol maçı gibi anlat.",
+            "Bardaktan bir şey içmeye çalışan bir T-Rex gibi davran.",
+            "3 metre boyunca moonwalk yap. Ya da en azından onurlu bir deneme.",
+            "Birinin sana saçma sapan bir saç modeli yapmasına izin ver. Fotoğraf şart.",
+            "Bir cipsi veya bisküviyi ellerini kullanmadan ye.",
+            "Solundaki kişiye ultra karmaşık bir 'çak bir beşlik' hareketi öner."
         },
         { // 1: Derin İtiraflar
-            "Çemberdeki HERKESE içten ve samimi bir övgü söyle.",
+            "Çamberdeki HERKESE içten ve samimi bir övgü söyle.",
             "Soran kişinin gözlerinin içine hiç gülmeden 15 saniye boyunca bak.",
             "Suçluluk duyduğun küçük bir şeyi komik bir ses tonuyla itiraf et.",
             "Soran kişinin sana sormak istediği 1 serbest soruya dürüstçe cevap ver."
@@ -1295,7 +1302,9 @@ public class GameView extends View {
             "Grubun seçeceği ünlü birinin taklidini yap.",
             "Bu oyun için tamamen saçma yeni bir kural uydur.",
             "Bir ünlünün sesine sahip olabilseydin, kimi seçerdin? (Taklidini yap!)",
-            "İnsan duygularını yeni keşfeden bir robotmuş gibi davran."
+            "İnsan duygularını yeni keşfeden bir robotmuş gibi davran.",
+            "Bir sonraki turuna kadar Karadeniz şivesiyle konuş (Zor, değil mi?).",
+            "Ünlü bir video oyunu karakterinin (Mario, Sonic...) sesini çıkar."
         },
         { // 3: Flört ve Çiftler
             "Soran kişiye en samimi ve etkileyici övgünü yap.",
@@ -1352,7 +1361,18 @@ public class GameView extends View {
             "Imitate someone in the circle until the group guesses who it is.",
             "Tell a funny joke with a totally serious, unsmiling face.",
             "Let the answerer style your hair for the next round!",
-            "Do a dramatic slow-motion catwalk walk across the room."
+            "Do a dramatic slow-motion catwalk walk across the room.",
+            "Sing a cartoon theme song from your childhood at full volume!",
+            "What is your most useless secret talent? Show us!",
+            "Tell a joke that only you find funny. The group will judge!",
+            "Describe your favorite food as if it were a high art masterpiece!",
+            "Do a staring contest with the person opposite you. First to laugh loses!",
+            "Put on imaginary headphones and commentate the game like a frantic football match!",
+            "Act like a T-Rex trying to drink from a cup with tiny arms!",
+            "Do a moonwalk for 3 meters. Or at least an honorable attempt!",
+            "Let someone give you an absurd hairstyle right now. Photo required!",
+            "Eat a chip or cookie using no hands!",
+            "Propose an ultra-complex high-five handshake to the person on your left!"
         },
         { // 1: Deep Confessions
             "Share a genuine, heartfelt compliment with every person in the circle.",
@@ -1364,7 +1384,12 @@ public class GameView extends View {
             "Speak in a dramatic movie villain voice until the next spin!",
             "Let the group choose a hilarious pose for you and hold it for 15 seconds.",
             "Do 10 push-ups or 15 jumping jacks right now while making animal noises!",
-            "Do your best impression of a famous celebrity chosen by the group."
+            "Do your best impression of a famous celebrity chosen by the group.",
+            "Make up a completely absurd new rule for this game right now!",
+            "If you could have any celebrity's voice, who would it be? Do an impression!",
+            "Act like a robot who is experiencing human emotions for the very first time!",
+            "Speak in a funny regional accent until your next turn!",
+            "Make the voice of a famous video game character (Mario, Sonic...)"
         },
         { // 3: Flirt and Couples
             "Give the questioner your best sincere romantic compliment.",
