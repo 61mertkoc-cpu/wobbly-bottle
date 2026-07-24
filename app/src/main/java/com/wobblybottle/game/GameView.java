@@ -1301,13 +1301,20 @@ public class GameView extends View {
             "3 metre boyunca moonwalk yap. Ya da en azından onurlu bir deneme.",
             "Birinin sana saçma sapan bir saç modeli yapmasına izin ver. Fotoğraf şart.",
             "Bir cipsi veya bisküviyi ellerini kullanmadan ye.",
-            "Solundaki kişiye ultra karmaşık bir 'çak bir beşlik' hareketi öner."
+            "Solundaki kişiye ultra karmaşık bir 'çak bir beşlik' hareketi öner.",
+            "30 saniye boyunca bir yengeç gibi ses çıkar ve yürü. Uyarıyorum, zor bir görev.",
+            "Telefonunu istediğin bir kişiye ver. YouTube veya TikTok geçmişine bakmak için 30 saniyesi var.",
+            "Solundaki kişinin sana gecenin geri kalanı için yeni bir takma ad vermesine izin ver ve kendinden bahsederken bu adı kullan.",
+            "Aşırı karmaşık bir dans figürü uydur ve 30 saniyede iki kişiye öğret.",
+            "Atıştırmalık tabağından bir yiyeceği ellerini kullanmadan ye.",
+            "Arkadaşlarının etrafta buldukları şeylerle sana komik bir saç modeli yapmalarına izin ver. Selfie şart."
         },
         { // 1: Derin İtiraflar
             "Çamberdeki HERKESE içten ve samimi bir övgü söyle.",
             "Soran kişinin gözlerinin içine hiç gülmeden 15 saniye boyunca bak.",
             "Suçluluk duyduğun küçük bir şeyi komik bir ses tonuyla itiraf et.",
-            "Soran kişinin sana sormak istediği 1 serbest soruya dürüstçe cevap ver."
+            "Soran kişinin sana sormak istediği 1 serbest soruya dürüstçe cevap ver.",
+            "Buradaki her kişiye çok spesifik bir iltifat et."
         },
         { // 2: Cesur Görevler
             "Bir sonraki tura kadar bir film kötüsü gibi dramatik bir sesle konuş!",
@@ -1318,7 +1325,9 @@ public class GameView extends View {
             "Bir ünlünün sesine sahip olabilseydin, kimi seçerdin? (Taklidini yap!)",
             "İnsan duygularını yeni keşfeden bir robotmuş gibi davran.",
             "Bir sonraki turuna kadar Karadeniz şivesiyle konuş (Zor, değil mi?).",
-            "Ünlü bir video oyunu karakterinin (Mario, Sonic...) sesini çıkar."
+            "Ünlü bir video oyunu karakterinin (Mario, Sonic...) sesini çıkar.",
+            "Odanın etrafında tek ayak üzerinde seke seke ve alfabeyi tersten söyleyerek bir tur at.",
+            "Bir dakika boyunca tamamen donmuş bir manken gibi dur (mümkünse gözlerini kırpmadan!)."
         },
         { // 3: Flört ve Çiftler
             "Soran kişiye en samimi ve etkileyici övgünü yap.",
@@ -1330,7 +1339,8 @@ public class GameView extends View {
             "Soran kişiye en çekici göz kırpmanı ve gülümsemeni yap.",
             "Bir klipteymişsin gibi 15 saniye boyunca kendi kendine dans et.",
             "Solundaki kişinin kulağına iddialı bir sır fısılda.",
-            "Soran kişiye o anda 2 satırlık tatlı bir şiir uydur!"
+            "Soran kişiye o anda 2 satırlık tatlı bir şiir uydur!",
+            "Pantolonunu veya üstünü başka bir oyuncuyla değiştir (tabii o da kabul ederse!). Ve bir sonraki turuna kadar öyle kal."
         }
     };
 
@@ -1408,13 +1418,20 @@ public class GameView extends View {
             "Do a moonwalk for 3 meters. Or at least an honorable attempt!",
             "Let someone give you an absurd hairstyle right now. Photo required!",
             "Eat a chip or cookie using no hands!",
-            "Propose an ultra-complex high-five handshake to the person on your left!"
+            "Propose an ultra-complex high-five handshake to the person on your left!",
+            "Walk sideways and make crab noises for 30 seconds straight!",
+            "Hand your phone to someone. They have 30 seconds to inspect your YouTube or TikTok history!",
+            "Let the player to your left give you a new nickname for the night that you must use!",
+            "Invent an overly complex dance move and teach it to two people in 30 seconds!",
+            "Eat a snack from the bowl using absolutely no hands!",
+            "Let your friends style your hair with random household items. Selfie required!"
         },
         { // 1: Deep Confessions
             "Share a genuine, heartfelt compliment with every person in the circle.",
             "Look into the questioner's eyes for 15 seconds without laughing.",
             "Confess one small thing you feel guilty about in a funny voice.",
-            "Let the questioner ask you ONE extra free question that you must answer."
+            "Let the questioner ask you ONE extra free question that you must answer.",
+            "Give a super specific and unique compliment to every single person in the room."
         },
         { // 2: Bold Challenges
             "Speak in a dramatic movie villain voice until the next spin!",
@@ -1425,7 +1442,9 @@ public class GameView extends View {
             "If you could have any celebrity's voice, who would it be? Do an impression!",
             "Act like a robot who is experiencing human emotions for the very first time!",
             "Speak in a funny regional accent until your next turn!",
-            "Make the voice of a famous video game character (Mario, Sonic...)"
+            "Make the voice of a famous video game character (Mario, Sonic...)",
+            "Hop around the room on one leg while trying to recite the alphabet backwards!",
+            "Freeze completely like a mannequin for 1 full minute without moving!"
         },
         { // 3: Flirt and Couples
             "Give the questioner your best sincere romantic compliment.",
