@@ -86,6 +86,7 @@ public class MainActivity extends Activity {
     }
 
     private void updateInputVisibility(int screen) {
+        nameInput.setHint(gameView != null && gameView.isTurkish() ? "Oyuncu adı girin..." : "Enter player name...");
         nameInput.setVisibility(screen == GameView.SCREEN_SETUP ? View.VISIBLE : View.GONE);
         if (screen != GameView.SCREEN_SETUP) {
             nameInput.clearFocus();

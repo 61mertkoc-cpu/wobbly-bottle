@@ -106,7 +106,7 @@ public class GameView extends View {
     public static final int LANG_DE = 2;
     public static final int LANG_FR = 3;
     public static final int LANG_ES = 4;
-    private int selectedLanguage = LANG_TR; // Default to TR (Türkçe)
+    private int selectedLanguage = LANG_EN; // Default to EN (English) as requested!
 
     private static final String[] LANG_NAMES = {
         "🇬🇧 English",
@@ -116,7 +116,21 @@ public class GameView extends View {
         "🇪🇸 Español"
     };
 
+    public boolean isTurkish() { return selectedLanguage == LANG_TR; }
     private boolean isTR() { return selectedLanguage == LANG_TR; }
+
+    private String getObjectName(int index) {
+        if (isTR()) {
+            switch (index) {
+                case 0: return "Komik Gazoz Şişesi";
+                case 1: return "Öten Tavuk";
+                case 2: return "Çıtır Turşu";
+                case 3: return "Çılgın Terlik";
+                case 4: return "Şampanya Şişesi";
+            }
+        }
+        return OBJECT_NAMES[index];
+    }
 
     private String getPackName(int index) {
         if (isTR()) {
@@ -125,7 +139,7 @@ public class GameView extends View {
                 case 1: return "DERİN İTİRAFLAR";
                 case 2: return "CESUR GÖREVLER";
                 case 3: return "FLÖRT VE ÇİFTLER";
-                case 4: return "+18 SPICY";
+                case 4: return "+18 ATEŞLİ";
                 case 5: return "SERBEST MOD";
             }
         }
@@ -414,7 +428,7 @@ public class GameView extends View {
 
     private void drawObjects(Canvas c) {
         drawLogo(c, 120, true);
-        neonText(c, "CHOOSE YOUR OBJECT", 540, 290, 54, Color.WHITE, Paint.Align.CENTER);
+        neonText(c, isTR() ? "NESNENİ SEÇ" : "CHOOSE YOUR OBJECT", 540, 290, 54, Color.WHITE, Paint.Align.CENTER);
         float top = 330;
         for (int i = 0; i < 5; i++) {
             RectF card = new RectF(84, top + i * 235, 996, top + i * 235 + 204);
@@ -424,24 +438,24 @@ public class GameView extends View {
                     : (i == 4 ? Color.rgb(255, 204, 0) : locked ? Color.rgb(190, 79, 255) : Color.rgb(115, 145, 255));
             neonRoundRect(c, card, 28, border, Color.argb(205, 13, 20, 40), selected ? 7 : 3, selected ? 26 : 13);
             drawObjectIcon(c, i, new RectF(card.left + 15, card.top + 12, card.left + 225, card.bottom - 12), false);
-            neonText(c, OBJECT_NAMES[i], card.left + 245, card.top + 75, 42, Color.WHITE, Paint.Align.LEFT);
+            neonText(c, getObjectName(i), card.left + 245, card.top + 75, 42, Color.WHITE, Paint.Align.LEFT);
             if (i == 0 || unlockedObjects[i] || (i == 4 && vip)) {
-                neonText(c, selected ? "✓  SELECTED" : "✓  UNLOCKED", card.left + 245,
+                neonText(c, selected ? (isTR() ? "✓  SEÇİLİ" : "✓  SELECTED") : (isTR() ? "✓  AÇIK" : "✓  UNLOCKED"), card.left + 245,
                         card.top + 145, 34, Color.rgb(80, 255, 145), Paint.Align.LEFT);
             } else if (i == 4) {
                 neonText(c, "♛  VIP", card.left + 245, card.top + 145, 38,
                         Color.rgb(255, 204, 0), Paint.Align.LEFT);
-                text(c, "Unlock as VIP Member", card.right - 28, card.top + 145, 25,
+                text(c, isTR() ? "VIP Üyelik ile Aç" : "Unlock as VIP Member", card.right - 28, card.top + 145, 25,
                         Color.rgb(230, 205, 150), Paint.Align.RIGHT, false);
             } else {
-                neonText(c, "▣  WATCH AD", card.left + 245, card.top + 137, 35,
+                neonText(c, isTR() ? "▣  REKLAM İZLE" : "▣  WATCH AD", card.left + 245, card.top + 137, 35,
                         Color.rgb(255, 195, 53), Paint.Align.LEFT);
-                text(c, "Unlock with 1 Video Ad", card.right - 28, card.top + 176, 24,
+                text(c, isTR() ? "1 Video Reklam ile Aç" : "Unlock with 1 Video Ad", card.right - 28, card.top + 176, 24,
                         Color.rgb(220, 215, 235), Paint.Align.RIGHT, false);
             }
         }
         drawActionButton(c, new RectF(130, 1570, 950, 1710),
-                "CONTINUE TO PACKS", true, Color.rgb(255, 204, 0));
+                isTR() ? "PAKETLERE GEÇ" : "CONTINUE TO PACKS", true, Color.rgb(255, 204, 0));
     }
 
     private void drawPacks(Canvas c) {
@@ -479,7 +493,7 @@ public class GameView extends View {
         c.drawCircle(cx, cy, radius, p);
         p.setStyle(Paint.Style.FILL);
 
-        neonText(c, spinning ? "WOBBLY SPIN..." : (questioner >= 0 ? "BOTTLE SAYS..." : "TAP TO SPIN"),
+        neonText(c, spinning ? (isTR() ? "ŞİŞE DÖNÜYOR..." : "WOBBLY SPIN...") : (questioner >= 0 ? (isTR() ? "ŞİŞE DİYOR Kİ..." : "BOTTLE SAYS...") : (isTR() ? "ÇEVİRMEK İÇİN DOKUN" : "TAP TO SPIN")),
                 540, 215, 47, Color.WHITE, Paint.Align.CENTER);
 
         for (int i = 0; i < players.size(); i++) {
@@ -512,7 +526,7 @@ public class GameView extends View {
                 drawActionButton(c, new RectF(210, 1485, 870, 1575),
                         isTR() ? "ŞİŞEYİ ÇEVİR" : "SPIN BOTTLE", !spinning, Color.rgb(0, 242, 254));
             } else {
-                drawWrappedCentered(c, currentPrompt, 540, 1405, 800, 28, Color.WHITE, 36);
+                drawWrappedCentered(c, isTR() ? "Bir mod seçin: kendiniz sorun veya seçilen destelerden çekin." : "Choose a dynamic: ask yourselves or draw from the selected decks.", 540, 1405, 800, 27, Color.rgb(180, 230, 255), 35);
                 drawActionButton(c, new RectF(100, 1498, 510, 1575),
                         isTR() ? "KENDİMİZ SORACAĞIZ" : "ASK OURSELVES", true, Color.rgb(120, 255, 65));
                 drawActionButton(c, new RectF(570, 1498, 980, 1575),
@@ -810,7 +824,7 @@ public class GameView extends View {
                     : (i == 4 ? Color.rgb(255, 204, 0) : Color.rgb(130, 78, 190));
             neonRoundRect(c, row, 22, border, Color.argb(190, 12, 18, 34), selectedObject == i ? 5 : 2, 10);
             drawObjectIcon(c, i, new RectF(row.left + 5, row.top + 4, row.left + 115, row.bottom - 4), false);
-            text(c, OBJECT_NAMES[i], row.left + 130, row.centerY() + 10, 27,
+            text(c, getObjectName(i), row.left + 130, row.centerY() + 10, 27,
                     Color.WHITE, Paint.Align.LEFT, true);
             text(c, available ? (selectedObject == i ? (isTR() ? "SEÇİLİ" : "SELECTED") : (isTR() ? "SEÇ" : "CHOOSE"))
                             : (i == 4 ? "VIP" : "REKLAM"),
