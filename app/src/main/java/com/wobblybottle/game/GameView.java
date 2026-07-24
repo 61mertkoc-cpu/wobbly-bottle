@@ -323,8 +323,27 @@ public class GameView extends View {
             p.setTextSize(43);
             p.setTextAlign(Paint.Align.CENTER);
             p.setColor(Color.argb(80, 255, 255, 255));
-            c.drawText("😊", x, y + 15, p);
+        drawMinimalFace(c, x, y, 47);
         }
+    }
+
+    private void drawMinimalFace(Canvas c, float cx, float cy, float r) {
+        p.setStyle(Paint.Style.FILL);
+        p.setColor(Color.argb(220, 10, 16, 30));
+
+        // Eyes
+        float eyeR = r * 0.12f;
+        float eyeY = cy - r * 0.12f;
+        c.drawCircle(cx - r * 0.30f, eyeY, eyeR, p);
+        c.drawCircle(cx + r * 0.30f, eyeY, eyeR, p);
+
+        // Smile Arc
+        p.setStyle(Paint.Style.STROKE);
+        p.setStrokeWidth(r * 0.11f);
+        p.setStrokeCap(Paint.Cap.ROUND);
+        RectF mouth = new RectF(cx - r * 0.34f, cy - r * 0.22f, cx + r * 0.34f, cy + r * 0.32f);
+        c.drawArc(mouth, 25, 130, false, p);
+        p.setStyle(Paint.Style.FILL);
     }
 
     private void drawPlayerCard(Canvas c, Player player, RectF r) {
@@ -333,9 +352,7 @@ public class GameView extends View {
         p.setShadowLayer(20, 0, 0, player.color);
         c.drawCircle(r.left + 78, r.centerY(), 47, p);
         p.clearShadowLayer();
-        p.setTextSize(48);
-        p.setTextAlign(Paint.Align.CENTER);
-        c.drawText("😊", r.left + 78, r.centerY() + 17, p);
+        drawMinimalFace(c, r.left + 78, r.centerY(), 47);
         neonText(c, ellipsize(player.name, 9), r.left + 148, r.centerY() + 16,
                 37, player.color, Paint.Align.LEFT);
         neonText(c, "✕", r.right - 42, r.centerY() + 14, 36, Color.rgb(255, 80, 100), Paint.Align.CENTER);
@@ -486,9 +503,7 @@ public class GameView extends View {
             p.setStyle(Paint.Style.FILL);
         }
 
-        p.setTextSize(active ? 67 : 58);
-        p.setTextAlign(Paint.Align.CENTER);
-        c.drawText("😊", x, y + 23, p);
+        drawMinimalFace(c, x, y, r);
         neonText(c, ellipsize(player.name, 10), x, y + r + 48, 27, Color.WHITE, Paint.Align.CENTER);
     }
 
@@ -677,9 +692,21 @@ public class GameView extends View {
                 Color.rgb(35, 70, 96), Color.argb(245, 2, 10, 24), 3, 6);
         neonText(c, "⌂", 240, 1775, 78, Color.rgb(210, 245, 255), Paint.Align.CENTER);
         text(c, "HOME", 240, 1835, 27, Color.WHITE, Paint.Align.CENTER, true);
-        neonText(c, "♛", 840, 1775, 78, Color.rgb(255, 204, 0), Paint.Align.CENTER);
+        drawProfileIcon(c, 840, 1765, vip ? Color.rgb(255, 204, 0) : Color.rgb(0, 242, 254));
         text(c, "PROFILE", 840, 1835, 27, vip ? Color.rgb(255, 220, 80) : Color.WHITE,
                 Paint.Align.CENTER, true);
+    }
+
+    private void drawProfileIcon(Canvas c, float cx, float cy, int color) {
+        p.setColor(color);
+        p.setShadowLayer(15, 0, 0, color);
+        p.setStyle(Paint.Style.FILL);
+        // Head circle
+        c.drawCircle(cx, cy - 12, 20, p);
+        // Shoulder arc
+        RectF shoulder = new RectF(cx - 32, cy + 4, cx + 32, cy + 54);
+        c.drawArc(shoulder, 195, 150, true, p);
+        p.clearShadowLayer();
     }
 
     private void drawProfile(Canvas c) {
