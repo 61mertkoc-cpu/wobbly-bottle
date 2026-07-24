@@ -99,6 +99,13 @@ public class GameView extends View {
     private int answerer = -1;
     private int selectedQ = -1;
     private int selectedA = -1;
+
+    // Truth & Dare Deck System
+    private boolean typeChoiceModalOpen = false;
+    private boolean drawnCardModalOpen = false;
+    private String drawnCardType = "TRUTH";
+    private String drawnCardPackName = "PARTY AND FUN";
+    private String drawnCardText = "";
     private String currentPrompt = "Tap the object to spin!";
 
     private float drawScale = 1f;
@@ -469,13 +476,24 @@ public class GameView extends View {
                     31, q.color, Paint.Align.CENTER, true);
             text(c, "ANSWERER: " + a.name.toUpperCase(Locale.ROOT), 540, 1349,
                     31, a.color, Paint.Align.CENTER, true);
-            drawWrappedCentered(c, currentPrompt, 540, 1410, 800, 29, Color.WHITE, 38);
-            drawActionButton(c, new RectF(100, 1498, 510, 1575),
-                    "ASK OURSELVES", true, Color.rgb(120, 255, 65));
-            drawActionButton(c, new RectF(570, 1498, 980, 1575),
-                    "DRAW FROM DECK", true, Color.rgb(230, 47, 191));
+
+            boolean isFreeMode = selectedPacks[5];
+            if (isFreeMode) {
+                drawWrappedCentered(c, "Ask any question you want out loud!", 540, 1405, 800, 27, Color.rgb(180, 230, 255), 36);
+                drawActionButton(c, new RectF(210, 1485, 870, 1575),
+                        "SPIN BOTTLE", !spinning, Color.rgb(0, 242, 254));
+            } else {
+                drawWrappedCentered(c, currentPrompt, 540, 1405, 800, 28, Color.WHITE, 36);
+                drawActionButton(c, new RectF(100, 1498, 510, 1575),
+                        "ASK OURSELVES", true, Color.rgb(120, 255, 65));
+                drawActionButton(c, new RectF(570, 1498, 980, 1575),
+                        "DRAW FROM DECK", true, Color.rgb(230, 47, 191));
+            }
         }
         drawNavbar(c);
+
+        if (typeChoiceModalOpen) drawTypeChoiceModal(c);
+        if (drawnCardModalOpen) drawDrawnCardModal(c);
     }
 
     private void drawAvatar(Canvas c, Player player, float x, float y, boolean active) {
@@ -975,6 +993,16 @@ public class GameView extends View {
             invalidate();
             return true;
         }
+        if (typeChoiceModalOpen) {
+            handleTypeChoiceTouch(x, y);
+            invalidate();
+            return true;
+        }
+        if (drawnCardModalOpen) {
+            handleDrawnCardTouch(x, y);
+            invalidate();
+            return true;
+        }
         if (profileOpen) {
             handleProfileTouch(x, y);
             invalidate();
@@ -1057,9 +1085,14 @@ public class GameView extends View {
             float top = 205 + row * 435;
             if (hit(x, y, left, top, left + 455, top + 400)) {
                 if (i == 4 && !vip) vipOfferOpen = true;
-                else {
-                    boolean was = selectedPacks[i];
-                    selectedPacks[i] = !was;
+                else if (i == 5) {
+                    // Free Mode: uncheck all card packs 0..4
+                    Arrays.fill(selectedPacks, false);
+                    selectedPacks[5] = true;
+                } else {
+                    // Card Pack: uncheck Free Mode (5)
+                    selectedPacks[5] = false;
+                    selectedPacks[i] = !selectedPacks[i];
                     if (!anyPackSelected()) selectedPacks[i] = true;
                 }
                 return;
@@ -1077,14 +1110,24 @@ public class GameView extends View {
             profileOpen = true;
             return;
         }
-        if (distance(x, y, 540, 710) < 320 || hit(x, y, 210, 1470, 870, 1565)) {
+        if (distance(x, y, 540, 710) < 320) {
             startSpin();
             return;
         }
-        if (questioner >= 0 && hit(x, y, 100, 1498, 510, 1575)) {
-            currentPrompt = players.get(questioner).name + " asks any question they want.";
-        } else if (questioner >= 0 && hit(x, y, 570, 1498, 980, 1575)) {
-            currentPrompt = drawRandomPrompt();
+        if (questioner < 0) {
+            if (hit(x, y, 210, 1470, 870, 1565)) startSpin();
+            return;
+        }
+
+        boolean isFreeMode = selectedPacks[5];
+        if (isFreeMode) {
+            if (hit(x, y, 210, 1485, 870, 1575)) startSpin();
+        } else {
+            if (hit(x, y, 100, 1498, 510, 1575)) {
+                currentPrompt = players.get(questioner).name + " asks any question they want out loud!";
+            } else if (hit(x, y, 570, 1498, 980, 1575)) {
+                typeChoiceModalOpen = true;
+            }
         }
     }
 
@@ -1121,31 +1164,178 @@ public class GameView extends View {
         }
     }
 
-    private String drawRandomPrompt() {
-        List<String> prompts = new ArrayList<>();
-        if (selectedPacks[0]) prompts.addAll(Arrays.asList(
-                "Do your funniest dance for 10 seconds!",
-                "What is your most hilarious party memory?",
-                "Imitate someone in the circle until they guess who."));
-        if (selectedPacks[1]) prompts.addAll(Arrays.asList(
-                "What is a secret dream you rarely tell anyone?",
-                "What first impression did you have of the answerer?",
-                "Which decision changed your life the most?"));
-        if (selectedPacks[2]) prompts.addAll(Arrays.asList(
-                "Speak in a dramatic movie voice until the next spin.",
-                "Let the answerer choose a silly pose for you.",
-                "Tell a joke without smiling."));
-        if (selectedPacks[3]) prompts.addAll(Arrays.asList(
-                "Name three qualities you admire in the answerer.",
-                "Describe your ideal date in one sentence.",
-                "Give the answerer your best sincere compliment."));
-        if (selectedPacks[4] && vip) prompts.addAll(Arrays.asList(
-                "Share your boldest romantic confession.",
-                "What makes a kiss unforgettable?",
-                "Describe your idea of perfect chemistry."));
-        if (selectedPacks[5]) prompts.add("Ask any question — the answerer must answer!");
-        if (prompts.isEmpty()) return "Ask any question — the answerer must answer!";
-        return prompts.get(random.nextInt(prompts.size()));
+    // --- TRUTH & DARE PACK QUESTIONS (0..4) ---
+    private static final String[][] PACK_TRUTHS = {
+        { // 0: Party and Fun (Parti & Eğlence)
+            "Parti veya arkadaş ortamında başından geçen en komik veya utanç verici anın nedir?",
+            "Bu odadaki biriyle 1 günlüğüne hayatını değiştirecek olsan kiminle değiştirirdin?",
+            "Kimse bakmıyorken yaptığın en garip alışkanlığın nedir?",
+            "Ciddi bir yüz ifadesiyle söylediğin en büyük yalan neydi?",
+            "Çocukken sana takılan en komik lakap neydi?"
+        },
+        { // 1: Deep Confessions (Derin İtiraflar)
+            "Neredeyse kimseye anlatmadığın en gizli hayalin veya hedefin nedir?",
+            "Soran kişi hakkındaki İLK izlenimin neydi, şu an ne değişti?",
+            "Hayatının akışını en çok değiştiren tek bir karar hangisiydi?",
+            "Yaptığın ve sana büyük bir hayat dersi veren en büyük hatan neydi?",
+            "İnsanların fark etmediği ama senin çok değer verdiğin bir özelliğin nedir?"
+        },
+        { // 2: Bold Challenges (Cesur Görevler)
+            "Bir cesaret oyunu uğruna yaptığın en çılgınca şey neydi?",
+            "Başarıyla üstesinden geldiğin en büyük korkun nedir?",
+            "Bir sınavda veya oyunda kopya çekip yakalanmadığın oldu mu?",
+            "Ölmeden önce yapılacaklar listendeki en çılgın şey nedir?"
+        },
+        { // 3: Flirt and Couples (Flört & Çiftler)
+            "Bir insanda seni en çok etkileyen 3 özellik nedir?",
+            "Hayatındaki ilk çocukluk veya gençlik aşkın nasıldı?",
+            "Hayalindeki en romantik buluşmayı tek cümleyle tarif et.",
+            "Birinin senin için yaptığı en tatlı ve unutulmaz jest neydi?"
+        },
+        { // 4: +18 Spicy (VIP Paket)
+            "Seni romantik veya tutkulu anlamda en çok ne etkiler?",
+            "Gizli kalmasını istediğin en romantik veya iddialı anın nedir?",
+            "Attığın en iddialı veya cesur mesaj neydi?",
+            "Unutulmaz bir uyum senin için ne anlama gelir?"
+        }
+    };
+
+    private static final String[][] PACK_DARES = {
+        { // 0: Party and Fun (Parti & Eğlence)
+            "Müzik olmadan 10 saniye boyunca en komik dansını yap!",
+            "Gruptan birinin taklidini yap, kim olduğunu tahmin edene kadar devam et.",
+            "Hiç gülmeden ve ciddiyetini bozmadan komik bir şey anlat.",
+            "Cevaplayan kişi 2 tur boyunca saçını istediği gibi şekillendirsin!",
+            "Odada ağır çekimde podyum yürüyüşü yap!"
+        },
+        { // 1: Deep Confessions (Derin İtiraflar)
+            "Çemberdeki HERKESE içten ve samimi bir övgü söyle.",
+            "Soran kişinin gözlerinin içine hiç gülmeden 15 saniye boyunca bak.",
+            "Suçluluk duyduğun küçük bir şeyi komik bir ses tonuyla itiraf et.",
+            "Soran kişinin sana sormak istediği 1 serbest soruya dürüstçe cevap ver."
+        },
+        { // 2: Bold Challenges (Cesur Görevler)
+            "Bir sonraki tura kadar bir film kötüsü gibi dramatik bir sesle konuş!",
+            "Grubun senin için seçeceği komik bir pozu 15 saniye boyunca bozmadan dur.",
+            "Hayvan sesleri çıkararak 10 şınav veya 15 jumping-jack yap!",
+            "Grubun seçeceği ünlü birinin taklidini yap."
+        },
+        { // 3: Flirt and Couples (Flört & Çiftler)
+            "Soran kişiye en samimi ve etkileyici övgünü yap.",
+            "Soran kişinin kulağına komik bir tavlama cümlesi fısılda.",
+            "Sağındaki kişinin elini sonraki tura kadar tut!",
+            "Meşhur bir romantik film sahnesini soran kişiyle canlandır."
+        },
+        { // 4: +18 Spicy (VIP Paket)
+            "Soran kişiye en çekici göz kırpmanı ve gülümsemeni yap.",
+            "Bir klipteymişsin gibi 15 saniye boyunca kendi kendine dans et.",
+            "Solundaki kişinin kulağına iddialı bir sır fısılda.",
+            "Soran kişiye o anda 2 satırlık tatlı bir şiir uydur!"
+        }
+    };
+
+    private void handleTypeChoiceTouch(float x, float y) {
+        // Modal box: (100, 520, 980, 1120)
+        // Close button: top right (900, 540, 960, 600)
+        if (hit(x, y, 880, 530, 970, 620)) {
+            typeChoiceModalOpen = false;
+            return;
+        }
+        // TRUTH button: (160, 770, 490, 930)
+        if (hit(x, y, 160, 770, 490, 930)) {
+            selectCardType(true);
+            return;
+        }
+        // DARE button: (590, 770, 920, 930)
+        if (hit(x, y, 590, 770, 920, 930)) {
+            selectCardType(false);
+            return;
+        }
+    }
+
+    private void selectCardType(boolean isTruth) {
+        typeChoiceModalOpen = false;
+        drawnCardType = isTruth ? "TRUTH" : "DARE";
+
+        // Collect available active deck indices (Exclude 5: Free Mode)
+        List<Integer> activePacks = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            if (selectedPacks[i]) {
+                if (i == 4 && !vip) continue;
+                activePacks.add(i);
+            }
+        }
+        if (activePacks.isEmpty()) activePacks.add(0); // Fallback to Party & Fun
+
+        int chosenPack = activePacks.get(random.nextInt(activePacks.size()));
+        drawnCardPackName = PACK_NAMES[chosenPack].replace("\n", " ");
+
+        String[] pool = isTruth ? PACK_TRUTHS[chosenPack] : PACK_DARES[chosenPack];
+        drawnCardText = pool[random.nextInt(pool.length)];
+
+        drawnCardModalOpen = true;
+    }
+
+    private void handleDrawnCardTouch(float x, float y) {
+        // Card modal box: (80, 440, 1000, 1260)
+        // Action / Next Spin Button: (220, 1110, 860, 1210)
+        if (hit(x, y, 200, 1100, 880, 1230) || hit(x, y, 890, 450, 980, 540)) {
+            drawnCardModalOpen = false;
+            startSpin();
+        }
+    }
+
+    private void drawTypeChoiceModal(Canvas c) {
+        p.setColor(Color.argb(210, 4, 10, 24));
+        c.drawRect(0, 0, VW, VH, p);
+
+        RectF box = new RectF(100, 520, 980, 1120);
+        neonRoundRect(c, box, 36, Color.rgb(0, 242, 254), Color.argb(245, 12, 18, 36), 6, 26);
+
+        neonText(c, "✕", 930, 580, 52, Color.WHITE, Paint.Align.CENTER);
+        neonText(c, "CHOOSE TYPE", 540, 620, 48, Color.rgb(0, 242, 254), Paint.Align.CENTER);
+
+        if (questioner >= 0 && answerer >= 0) {
+            String sub = players.get(questioner).name.toUpperCase(Locale.ROOT) + "  ➜  " +
+                         players.get(answerer).name.toUpperCase(Locale.ROOT);
+            text(c, sub, 540, 680, 31, Color.rgb(255, 204, 0), Paint.Align.CENTER, true);
+        }
+
+        drawActionButton(c, new RectF(160, 770, 490, 930), "TRUTH", true, Color.rgb(0, 242, 254));
+        drawActionButton(c, new RectF(590, 770, 920, 930), "DARE", true, Color.rgb(245, 50, 120));
+    }
+
+    private void drawDrawnCardModal(Canvas c) {
+        p.setColor(Color.argb(225, 4, 10, 24));
+        c.drawRect(0, 0, VW, VH, p);
+
+        RectF box = new RectF(80, 440, 1000, 1260);
+        int themeColor = "TRUTH".equals(drawnCardType) ? Color.rgb(0, 242, 254) : Color.rgb(245, 50, 120);
+        neonRoundRect(c, box, 40, themeColor, Color.argb(245, 10, 15, 32), 6, 30);
+
+        neonText(c, "✕", 940, 510, 52, Color.WHITE, Paint.Align.CENTER);
+
+        // Header Pill Badge: TRUTH or DARE
+        RectF badge = new RectF(390, 490, 690, 570);
+        neonRoundRect(c, badge, 24, themeColor, themeColor, 0, 16);
+        neonText(c, drawnCardType, 540, 548, 44, Color.rgb(10, 15, 30), Paint.Align.CENTER);
+
+        // Pack Tag
+        text(c, "[ " + drawnCardPackName.toUpperCase(Locale.ROOT) + " ]", 540, 630, 26,
+                Color.rgb(180, 230, 255), Paint.Align.CENTER, true);
+
+        // Questioner -> Answerer tag
+        if (questioner >= 0 && answerer >= 0) {
+            Player q = players.get(questioner), a = players.get(answerer);
+            String pair = q.name.toUpperCase(Locale.ROOT) + "  ➔  " + a.name.toUpperCase(Locale.ROOT);
+            text(c, pair, 540, 680, 31, Color.rgb(255, 204, 0), Paint.Align.CENTER, true);
+        }
+
+        // Question Text (wrapped and centered)
+        drawWrappedCentered(c, drawnCardText, 540, 770, 800, 36, Color.WHITE, 50);
+
+        // Done / Next Spin Button
+        drawActionButton(c, new RectF(220, 1110, 860, 1210), "NEXT SPIN", true, themeColor);
     }
 
     private static boolean hit(float x, float y, float l, float t, float r, float b) {
