@@ -1166,71 +1166,71 @@ public class GameView extends View {
 
     // --- TRUTH & DARE PACK QUESTIONS (0..4) ---
     private static final String[][] PACK_TRUTHS = {
-        { // 0: Party and Fun (Parti & Eğlence)
-            "Parti veya arkadaş ortamında başından geçen en komik veya utanç verici anın nedir?",
-            "Bu odadaki biriyle 1 günlüğüne hayatını değiştirecek olsan kiminle değiştirirdin?",
-            "Kimse bakmıyorken yaptığın en garip alışkanlığın nedir?",
-            "Ciddi bir yüz ifadesiyle söylediğin en büyük yalan neydi?",
-            "Çocukken sana takılan en komik lakap neydi?"
+        { // 0: Party and Fun
+            "What is your most hilarious or embarrassing party memory?",
+            "If you could trade lives with anyone in this room for a day, who and why?",
+            "What is the weirdest habit you have when no one is watching?",
+            "What is the biggest lie you ever told with a straight face?",
+            "What is a funny nickname you had as a kid?"
         },
-        { // 1: Deep Confessions (Derin İtiraflar)
-            "Neredeyse kimseye anlatmadığın en gizli hayalin veya hedefin nedir?",
-            "Soran kişi hakkındaki İLK izlenimin neydi, şu an ne değişti?",
-            "Hayatının akışını en çok değiştiren tek bir karar hangisiydi?",
-            "Yaptığın ve sana büyük bir hayat dersi veren en büyük hatan neydi?",
-            "İnsanların fark etmediği ama senin çok değer verdiğin bir özelliğin nedir?"
+        { // 1: Deep Confessions
+            "What is a secret dream or goal you rarely share with anyone?",
+            "What first impression did you really have of the questioner?",
+            "Which single decision changed the path of your life the most?",
+            "What is a mistake you made that taught you a major life lesson?",
+            "What is something you deeply care about that most people ignore?"
         },
-        { // 2: Bold Challenges (Cesur Görevler)
-            "Bir cesaret oyunu uğruna yaptığın en çılgınca şey neydi?",
-            "Başarıyla üstesinden geldiğin en büyük korkun nedir?",
-            "Bir sınavda veya oyunda kopya çekip yakalanmadığın oldu mu?",
-            "Ölmeden önce yapılacaklar listendeki en çılgın şey nedir?"
+        { // 2: Bold Challenges
+            "What is the boldest thing you have ever done on a dare?",
+            "What is a fear you have successfully overcome?",
+            "Have you ever cheated in a game or test and gotten away with it?",
+            "What is something wild on your bucket list?"
         },
-        { // 3: Flirt and Couples (Flört & Çiftler)
-            "Bir insanda seni en çok etkileyen 3 özellik nedir?",
-            "Hayatındaki ilk çocukluk veya gençlik aşkın nasıldı?",
-            "Hayalindeki en romantik buluşmayı tek cümleyle tarif et.",
-            "Birinin senin için yaptığı en tatlı ve unutulmaz jest neydi?"
+        { // 3: Flirt and Couples
+            "What three qualities do you find most attractive in someone?",
+            "What was your very first crush like?",
+            "Describe your ideal romantic date in one sentence.",
+            "What is the sweetest gesture someone has ever done for you?"
         },
-        { // 4: +18 Spicy (VIP Paket)
-            "Seni romantik veya tutkulu anlamda en çok ne etkiler?",
-            "Gizli kalmasını istediğin en romantik veya iddialı anın nedir?",
-            "Attığın en iddialı veya cesur mesaj neydi?",
-            "Unutulmaz bir uyum senin için ne anlama gelir?"
+        { // 4: +18 Spicy (VIP)
+            "What makes romantic chemistry unforgettable to you?",
+            "What is your secret romantic guilty pleasure?",
+            "What is the boldest romantic text you have ever sent?",
+            "Describe your idea of perfect passion."
         }
     };
 
     private static final String[][] PACK_DARES = {
-        { // 0: Party and Fun (Parti & Eğlence)
-            "Müzik olmadan 10 saniye boyunca en komik dansını yap!",
-            "Gruptan birinin taklidini yap, kim olduğunu tahmin edene kadar devam et.",
-            "Hiç gülmeden ve ciddiyetini bozmadan komik bir şey anlat.",
-            "Cevaplayan kişi 2 tur boyunca saçını istediği gibi şekillendirsin!",
-            "Odada ağır çekimde podyum yürüyüşü yap!"
+        { // 0: Party and Fun
+            "Do your funniest 10-second dance without any music!",
+            "Imitate someone in the circle until the group guesses who it is.",
+            "Tell a funny joke with a totally serious, unsmiling face.",
+            "Let the answerer style your hair for the next round!",
+            "Do a dramatic slow-motion catwalk walk across the room."
         },
-        { // 1: Deep Confessions (Derin İtiraflar)
-            "Çemberdeki HERKESE içten ve samimi bir övgü söyle.",
-            "Soran kişinin gözlerinin içine hiç gülmeden 15 saniye boyunca bak.",
-            "Suçluluk duyduğun küçük bir şeyi komik bir ses tonuyla itiraf et.",
-            "Soran kişinin sana sormak istediği 1 serbest soruya dürüstçe cevap ver."
+        { // 1: Deep Confessions
+            "Share a genuine, heartfelt compliment with every person in the circle.",
+            "Look into the questioner's eyes for 15 seconds without laughing.",
+            "Confess one small thing you feel guilty about in a funny voice.",
+            "Let the questioner ask you ONE extra free question that you must answer."
         },
-        { // 2: Bold Challenges (Cesur Görevler)
-            "Bir sonraki tura kadar bir film kötüsü gibi dramatik bir sesle konuş!",
-            "Grubun senin için seçeceği komik bir pozu 15 saniye boyunca bozmadan dur.",
-            "Hayvan sesleri çıkararak 10 şınav veya 15 jumping-jack yap!",
-            "Grubun seçeceği ünlü birinin taklidini yap."
+        { // 2: Bold Challenges
+            "Speak in a dramatic movie villain voice until the next spin!",
+            "Let the group choose a hilarious pose for you and hold it for 15 seconds.",
+            "Do 10 push-ups or 15 jumping jacks right now while making animal noises!",
+            "Do your best impression of a famous celebrity chosen by the group."
         },
-        { // 3: Flirt and Couples (Flört & Çiftler)
-            "Soran kişiye en samimi ve etkileyici övgünü yap.",
-            "Soran kişinin kulağına komik bir tavlama cümlesi fısılda.",
-            "Sağındaki kişinin elini sonraki tura kadar tut!",
-            "Meşhur bir romantik film sahnesini soran kişiyle canlandır."
+        { // 3: Flirt and Couples
+            "Give the questioner your best sincere romantic compliment.",
+            "Whisper a funny pickup line into the questioner's ear.",
+            "Hold hands with the person on your right for the next turn!",
+            "Reenact a famous movie romantic scene with the questioner!"
         },
-        { // 4: +18 Spicy (VIP Paket)
-            "Soran kişiye en çekici göz kırpmanı ve gülümsemeni yap.",
-            "Bir klipteymişsin gibi 15 saniye boyunca kendi kendine dans et.",
-            "Solundaki kişinin kulağına iddialı bir sır fısılda.",
-            "Soran kişiye o anda 2 satırlık tatlı bir şiir uydur!"
+        { // 4: +18 Spicy (VIP)
+            "Give your most charming wink and smile to the questioner.",
+            "Slow dance by yourself for 15 seconds like you are in a music video.",
+            "Whisper a spicy secret to the person on your left.",
+            "Make up a romantic 2-line poem on the spot for the questioner!"
         }
     };
 
