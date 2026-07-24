@@ -77,10 +77,10 @@ public class MainActivity extends Activity {
         float left = (width - 1080f * scale) / 2f;
         float top = (height - 1920f * scale) / 2f;
         FrameLayout.LayoutParams p = (FrameLayout.LayoutParams) nameInput.getLayoutParams();
-        p.width = Math.round(550 * scale);
-        p.height = Math.round(96 * scale);
-        p.leftMargin = Math.round(left + 112 * scale);
-        p.topMargin = Math.round(top + 358 * scale);
+        p.width = Math.round(480 * scale);
+        p.height = Math.round(110 * scale);
+        p.leftMargin = Math.round(left + 104 * scale);
+        p.topMargin = Math.round(top + 375 * scale);
         nameInput.setLayoutParams(p);
         updateInputVisibility(gameView.getScreen());
     }

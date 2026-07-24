@@ -253,28 +253,43 @@ public class GameView extends View {
 
     private void drawSetup(Canvas c) {
         drawLogo(c, 155, false);
-        neonText(c, "ADD PLAYERS", 100, 320, 42, Color.WHITE, Paint.Align.LEFT);
-        neonRoundRect(c, new RectF(78, 330, 1002, 535), 34,
+        neonText(c, "ADD PLAYERS", 100, 318, 42, Color.WHITE, Paint.Align.LEFT);
+        neonRoundRect(c, new RectF(78, 330, 1002, 545), 34,
                 Color.rgb(0, 242, 254), Color.argb(140, 4, 25, 38), 4, 18);
 
-        // The actual EditText is overlaid by MainActivity at 112,358.
-        neonText(c, "+", 714, 430, 92, Color.rgb(255, 224, 55), Paint.Align.CENTER);
+        // Dark Glass Neon '+' Add Button centered at (645, 430)
+        float plusCx = 645, plusCy = 430, plusR = 42;
+        p.setColor(Color.argb(160, 8, 22, 38));
+        p.setStyle(Paint.Style.FILL);
+        c.drawCircle(plusCx, plusCy, plusR, p);
+
+        p.setStyle(Paint.Style.STROKE);
+        p.setStrokeWidth(4);
+        p.setColor(Color.rgb(0, 242, 254));
+        p.setShadowLayer(16, 0, 0, Color.rgb(0, 242, 254));
+        c.drawCircle(plusCx, plusCy, plusR, p);
+        p.clearShadowLayer();
+        p.setStyle(Paint.Style.FILL);
+
+        neonText(c, "+", plusCx, plusCy + 22, 64, Color.rgb(255, 224, 55), Paint.Align.CENTER);
+
+        // Right Color Palette centered at x = 835
         p.setTextSize(24);
         p.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
         p.setTextAlign(Paint.Align.CENTER);
         p.setColor(Color.rgb(155, 245, 255));
-        c.drawText("PICK COLOR", 887, 362, p);
+        c.drawText("PICK COLOR", 835, 365, p);
         for (int i = 0; i < PLAYER_COLORS.length; i++) {
-            float x = 810 + (i % 3) * 76;
-            float y = 413 + (i / 3) * 72;
+            float x = 760 + (i % 3) * 75;
+            float y = 412 + (i / 3) * 65;
             p.setColor(PLAYER_COLORS[i]);
             p.setShadowLayer(i == selectedColor ? 22 : 9, 0, 0, PLAYER_COLORS[i]);
-            c.drawCircle(x, y, i == selectedColor ? 25 : 19, p);
+            c.drawCircle(x, y, i == selectedColor ? 23 : 18, p);
             if (i == selectedColor) {
                 p.setStyle(Paint.Style.STROKE);
                 p.setStrokeWidth(5);
                 p.setColor(Color.WHITE);
-                c.drawCircle(x, y, 31, p);
+                c.drawCircle(x, y, 28, p);
                 p.setStyle(Paint.Style.FILL);
             }
         }
@@ -975,10 +990,10 @@ public class GameView extends View {
     }
 
     private void handleSetupTouch(float x, float y) {
-        if (hit(x, y, 660, 350, 790, 475)) addPlayer();
+        if (distance(x, y, 645, 430) < 55) addPlayer();
         for (int i = 0; i < PLAYER_COLORS.length; i++) {
-            float cx = 810 + (i % 3) * 76;
-            float cy = 413 + (i / 3) * 72;
+            float cx = 760 + (i % 3) * 75;
+            float cy = 412 + (i / 3) * 65;
             if (distance(x, y, cx, cy) < 38) {
                 selectedColor = i;
                 if (nameProvider != null) nameProvider.focusName();
