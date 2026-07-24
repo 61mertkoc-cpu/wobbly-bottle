@@ -1227,6 +1227,90 @@ public class GameView extends View {
     }
 
     // --- TRUTH & DARE PACK QUESTIONS (0..4) ---
+    private static final String[][] PACK_TRUTHS_TR = {
+        { // 0: Parti ve Eğlence
+            "Parti veya arkadaş ortamında başından geçen en komik veya utanç verici anın nedir?",
+            "Bu odadaki biriyle 1 günlüğüne hayatını değiştirecek olsan kiminle değiştirirdin?",
+            "Kimse bakmıyorken yaptığın en garip alışkanlığın nedir?",
+            "Ciddi bir yüz ifadesiyle söylediğin en büyük yalan neydi?",
+            "Çocukken sana takılan en komik lakap neydi?",
+            "Bir anlık gazla satın aldığın en saçma şey neydi?",
+            "Son yaptığın utanç verici Google aramasını göster.",
+            "Şimdiye kadar aldığın en kötü hediye neydi?",
+            "Şu an çantanda/ceplerinde olan en tuhaf şey ne?",
+            "Telefonundaki en gereksiz ama yine de silmediğin uygulama hangisi?"
+        },
+        { // 1: Derin İtiraflar
+            "Neredeyse kimseye anlatmadığın en gizli hayalin veya hedefin nedir?",
+            "Soran kişi hakkındaki İLK izlenimin neydi, şu an ne değişti?",
+            "Hayatının akışını en çok değiştiren tek bir karar hangisiydi?",
+            "Yaptığın ve sana büyük bir hayat dersi veren en büyük hatan neydi?",
+            "İnsanların fark etmediği ama senin çok değer verdiğin bir özelliğin nedir?",
+            "Asla anlayamayacağın moda akımı hangisi?",
+            "Sadece günlük hayatını kolaylaştırmak için hangi süper güce sahip olmak isterdin?",
+            "Bir parfüm yaratacak olsan adı ve kokusu ne olurdu?"
+        },
+        { // 2: Cesur Görevler
+            "Bir cesaret oyunu uğruna yaptığın en çılgınca şey neydi?",
+            "Başarıyla üstesinden geldiğin en büyük korkun nedir?",
+            "Bir sınavda veya oyunda kopya çekip yakalanmadığın oldu mu?",
+            "Ölmeden önce yapılacaklar listendeki en çılgın şey nedir?"
+        },
+        { // 3: Flört ve Çiftler
+            "Bir insanda seni en çok etkileyen 3 özellik nedir?",
+            "Hayatındaki ilk çocukluk veya gençlik aşkın nasıldı?",
+            "Hayalindeki en romantik buluşmayı tek cümleyle tarif et.",
+            "Birinin senin için yaptığı en tatlı ve unutulmaz jest neydi?"
+        },
+        { // 4: +18 Ateşli
+            "Seni romantik veya tutkulu anlamda en çok ne etkiler?",
+            "Gizli kalmasını istediğin en romantik veya iddialı anın nedir?",
+            "Attığın en iddialı veya cesur mesaj neydi?",
+            "Unutulmaz bir uyum senin için ne anlama gelir?"
+        }
+    };
+
+    private static final String[][] PACK_DARES_TR = {
+        { // 0: Parti ve Eğlence
+            "Müzik olmadan 10 saniye boyunca en komik dansını yap!",
+            "Gruptan birinin taklidini yap, kim olduğunu tahmin edene kadar devam et.",
+            "Hiç gülmeden ve ciddiyetini bozmadan komik bir şey anlat.",
+            "Cevaplayan kişi 2 tur boyunca saçını istediği gibi şekillendirsin!",
+            "Odada ağır çekimde podyum yürüyüşü yap!",
+            "Çocukluğundan bir çizgi filmin jenerik müziğini söyle. Son ses!",
+            "En işe yaramaz gizli yeteneğin ne? Göster bakalım!",
+            "Sadece senin komik bulduğun bir fıkra anlat. Biz karar veririz.",
+            "En sevdiğin yemeği bir sanat eseriymiş gibi anlat."
+        },
+        { // 1: Derin İtiraflar
+            "Çemberdeki HERKESE içten ve samimi bir övgü söyle.",
+            "Soran kişinin gözlerinin içine hiç gülmeden 15 saniye boyunca bak.",
+            "Suçluluk duyduğun küçük bir şeyi komik bir ses tonuyla itiraf et.",
+            "Soran kişinin sana sormak istediği 1 serbest soruya dürüstçe cevap ver."
+        },
+        { // 2: Cesur Görevler
+            "Bir sonraki tura kadar bir film kötüsü gibi dramatik bir sesle konuş!",
+            "Grubun senin için seçeceği komik bir pozu 15 saniye boyunca bozmadan dur.",
+            "Hayvan sesleri çıkararak 10 şınav veya 15 jumping-jack yap!",
+            "Grubun seçeceği ünlü birinin taklidini yap.",
+            "Bu oyun için tamamen saçma yeni bir kural uydur.",
+            "Bir ünlünün sesine sahip olabilseydin, kimi seçerdin? (Taklidini yap!)",
+            "İnsan duygularını yeni keşfeden bir robotmuş gibi davran."
+        },
+        { // 3: Flört ve Çiftler
+            "Soran kişiye en samimi ve etkileyici övgünü yap.",
+            "Soran kişinin kulağına komik bir tavlama cümlesi fısılda.",
+            "Sağındaki kişinin elini sonraki tura kadar tut!",
+            "Meşhur bir romantik film sahnesini soran kişiyle canlandır."
+        },
+        { // 4: +18 Ateşli
+            "Soran kişiye en çekici göz kırpmanı ve gülümsemeni yap.",
+            "Bir klipteymişsin gibi 15 saniye boyunca kendi kendine dans et.",
+            "Solundaki kişinin kulağına iddialı bir sır fısılda.",
+            "Soran kişiye o anda 2 satırlık tatlı bir şiir uydur!"
+        }
+    };
+
     private static final String[][] PACK_TRUTHS = {
         { // 0: Party and Fun
             "What is your most hilarious or embarrassing party memory?",
