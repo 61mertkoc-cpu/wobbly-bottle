@@ -1248,7 +1248,18 @@ public class GameView extends View {
             "Bir saat görünmez olsan ne yapardın?",
             "Buradaki birinin ismini dövme yaptırmak zorunda kalsan, kimin olurdu?",
             "Hiç herkesin içinde ailenden utandın mı?",
-            "Hiç bir şey çaldın mı (küçük bir şey bile olsa, mesela çakmak)?"
+            "Hiç bir şey çaldın mı (küçük bir şey bile olsa, mesela çakmak)?",
+            "Instagram'da en son kimi stalkladın?",
+            "Şimdiye kadar yediğin en çılgın şey neydi?",
+            "Bir takside başından geçen en çılgınca şey neydi?",
+            "Bir arkadaşının önünde başına gelen en utanç verici şey ne?",
+            "Eğer bir köpek olsaydın, ne tür bir köpek olurdun ve neden?",
+            "Hiç bir hata yapıp sonra başkasını suçladığın oldu mu?",
+            "Sahip olduğun en garip takma ad nedir? Hikayesini anlat!",
+            "Google'da en son ne aradın?",
+            "Hangi komedi filmi senin hayatına en çok benziyor?",
+            "Seni her zaman kahkahalarla güldüren şey nedir?",
+            "Hatırladığın en garip rüya nedir?"
         },
         { // 1: Derin İtiraflar
             "Neredeyse kimseye anlatmadığın en gizli hayalin veya hedefin nedir?",
@@ -1268,7 +1279,11 @@ public class GameView extends View {
             "Öleceğin tarihi öğrenebilseydin, bilmek ister miydin?",
             "Bir suçu yasallaştırabilsen, hangisi olurdu?",
             "Bu odada en az sevdiğin kişi kim?",
-            "En büyük mantıksız korkunun ne?"
+            "En büyük mantıksız korkunun ne?",
+            "Ailenin asla bilmemesini umduğun şey nedir?",
+            "Bir dizi veya filmden en çok hangi karakterle kendini özdeşleştirebilirsin?",
+            "Kendinle ilgili dürüstçe 'Red Flag'ini (kırmızı bayrak) söyle.",
+            "Hayatında gönderdiğin en utanç verici mesaj neydi?"
         },
         { // 2: Cesur Görevler
             "Bir cesaret oyunu uğruna yaptığın en çılgınca şey neydi?",
@@ -1295,7 +1310,15 @@ public class GameView extends View {
             "Aşk için yaptığın en aptalca şey neydi?",
             "Fiziksel olarak seni çeken birinde gerçekten İLK fark ettiğin şey ne?",
             "Potansiyel bir partnerde en sevdiğin vücut parçası ne?",
-            "Romantik aksesuarlar ve eğlenceli ürünler hakkında ne düşünüyorsun?"
+            "Romantik aksesuarlar ve eğlenceli ürünler hakkında ne düşünüyorsun?",
+            "Aşk adına yaptığın en çılgınca şey neydi?",
+            "Deli gibi aşık olduğun ünlü kim?",
+            "İlk aşık olduğun ünlü kimdi?",
+            "Yaşadığın en kötü randevu hangisiydi?",
+            "İlk randevun nasıldı? Tarif et!",
+            "Odadaki en güzel fiziğe/görünüşe sahip kişi kim?",
+            "Flört ederken neyi karşı konulmaz bulursun?",
+            "Birini baştan çıkarmak için ne giyersin?"
         },
         { // 4: +18 Ateşli
             "Seni romantik veya tutkulu anlamda en çok ne etkiler?",
@@ -1364,7 +1387,28 @@ public class GameView extends View {
             "Yatakta asla yapmayacağın mutlak sınırın ne?",
             "Şu anki cinsel hayatını 10 üzerinden kaça not edersin?",
             "Bu tür oyunlarda sana sorulan en cesur soru neydi?",
-            "Cinsel olarak denemek istediğin ama sormaya çekindiğin bir şey var mı?"
+            "Cinsel olarak denemek istediğin ama sormaya çekindiğin bir şey var mı?",
+            "Hangi ünlü ile romantik bir gece geçirmek isterdin?",
+            "Bu odada kimi öpmek istersin?",
+            "Birlikte olduğun en sıra dışı veya unutulmaz yer neresiydi?",
+            "Bir daha asla yapmayacağın yer neresi?",
+            "En son ne zaman ve nerede dış mekanda romantik bir an yaşadın?",
+            "Şimdiye kadar yaşadığın en komik romantik deneyim neydi?",
+            "Şimdiye kadar yatakta denediğin en çılgınca şey neydi?",
+            "Seni en çok ne tahrik eder?",
+            "İlk kez kaç yaşında biriyle tutkulu şekilde birlikte oldun?",
+            "İlk özel deneyimin nasıldı?",
+            "Şimdiye kadar kaç özel ilişkin oldu?",
+            "En çok hangi romantik pozisyonu seviyorsun ve neden?",
+            "Sence tutkulu anlarda seni iyi hissettiren şey nedir?",
+            "Sence bu odada tutkulu anlarda en iyi kim ve neden?",
+            "Eğlenceli romantik oyuncaklar hakkında ne düşünüyorsun?",
+            "Hangi rol yapma oyununu gerçekten ateşli buluyorsun?",
+            "Birliktelikten önce veya sırasında seni tahrik eden üç şeyi söyle.",
+            "İdeal ön sevişme senin için neye benziyor?",
+            "Hiç tutkulu bir anda yakalandın mı?",
+            "Hatırladığın en ateşli rüya neydi?",
+            "Ne tür tutkulu içerikler seni moduna sokar?"
         }
     };
 
@@ -1481,7 +1525,18 @@ public class GameView extends View {
             "If you were completely invisible for one hour, what would you do?",
             "If you had to tattoo someone's name from this room, whose name would it be?",
             "Have you ever felt embarrassed by your family in public?",
-            "Have you ever stolen anything, even something small like a lighter?"
+            "Have you ever stolen anything, even something small like a lighter?",
+            "Who were you stalking on Instagram most recently?",
+            "What is the crazy food item you have ever eaten?",
+            "What is the wild thing that ever happened to you in a taxi?",
+            "What is the most embarrassing moment in front of a friend?",
+            "If you were a dog, what breed would you be and why?",
+            "Have you ever done something wrong and blamed someone else?",
+            "What is the weirdest nickname you ever had? Tell the story!",
+            "What was the very last thing you searched on Google?",
+            "Which comedy movie most resembles your life?",
+            "What never fails to make you laugh out loud?",
+            "What is the strangest dream you remember?"
         },
         { // 1: Deep Confessions
             "What is a secret dream or goal you rarely share with anyone?",
@@ -1501,7 +1556,11 @@ public class GameView extends View {
             "If you could find out the exact date of your death, would you want to know?",
             "If you could legalize one crime for 24 hours, which would it be?",
             "Who in this room do you honestly get along with the least?",
-            "What is your biggest irrational fear?"
+            "What is your biggest irrational fear?",
+            "What is something you hope your family never finds out?",
+            "Which movie/TV character do you identify with most?",
+            "What is your honest biggest Red Flag about yourself?",
+            "What is the most embarrassing text message you ever sent?"
         },
         { // 2: Bold Challenges
             "What is the boldest thing you have ever done on a dare?",
@@ -1528,7 +1587,15 @@ public class GameView extends View {
             "What is the dumbest thing you have ever done for love?",
             "What is the very first physical feature you notice in someone attractive?",
             "What is your absolute favorite physical feature in a potential partner?",
-            "What is your opinion on fun adult toys and gadgets?"
+            "What is your opinion on fun adult toys and gadgets?",
+            "What is the craziest thing you ever did in the name of love?",
+            "Who is your ultimate celebrity crush?",
+            "Who was your very first celebrity crush?",
+            "What was your absolute worst date experience?",
+            "How was your very first date ever? Describe it!",
+            "Who has the best physical appearance/vibe in this room?",
+            "What do you find completely irresistible when someone flirts?",
+            "What would you wear if you wanted to seduce someone?"
         },
         { // 4: +18 Spicy (VIP)
             "What makes romantic chemistry unforgettable to you?",
