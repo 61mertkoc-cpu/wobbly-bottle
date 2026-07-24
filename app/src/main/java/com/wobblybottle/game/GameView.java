@@ -1243,7 +1243,8 @@ public class GameView extends View {
             "Okuduğum bölümle hiç alakası olmasa bile, sence ben ne iş yapmalıyım?",
             "Arkadaş grubumuz bir sitcom olsaydı, senin rolün ne olurdu? (Bilge, dram kraliçesi, unutulan...)",
             "Birlikte seyahat ederken yaptığım en sinir bozucu şey ne?",
-            "Hayatını buradaki biriyle bir haftalığına değiştirebilseydin, bu kim olurdu ve ilk ne yapardın?"
+            "Hayatını buradaki biriyle bir haftalığına değiştirebilseydin, bu kim olurdu ve ilk ne yapardın?",
+            "Çocukluğundan/ergenliğinden utanç verici bir anını anlat."
         },
         { // 1: Derin İtiraflar
             "Neredeyse kimseye anlatmadığın en gizli hayalin veya hedefin nedir?",
@@ -1307,14 +1308,24 @@ public class GameView extends View {
             "Solundaki kişinin sana gecenin geri kalanı için yeni bir takma ad vermesine izin ver ve kendinden bahsederken bu adı kullan.",
             "Aşırı karmaşık bir dans figürü uydur ve 30 saniyede iki kişiye öğret.",
             "Atıştırmalık tabağından bir yiyeceği ellerini kullanmadan ye.",
-            "Arkadaşlarının etrafta buldukları şeylerle sana komik bir saç modeli yapmalarına izin ver. Selfie şart."
+            "Arkadaşlarının etrafta buldukları şeylerle sana komik bir saç modeli yapmalarına izin ver. Selfie şart.",
+            "Gönderdiğin son mesajı (SMS, WhatsApp, Insta...) sesli oku.",
+            "Birinin telefonundan utanç verici bir fotoğraf seçmesine izin ver ve gruba göster.",
+            "Grubun bir Instagram/Snapchat filtresi seçmesine izin ver ve onunla bir selfie çek. Grupta paylaş.",
+            "Oyunun sonuna kadar biriyle bir aksesuar (yüzük, bileklik, şapka...) değiştir.",
+            "Bir müzik aç ve 30 saniye boyunca olabildiğince saçma bir şekilde dans et.",
+            "Sosyal medyanda gizemli bir durum/hikaye paylaş (mesela 'Bunu beklemiyordum...').",
+            "Hiç hakim olmadığın bir konuda röportaj veriyormuş gibi yap.",
+            "Telefonunu sağındaki komşuna ver, rehberindeki ilk kişiye (zararsız!) bir emoji göndersin.",
+            "Kendi etrafında 10 kez dön ve sonra düz bir çizgide yürümeye çalış."
         },
         { // 1: Derin İtiraflar
             "Çamberdeki HERKESE içten ve samimi bir övgü söyle.",
             "Soran kişinin gözlerinin içine hiç gülmeden 15 saniye boyunca bak.",
             "Suçluluk duyduğun küçük bir şeyi komik bir ses tonuyla itiraf et.",
             "Soran kişinin sana sormak istediği 1 serbest soruya dürüstçe cevap ver.",
-            "Buradaki her kişiye çok spesifik bir iltifat et."
+            "Buradaki her kişiye çok spesifik bir iltifat et.",
+            "Ailenden birini ara ve hiçbir neden yokken onu sevdiğini söyle."
         },
         { // 2: Cesur Görevler
             "Bir sonraki tura kadar bir film kötüsü gibi dramatik bir sesle konuş!",
@@ -1333,14 +1344,16 @@ public class GameView extends View {
             "Soran kişiye en samimi ve etkileyici övgünü yap.",
             "Soran kişinin kulağına komik bir tavlama cümlesi fısılda.",
             "Sağındaki kişinin elini sonraki tura kadar tut!",
-            "Meşhur bir romantik film sahnesini soran kişiyle canlandır."
+            "Meşhur bir romantik film sahnesini soran kişiyle canlandır.",
+            "Birinin gözlerinin içine bakarak bir aşk şarkısı söyle."
         },
         { // 4: +18 Ateşli
             "Soran kişiye en çekici göz kırpmanı ve gülümsemeni yap.",
             "Bir klipteymişsin gibi 15 saniye boyunca kendi kendine dans et.",
             "Solundaki kişinin kulağına iddialı bir sır fısılda.",
             "Soran kişiye o anda 2 satırlık tatlı bir şiir uydur!",
-            "Pantolonunu veya üstünü başka bir oyuncuyla değiştir (tabii o da kabul ederse!). Ve bir sonraki turuna kadar öyle kal."
+            "Pantolonunu veya üstünü başka bir oyuncuyla değiştir (tabii o da kabul ederse!). Ve bir sonraki turuna kadar öyle kal.",
+            "Crush'ına (veya cesaretin varsa eski sevgiline!) nasıl olduğunu soran bir sesli mesaj gönder."
         }
     };
 
@@ -1360,7 +1373,8 @@ public class GameView extends View {
             "Regardless of my degree or job, what career do you secretly think I am built for?",
             "If our friend group were a sitcom, what would your character trope be?",
             "What is the most annoying thing I do when we travel together?",
-            "If you could swap lives with someone here for a week, who would it be and what would you do first?"
+            "If you could swap lives with someone here for a week, who would it be and what would you do first?",
+            "Share your most embarrassing story from your childhood or teenage years!"
         },
         { // 1: Deep Confessions
             "What is a secret dream or goal you rarely share with anyone?",
@@ -1424,14 +1438,24 @@ public class GameView extends View {
             "Let the player to your left give you a new nickname for the night that you must use!",
             "Invent an overly complex dance move and teach it to two people in 30 seconds!",
             "Eat a snack from the bowl using absolutely no hands!",
-            "Let your friends style your hair with random household items. Selfie required!"
+            "Let your friends style your hair with random household items. Selfie required!",
+            "Read the last text message you sent out loud to the group!",
+            "Let someone pick an embarrassing photo from your gallery and show it to the group!",
+            "Let the group pick a hilarious filter for you to take a selfie with!",
+            "Swap an accessory (ring, hat, watch) with someone for the rest of the game!",
+            "Play music and do your most ridiculous 30-second dance!",
+            "Post a mysterious story on your social media right now!",
+            "Pretend to give an expert news interview on a topic you know nothing about!",
+            "Hand your phone to your right neighbor to send a harmless emoji to a contact!",
+            "Spin around in a circle 10 times then try to walk a straight line!"
         },
         { // 1: Deep Confessions
             "Share a genuine, heartfelt compliment with every person in the circle.",
             "Look into the questioner's eyes for 15 seconds without laughing.",
             "Confess one small thing you feel guilty about in a funny voice.",
             "Let the questioner ask you ONE extra free question that you must answer.",
-            "Give a super specific and unique compliment to every single person in the room."
+            "Give a super specific and unique compliment to every single person in the room.",
+            "Call a family member right now and tell them you love them for no reason!"
         },
         { // 2: Bold Challenges
             "Speak in a dramatic movie villain voice until the next spin!",
@@ -1450,7 +1474,8 @@ public class GameView extends View {
             "Give the questioner your best sincere romantic compliment.",
             "Whisper a funny pickup line into the questioner's ear.",
             "Hold hands with the person on your right for the next turn!",
-            "Reenact a famous movie romantic scene with the questioner!"
+            "Reenact a famous movie romantic scene with the questioner!",
+            "Sing a passionate love song while looking straight into someone's eyes!"
         },
         { // 4: +18 Spicy (VIP)
             "Give your most charming wink and smile to the questioner.",
