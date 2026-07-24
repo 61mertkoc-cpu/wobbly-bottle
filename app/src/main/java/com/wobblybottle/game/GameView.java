@@ -120,28 +120,89 @@ public class GameView extends View {
     private boolean isTR() { return selectedLanguage == LANG_TR; }
 
     private String getObjectName(int index) {
-        if (isTR()) {
-            switch (index) {
-                case 0: return "Komik Gazoz Şişesi";
-                case 1: return "Öten Tavuk";
-                case 2: return "Çıtır Turşu";
-                case 3: return "Çılgın Terlik";
-                case 4: return "Şampanya Şişesi";
-            }
+        switch (selectedLanguage) {
+            case LANG_TR:
+                switch (index) {
+                    case 0: return "Komik Gazoz Şişesi";
+                    case 1: return "Öten Tavuk";
+                    case 2: return "Çıtır Turşu";
+                    case 3: return "Çılgın Terlik";
+                    case 4: return "Şampanya Şişesi";
+                }
+                break;
+            case LANG_DE:
+                switch (index) {
+                    case 0: return "Lustige Flasche";
+                    case 1: return "Quietsche-Huhn";
+                    case 2: return "Knackige Gurke";
+                    case 3: return "Verrückter Hausschuh";
+                    case 4: return "Champagnerflasche";
+                }
+                break;
+            case LANG_FR:
+                switch (index) {
+                    case 0: return "Bouteille Rigolote";
+                    case 1: return "Poulet Cuineur";
+                    case 2: return "Cornichon Croustillant";
+                    case 3: return "Chaussons Rigolos";
+                    case 4: return "Bouteille de Champagne";
+                }
+                break;
+            case LANG_ES:
+                switch (index) {
+                    case 0: return "Botella Divertida";
+                    case 1: return "Pollo Chillón";
+                    case 2: return "Pepinillo Crujiente";
+                    case 3: return "Pantufla Loca";
+                    case 4: return "Botella de Champán";
+                }
+                break;
         }
         return OBJECT_NAMES[index];
     }
 
     private String getPackName(int index) {
-        if (isTR()) {
-            switch (index) {
-                case 0: return "PARTİ VE EĞLENCE";
-                case 1: return "DERİN İTİRAFLAR";
-                case 2: return "CESUR GÖREVLER";
-                case 3: return "FLÖRT VE ÇİFTLER";
-                case 4: return "+18 ATEŞLİ";
-                case 5: return "SERBEST MOD";
-            }
+        switch (selectedLanguage) {
+            case LANG_TR:
+                switch (index) {
+                    case 0: return "PARTİ VE EĞLENCE";
+                    case 1: return "DERİN İTİRAFLAR";
+                    case 2: return "CESUR GÖREVLER";
+                    case 3: return "FLÖRT VE ÇİFTLER";
+                    case 4: return "+18 ATEŞLİ";
+                    case 5: return "SERBEST MOD";
+                }
+                break;
+            case LANG_DE:
+                switch (index) {
+                    case 0: return "PARTY & SPASS";
+                    case 1: return "TIEFE GESTÄNDNISSE";
+                    case 2: return "MUTPROBEN";
+                    case 3: return "FLIRT & PÄRCHEN";
+                    case 4: return "+18 HEISS";
+                    case 5: return "FREIER MODUS";
+                }
+                break;
+            case LANG_FR:
+                switch (index) {
+                    case 0: return "FÊTE ET AMUSEMENT";
+                    case 1: return "CONFESSIONS PROFONDES";
+                    case 2: return "DÉFIS AUDACIEUX";
+                    case 3: return "FLIRT ET COUPLES";
+                    case 4: return "+18 ÉROTIQUE";
+                    case 5: return "MODE LIBRE";
+                }
+                break;
+            case LANG_ES:
+                switch (index) {
+                    case 0: return "FIESTA Y DIVERSIÓN";
+                    case 1: return "CONFESIONES PROFUNDAS";
+                    case 2: return "RETOS ATREVIDOS";
+                    case 3: return "FLIRT Y PAREJAS";
+                    case 4: return "+18 PICANTE";
+                    case 5: return "MODO LIBRE";
+                }
+                break;
         }
         return PACK_NAMES[index].replace("\n", " ");
     }
@@ -2051,6 +2112,472 @@ public class GameView extends View {
         }
     };
 
+    // --- GERMAN (DE) QUESTIONS ---
+    private static final String[][] PACK_TRUTHS_DE = {
+        { // 0: Party & Spass
+            "Was ist deine lustigste oder peinlichste Partyerinnerung?",
+            "Wenn du für einen Tag mit jemandem in diesem Raum das Leben tauschen könntest, wer wäre das?",
+            "Was ist die seltsamste Angewohnheit, die du hast, wenn niemand zuschaut?",
+            "Was war die größte Lüge, die du je mit ernsthaftem Gesicht erzählt hast?",
+            "Was war der lustigste Spitzname, den du als Kind hattest?",
+            "Was ist das unnötigste Produkt, das du je im Impuls gekauft hast?",
+            "Zeige den peinlichsten letzten Google-Suchverlauf auf deinem Handy!",
+            "Was war das schlechteste oder sinnloseste Geschenk, das du je bekommen hast?",
+            "Was ist der seltsamste Gegenstand, den du derzeit in deiner Tasche trägst?",
+            "Welche App auf deinem Handy nutzt du nie, willst sie aber nicht löschen?",
+            "Was ist dein geheimstes, nutzlosestes Talent?",
+            "Was wäre dein absoluter Traumberuf, unabhängig von deiner aktuellen Arbeit?",
+            "Wenn unsere Gruppe eine TV-Serie wäre, welche Rolle würdest du spielen?",
+            "Was ist meine nervigste Eigenschaft, wenn wir zusammen verreisen?",
+            "Wer in diesem Raum hat deinen liebsten Style?",
+            "Was ist deine peinlichste Jugenderinnerung?",
+            "Wenn du für 1 Stunde unsichtbar wärst, was würdest du tun?",
+            "Wenn du den Namen von jemandem hier tätowieren müsstest, wer wäre es?",
+            "Hast du dich je für eine Aktion deiner Eltern in der Öffentlichkeit geschämt?",
+            "Hast du je heimlich etwas Kleines mitgehen lassen (Stift, Feuerzeug)?",
+            "Wen hast du zuletzt auf Instagram heimlich gestalkt?",
+            "Was ist das verrückteste Essen, das du je probiert hast?",
+            "Was war das Seltsamste, das dir je in einem Taxi passiert ist?",
+            "Was war dein peinlichster Moment vor einem guten Freund?",
+            "Welche Hunderasse wärst du für einen Tag?",
+            "Hast du je eigenen Fehler auf jemand anderen geschoben?",
+            "Was ist die Geschichte hinter deinem seltsamsten Spitznamen?",
+            "Was war das letzte Wort, das du gesucht hast?",
+            "Welchem Comedy-Film ähnelt dein Leben am meisten?",
+            "Was bringt dich immer garantiert zum Lachen?"
+        },
+        { // 1: Tiefe Geständnisse
+            "Was ist ein geheimer Traum, den du selten mit jemandem teilst?",
+            "Welchen ersten Eindruck hattest du wirklich von der Person, die fragt?",
+            "Welche einzelne Entscheidung hat dein Leben am meisten verändert?",
+            "Welchen Fehler hast du gemacht, der dir eine große Lektion erteilt hat?",
+            "Worauf legst du Wert, das die meisten Menschen ignorieren?",
+            "Welchen Modetrend wirst du nie verstehen?",
+            "Welche praktische Superkraft hättest du gerne im Alltag?",
+            "Wenn du ein Parfum kreieren würdest, wie würde es heißen?",
+            "Was war das längste Geheimnis, das du vor mir verborgen hast?",
+            "Was war dein ehrlichster erster Eindruck von mir?",
+            "Welchen einzigen Ratschlag würdest du der fragenden Person geben?",
+            "Welche Angewohnheit von mir nervt dich am meisten?",
+            "Wenn du eine gemeinsame Erinnerung noch einmal erleben könntest, welche wäre es?",
+            "Was war die seltsamste Lüge, die du erzählt hast, um mich zu schützen?",
+            "Wenn du das genaue Datum deines Todes erfahren könntest, würdest du es wissen wollen?",
+            "Wenn du ein Gesetz für 24 Stunden aufheben könntest, welches wäre es?",
+            "Mit wem in diesem Raum verstehst du dich ehrlich gesagt am wenigsten?",
+            "Was ist deine größte unbegründete Angst?",
+            "Was hoffst du, dass deine Familie nie herausfindet?",
+            "Mit welchem Filmcharakter identifizierst du dich am meisten?",
+            "Was ist deine ehrlichste 'Rote Flagge' (Red Flag) an dir selbst?",
+            "Was war die peinlichste Nachricht, die du je aus Versehen gesendet hast?",
+            "Erzähle eine Lüge und eine Wahrheit über dich und lass die Gruppe raten!",
+            "Erzähle eine lustige Geschichte aus deiner Vergangenheit."
+        },
+        { // 2: Mutproben
+            "Was ist das Mutigste, das du je bei einer Mutprobe getan hast?",
+            "Welche Angst hast du erfolgreich überwunden?",
+            "Hast du je bei einem Test oder Spiel geschummelt ohne erwischt zu werden?",
+            "Was steht ganz oben auf deiner Bucket-List?",
+            "Was ist das Mutigste, das du mich je hast tun sehen?",
+            "Wann fühlst du dich auf dem absoluten Höhepunkt deiner Attraktivität?",
+            "Was gibt dir das ultimative Selbstvertrauen in intimen Momenten?",
+            "Was ist die wichtigste Wahrheit, die du über deine Wünsche gelernt hast?",
+            "Was ist deine absolute Grenze, die du niemals überschreiten würdest?"
+        },
+        { // 3: Flirt & Pärchen
+            "Welche drei Eigenschaften findest du bei jemandem am attraktivsten?",
+            "Wie war deine allererste Jugendliebe?",
+            "Beschreibe dein ideales romantisches Date in einem Satz.",
+            "Was war die süßeste Geste, die je jemand für dich gemacht hat?",
+            "Wie würdest du meinen Partnergeschmack auf einer Skala von 1-10 bewerten?",
+            "Warst du je heimlich in mich oder jemand anderen in dieser Gruppe verliebt?",
+            "Wenn du ein Promi-Date wählen könntest, wer wäre es?",
+            "Welchen Benutzernamen würdest du auf einer geheimen Dating-App nutzen?",
+            "Welches Outfit würdest du tragen, um besonders attraktiv zu wirken?",
+            "Hast du während dieses Spiels schon mit jemandem geflirtet?",
+            "Wer in diesem Raum hat die attraktivste Ausstrahlung?",
+            "Was findest du absolut unwiderstehlich, wenn jemand flirtet?",
+            "Welches Parfum oder welcher Duft macht dich völlig verrückt?",
+            "Wenn du eine unvergessliche Nacht mit jemandem verbringen könntest, wer wäre es?",
+            "Wer in diesem Raum würde am ehesten dein Herz erobern?"
+        },
+        { // 4: +18 Heiss (VIP)
+            "Was macht romantische Anziehung für dich unvergesslich?",
+            "Unvergessliche körperliche Chemie: Was bedeutet das für dich?",
+            "Welchen Teil deines Körpers findest du am sexyesten?",
+            "Wenn du mit nur einer Person in diesem Raum schlafen müsstest, wer wäre es?",
+            "Was ist deine größte geheime Fantasie?",
+            "Wie viele Personen in diesem Raum findest du attraktiv?",
+            "Was war der unpassendste Moment, in dem du je unterbrochen wurdest?",
+            "Was war der verrückteste erotische Traum, den du je hattest?",
+            "Was war dein peinlichster Moment im Bett?",
+            "Hattest du je ein One-Night-Stand? War es gut oder schlecht?",
+            "Was ist das Verrückteste, das du für Leidenschaft tun würdest?",
+            "Langes sinnliches Vorspiel oder direkt zur Sache?",
+            "Was war das sexyeste Kompliment, das dir je gemacht wurde?",
+            "Hast du je ein freches Foto oder eine Nachricht gesendet?",
+            "Dämmriges romantisches Licht oder völlige Dunkelheit? Warum?",
+            "Hattest du je einen intimen Traum von jemandem in diesem Raum?",
+            "Hattest du je eine Friends-With-Benefits-Beziehung?",
+            "Was ist dir bei Intimität am wichtigsten?",
+            "Wo am Körper wirst du am liebsten geküsst?",
+            "Welche Fantasie möchtest du unbedingt noch ausprobieren?"
+        }
+    };
+
+    private static final String[][] PACK_DARES_DE = {
+        { // 0: Party & Spass
+            "Mache deinen lustigsten 10-Sekunden-Tanz ohne Musik!",
+            "Ahme jemanden in der Runde nach, bis die Gruppe rät, wer es ist.",
+            "Erzähle einen Witz mit einem völlig ernsten Gesicht.",
+            "Lass die Gruppe deine Haare für die nächste Runde stylen!",
+            "Mache einen dramatischen Slow-Motion-Walk durch den Raum.",
+            "Singe das Titellied einer Serie aus deiner Kindheit laut!",
+            "Zeige dein nutzlosestes geheimes Talent!",
+            "Trink Wasser wie ein T-Rex mit winzigen Armen!",
+            "Mache einen Moonwalk für 3 Meter!",
+            "Iss einen Snack ohne deine Hände zu benutzen!",
+            "Befolge die Befehle deiner Mitspieler für 1 Minute!"
+        },
+        { // 1: Tiefe Geständnisse
+            "Mache allen Personen in der Runde ein ehrliches Kompliment.",
+            "Schaue der fragenden Person 15 Sekunden lang ohne zu lachen in die Augen.",
+            "Gestehe eine kleine Sache, wegen der du ein schlechtes Gewissen hast.",
+            "Beantworte eine freie Frage der Gruppe absolut ehrlich.",
+            "Rufe ein Familienmitglied an und sage einfach, dass du sie lieb hast."
+        },
+        { // 2: Mutproben
+            "Sprich bis zur nächsten Runde wie ein böser Filmbösewicht!",
+            "Mache 10 Liegestütze während du Tiergeräusche machst!",
+            "Mache eine geglückte Nachahmung eines Prominenten.",
+            "Erfinde eine völlig verrückte neue Regel für dieses Spiel!",
+            "Stehe für 1 Minute völlig erstarrt wie eine Statue da."
+        },
+        { // 3: Flirt & Pärchen
+            "Flüstere der Person neben dir eine süße Anmachzeile ins Ohr.",
+            "Halte die Hand der Person zu deiner Rechten für die nächste Runde!",
+            "Tanze 15 Sekunden lang einen langsamen romantischen Tanz ohne Musik.",
+            "Mache ein süßes Pärchen-Selfie mit einer Person deiner Wahl.",
+            "Gib der Person neben dir einen sanften Kuss auf die Wange."
+        },
+        { // 4: +18 Heiss (VIP)
+            "Zwinkere der fragenden Person auf verführerische Art zu.",
+            "Flüstere ein verlockendes Geheimnis ins Ohr deines Nachbarn.",
+            "Beisse dir 10 Sekunden lang attraktiv auf die Lippe während du jemanden anschaust.",
+            "Gib der Person neben dir eine entspannende 30-Sekunden-Massage.",
+            "Halte 10 Sekunden lang intensiven Blickkontakt aus nächster Nähe!"
+        }
+    };
+
+    // --- FRENCH (FR) QUESTIONS ---
+    private static final String[][] PACK_TRUTHS_FR = {
+        { // 0: Fête et Amusement
+            "Quel est ton souvenir de fête le plus drôle ou le plus embarrassant?",
+            "Si tu pouvais échanger de vie avec quelqu'un dans cette pièce pendant un jour, qui ce serait?",
+            "Quelle est l'habitude la plus bizarre que tu as quand personne ne regarde?",
+            "Quel est le plus grand mensonge que tu as raconté avec un visage très sérieux?",
+            "Quel était le surnom le plus marrant qu'on te donnait enfant?",
+            "Quel est l'achat impulsif le plus inutile que tu aies jamais fait?",
+            "Montre l'historique de recherche Google le plus embarrassant sur ton téléphone!",
+            "Quel est le pire cadeau qu'on t'ait jamais offert?",
+            "Quel est l'objet le plus bizarre que tu portes dans ton sac en ce moment?",
+            "Quelle application sur ton téléphone n'utilises-tu jamais mais refuses de supprimer?",
+            "Quel est ton talent caché le plus secret et inutile?",
+            "Quel serait le métier de tes rêves absolu?",
+            "Si notre groupe était une série télévisée, quel rôle jouerais-tu?",
+            "Quel est mon défaut le plus énervant quand on voyage ensemble?",
+            "Qui dans cette pièce a ton style préféré?",
+            "Quel est ton souvenir d'adolescence le plus embarrassant?",
+            "Si tu étais invisible pendant 1 heure, que ferais-tu?",
+            "Si tu devais te faire tatouer le prénom de quelqu'un ici, qui choisirais-tu?",
+            "T'es-tu déjà senti embarrassé en public à cause de tes parents?",
+            "As-tu déjà volé un petit objet discrètement (stylo, briquet)?",
+            "Qui as-tu stalké en secret sur Instagram dernièrement?",
+            "Quelle est la nourriture la plus bizarre que tu aies goûtée?",
+            "Quel est l'événement le plus bizarre qui t'est arrivé dans un taxi?",
+            "Quel a été ton moment le plus embarrassant devant un ami?",
+            "Quelle race de chien aimerais-tu être pendant 1 journée?",
+            "As-tu déjà rejeté ta propre faute sur quelqu'un d'autre?",
+            "Quelle est l'histoire derrière ton surnom le plus bizarre?",
+            "Quel est le dernier mot que tu as cherché sur internet?",
+            "À quel film comique ta vie ressemble-t-elle le plus?",
+            "Qu'est-ce qui te fait toujours rire sans faute?"
+        },
+        { // 1: Confessions Profondes
+            "Quel est un rêve secret que tu partages très rarement?",
+            "Quelle première impression as-tu réellement eu de la personne qui pose la question?",
+            "Quelle décision unique a le plus changé le cours de ta vie?",
+            "Quelle erreur as-tu commise et qui t'a enseigné une grande leçon?",
+            "À quoi accordes-tu de l'importance alors que la plupart des gens l'ignorent?",
+            "Quelle tendance mode ne comprendras-tu jamais?",
+            "Quel superpouvoir pratique aimerais-tu avoir au quotidien?",
+            "Si tu créais un parfum, quel serait son nom?",
+            "Quel est le plus grand secret que tu m'as caché pendant longtemps?",
+            "Quelle a été ta toute première impression honnête sur moi?",
+            "Quel conseil unique donnerais-tu à la personne qui te pose la question?",
+            "Quelle habitude chez moi t'agace le plus?",
+            "Si tu pouvais revivre un souvenir ensemble, lequel choisirais-tu?",
+            "Quel est le plus bizarre mensonge que tu as dit pour me protéger?",
+            "Si tu pouvais connaître la date exacte de ta mort, aimerais-tu la savoir?",
+            "Si tu pouvais légaliser un crime pendant 24 heures, lequel ce serait?",
+            "Avec qui dans cette pièce t'entends-tu le moins bien honnêtement?",
+            "Quelle est ta plus grande peur irrationnelle?",
+            "Qu'espères-tu que ta famille ne découvrira jamais?",
+            "À quel personnage de film t'identifies-tu le plus?",
+            "Quel est ton plus grand 'Red Flag' chez toi-même?",
+            "Quel est le message le plus embarrassant que tu aies envoyé par erreur?",
+            "Dis un mensonge et une vérité sur toi et laisse le groupe deviner!"
+        },
+        { // 2: Défis Audacieux
+            "Quelle est la chose la plus audacieuse que tu aies faite lors d'un défi?",
+            "Quelle peur as-tu surmontée avec succès?",
+            "As-tu déjà triché à un test sans te faire attraper?",
+            "Qu'y a-t-il au sommet de ta Bucket List?",
+            "Quelle est la chose la plus courageuse que tu m'aies vu faire?",
+            "Quand te sens-tu au sommet de ton attraction physique?",
+            "Qu'est-ce qui te donne une confiance ultime dans les moments intimes?",
+            "Quelle est la vérité la plus importante que tu aies apprise sur tes désirs?",
+            "Quelle est ta limite absolue que tu ne franchiras jamais?"
+        },
+        { // 3: Flirt et Couples
+            "Quelles sont les trois qualités que tu trouves les plus attirantes chez quelqu'un?",
+            "Comment était ton tout premier coup de foudre d'adolescence?",
+            "Décris ton rendez-vous romantique idéal en une phrase.",
+            "Quelle est la plus douce attention que quelqu'un ait eue pour toi?",
+            "Comment noterais-tu mes goûts amoureux sur une échelle de 1 à 10?",
+            "As-tu déjà eu un béguin secret pour moi ou quelqu'un du groupe?",
+            "Si tu pouvais choisir une célébrité pour un rdv, qui ce serait?",
+            "Quel pseudo utiliserais-tu sur une application de rencontre secrète?",
+            "Quelle tenue porterais-tu pour être particulièrement séduisant(e)?",
+            "As-tu déjà flirté avec quelqu'un pendant ce jeu?",
+            "Qui dans cette pièce a le charme le plus irrésistible?",
+            "Qu'est-ce que tu trouves irrésistible quand quelqu'un flirte?",
+            "Quel parfum te rend complètement fou/folle?",
+            "Si tu pouvais passer une nuit inoubliable avec n'importe qui, qui ce serait?",
+            "Qui dans cette pièce est le plus susceptible de faire vibrer ton cœur?"
+        },
+        { // 4: +18 Érotique (VIP)
+            "Qu'est-ce qui rend l'attraction romantique inoubliable pour toi?",
+            "Une chimie physique inoubliable : qu'est-ce que cela signifie pour toi?",
+            "Quelle partie de ton corps trouves-tu la plus sexy?",
+            "Si tu devais coucher avec une seule personne dans cette pièce, qui ce serait?",
+            "Quel est ton plus grand fantasme secret?",
+            "Combien de personnes dans cette pièce trouves-tu physiquement attirantes?",
+            "Quel a été le moment le plus inopportun où tu as été interrompu(e)?",
+            "Quel est le rêve érotique le plus fou que tu aies fait?",
+            "Quel a été ton moment le plus embarrassant au lit?",
+            "As-tu déjà eu un coup d'un soir? Était-ce bien ou mauvais?",
+            "Quelle est la chose la plus folle que tu ferais par passion?",
+            "Longs préliminaires sensuels ou aller droit au but?",
+            "Quel est le compliment le plus sexy qu'on t'ait fait?",
+            "As-tu déjà envoyé un message ou une photo coquine?",
+            "Lumière tamisée romantique ou obscurité totale? Pourquoi?",
+            "As-tu déjà fait un rêve intime sur quelqu'un dans cette pièce?",
+            "As-tu déjà eu une relation 'Friends with Benefits'?",
+            "Qu'est-ce qui compte le plus pour toi dans l'intimité?",
+            "Où sur le corps aimes-tu le plus être embrassé(e)?",
+            "Quel fantasme aimerais-tu absolument tester?"
+        }
+    };
+
+    private static final String[][] PACK_DARES_FR = {
+        { // 0: Fête et Amusement
+            "Fais ta danse de 10 secondes la plus drôle sans musique!",
+            "Imite quelqu'un du groupe jusqu'à ce qu'on devine de qui il s'agit.",
+            "Raconte une blague avec un visage totalement sérieux.",
+            "Laisse le groupe coiffer tes cheveux pour le prochain tour!",
+            "Fais une marche au ralenti dramatique à travers la pièce.",
+            "Chante le générique d'un dessin animé de ton enfance à plein volume!",
+            "Montre ton talent caché le plus inutile!",
+            "Bois de l'eau comme un T-Rex avec de tout petits bras!",
+            "Fais un moonwalk sur 3 mètres!",
+            "Mange un snack sans utiliser tes mains!",
+            "Obéis aux ordres de tes amis pendant 1 minute!"
+        },
+        { // 1: Confessions Profondes
+            "Fais un compliment sincère à chaque personne du cercle.",
+            "Regarde la personne qui te pose la question dans les yeux pendant 15 secondes sans rire.",
+            "Avoue une petite chose pour laquelle tu te sens coupable d'une voix drôle.",
+            "Réponds en toute honnêteté à une question libre du groupe.",
+            "Appelle un membre de ta famille et dis-lui que tu l'aimes sans aucune raison."
+        },
+        { // 2: Défis Audacieux
+            "Parle comme un méchant de film jusqu'au prochain tour!",
+            "Fais 10 pompes tout en faisant des bruits d'animaux!",
+            "Fais ta meilleure imitation d'une célébrité.",
+            "Invente une règle complètement absurde pour ce jeu!",
+            "Reste immobile comme une statue pendant 1 minute complète."
+        },
+        { // 3: Flirt et Couples
+            "Chuchote une phrase de drague marrante à l meilleur de ton voisin.",
+            "Tiens la main de la personne à ta droite jusqu au prochain tour!",
+            "Danse un slow romantique de 15 secondes sans musique.",
+            "Prends un selfie de couple trop mignon avec une personne de ton choix.",
+            "Donne un doux baiser sur la joue de ton voisin."
+        },
+        { // 4: +18 Érotique (VIP)
+            "Fais un clin d'œil séducteur à la personne qui pose la question.",
+            "Chuchote un secret piquant à l'oreille de ton voisin.",
+            "Mords-toi la lèvre de façon très attirante pendant 10 secondes.",
+            "Fais un massage des épaules relaxant de 30 secondes à ton voisin.",
+            "Maintiens un contact visuel intense de très près pendant 10 secondes!"
+        }
+    };
+
+    // --- SPANISH (ES) QUESTIONS ---
+    private static final String[][] PACK_TRUTHS_ES = {
+        { // 0: Fiesta y Diversión
+            "¿Cuál es tu recuerdo de fiesta más divertido o vergonzoso?",
+            "Si pudieras cambiar de vida con alguien en esta habitación por un día, ¿quién sería?",
+            "¿Cuál es el hábito más extraño que tienes cuando nadie te ve?",
+            "¿Cuál fue la mentira más grande que dijiste con cara totalmente seria?",
+            "¿Cuál era el apodo más divertido que tenías de niño?",
+            "¿Cuál es la compra impulsiva más innecesaria que has hecho?",
+            "¡Muestra el historial de búsqueda de Google más vergonzoso de tu teléfono!",
+            "¿Cuál fue el peor regalo que te han dado?",
+            "¿Cuál es el objeto más raro que llevas en tu bolso o bolsillo ahora mismo?",
+            "¿Qué aplicación de tu teléfono nunca usas pero te niegas a borrar?",
+            "¿Cuál es tu talento oculto más secreto e inútil?",
+            "¿Cuál sería el trabajo de tus sueños absoluto?",
+            "Si nuestro grupo fuera una serie de televisión, ¿qué papel interpretarías?",
+            "¿Cuál es mi defecto más molesto cuando viajamos juntos?",
+            "¿Quién en esta habitación tiene tu estilo favorito?",
+            "¿Cuál es tu recuerdo de adolescencia más vergonzoso?",
+            "Si fueras invisible durante 1 hora, ¿qué harías?",
+            "Si tuvieras que tatuarte el nombre de alguien de aquí, ¿quién sería?",
+            "¿Alguna vez te has sentido avergonzado en público por culpa de tus padres?",
+            "¿Alguna vez has tomado algo pequeño sin permiso (bolígrafo, encendedor)?",
+            "¿A quién has cotilleado en secreto en Instagram últimamente?",
+            "¿Cuál es la comida más rara que has probado?",
+            "¿Qué fue lo más extraño que te pasó en un taxi?",
+            "¿Cuál fue tu momento más vergonzoso delante de un amigo?",
+            "¿Qué raza de perro serías por un día?",
+            "¿Alguna vez has culpado a otra persona de tu propio error?",
+            "¿Cuál es la historia detrás de tu apodo más extraño?",
+            "¿Cuál fue la última palabra que buscaste en internet?",
+            "¿A qué película de comedia se parece más tu vida?",
+            "¿Qué es algo que siempre te saca una sonrisa o carcajada?"
+        },
+        { // 1: Confesiones Profundas
+            "¿Cuál es un sueño secreto que rara vez compartes con alguien?",
+            "¿Qué primera impresión tuviste realmente de la persona que pregunta?",
+            "¿Qué decisión individual cambió más el curso de tu vida?",
+            "¿Qué error cometiste que te enseñó una gran lección de vida?",
+            "¿A qué le das valor que la mayoría de la gente ignora?",
+            "¿Qué tendencia de moda nunca entenderás?",
+            "¿Qué superpoder práctico te gustaría tener en el día a día?",
+            "Si crearas un perfume, ¿cuál sería su nombre?",
+            "¿Cuál fue el secreto más grande que me ocultaste durante mucho tiempo?",
+            "¿Cuál fue tu primera impresión sincera sobre mí?",
+            "¿Qué único consejo le darías a la persona que te pregunta?",
+            "¿Qué hábito mío te molesta más?",
+            "Si pudieras revivir un recuerdo juntos, ¿cuál elegirías?",
+            "¿Cuál fue la mentira más rara que dijiste para protegerme?",
+            "Si pudieras saber la fecha exacta de tu muerte, ¿querrías saberla?",
+            "Si pudieras legalizar un delito durante 24 horas, ¿cuál sería?",
+            "¿Con quién de esta habitación te llevas peor sinceramente?",
+            "¿Cuál es tu mayor miedo irracional?",
+            "¿Qué esperas que tu familia nunca descubra?",
+            "¿Con qué personaje de película te identificas más?",
+            "¿Cuál es tu mayor 'Bandera Roja' (Red Flag) de ti mismo?",
+            "¿Cuál fue el mensaje más vergonzoso que enviaste por error?",
+            "¡Di una mentira y una verdad sobre ti y deja que el grupo adivine!"
+        },
+        { // 2: Retos Atrevidos
+            "¿Qué es lo más atrevido que has hecho en un reto?",
+            "¿Qué miedo has superado con éxito?",
+            "¿Alguna vez has copiado en un examen sin que te atraparan?",
+            "¿Qué hay en la cima de tu lista de deseos (Bucket List)?",
+            "¿Qué es lo más valiente que me has visto hacer?",
+            "¿Cuándo te sientes en la cima de tu atractivo físico?",
+            "¿Qué te da máxima confianza en momentos íntimos?",
+            "¿Cuál es la verdad más importante que has aprendido sobre tus deseos?",
+            "¿Cuál es tu límite absoluto que nunca cruzarías?"
+        },
+        { // 3: Flirt y Parejas
+            "¿Qué tres cualidades encuentras más atractivas en alguien?",
+            "¿Cómo fue tu primer amor platónico de la infancia?",
+            "Describe tu cita romántica ideal en una frase.",
+            "¿Cuál ha sido el detalle más dulce que alguien ha tenido contigo?",
+            "¿Cómo calificarías mis gustos en parejas del 1 al 10?",
+            "¿Alguna vez tuviste un interés secreto por mí o por alguien del grupo?",
+            "Si pudieras elegir a un famoso para una cita, ¿quién sería?",
+            "¿Qué nombre de usuario usarías en una app de citas secreta?",
+            "¿Qué atuendo usarías para lucir especialmente atractivo/a?",
+            "¿Has coqueteado con alguien durante este juego?",
+            "¿Quién en esta habitación tiene la presencia más atractiva?",
+            "¿Qué encuentras irresistible cuando alguien coquetea?",
+            "¿Qué perfume o aroma te vuelve completamente loco/a?",
+            "Si pudieras pasar una noche inolvidable con cualquiera, ¿quién sería?",
+            "¿Quién en esta habitación es más probable que conquiste tu corazón?"
+        },
+        { // 4: +18 Picante (VIP)
+            "¿Qué hace que la atracción romántica sea inolvidable para ti?",
+            "Química física inolvidable: ¿qué significa para ti?",
+            "¿Qué parte de tu cuerpo encuentras más sexy?",
+            "Si tuvieras que acostarte con solo una persona de esta habitación, ¿quién sería?",
+            "¿Cuál es tu mayor fantasía secreta?",
+            "¿A cuántas personas de esta habitación encuentras atractivas?",
+            "¿Cuál fue el momento más inoportuno en el que fuiste interrumpido/a?",
+            "¿Cuál fue el sueño erótico más loco que has tenido?",
+            "¿Cuál fue tu momento más vergonzoso en la cama?",
+            "¿Alguna vez tuviste una aventura de una noche? ¿Fue buena o mala?",
+            "¿Qué es lo más loco que harías por pasión?",
+            "¿Juegos previos sensuales largos o ir directo al grano?",
+            "¿Cuál ha sido el cumplido más sexy que te han dicho?",
+            "¿Alguna vez has enviado un mensaje o foto picante?",
+            "¿Luz tenue romántica o oscuridad total? ¿Por qué?",
+            "¿Alguna vez has tenido un sueño íntimo con alguien de esta habitación?",
+            "¿Has tenido alguna vez una relación de amigos con derechos?",
+            "¿Qué es lo más importante para ti en la intimidad?",
+            "¿En qué parte del cuerpo te gusta más que te besen?",
+            "¿Qué fantasía te gustaría probar absolutamente?"
+        }
+    };
+
+    private static final String[][] PACK_DARES_ES = {
+        { // 0: Fiesta y Diversión
+            "¡Haz tu baile más divertido de 10 segundos sin música!",
+            "Imita a alguien del grupo hasta que adivinen quién es.",
+            "Cuenta un chiste con cara totalmente seria.",
+            "¡Deja que el grupo peine tu cabello para la siguiente ronda!",
+            "Haz una caminata dramática en cámara lenta por la habitación.",
+            "¡Canta la canción de una serie animada de tu infancia a todo volumen!",
+            "¡Muestra tu talento oculto más inútil!",
+            "¡Bebe agua como un T-Rex con brazos diminutos!",
+            "¡Haz un moonwalk durante 3 metros!",
+            "¡Come un aperitivo sin usar las manos!",
+            "¡Obedece las órdenes de tus amigos durante 1 minuto!"
+        },
+        { // 1: Confesiones Profundas
+            "Haz un cumplido sincero a cada persona del círculo.",
+            "Mira a la persona que pregunta a los ojos durante 15 segundos sin reírte.",
+            "Confiesa una pequeña cosa de la que te sientas culpable con voz divertida.",
+            "Responde con total honestidad a una pregunta libre del grupo.",
+            "Llama a un familiar y dile que le quieres sin ninguna razón."
+        },
+        { // 2: Retos Atrevidos
+            "¡Habla como un villano de película hasta la siguiente ronda!",
+            "¡Haz 10 flexiones mientras haces sonidos de animales!",
+            "Haz tu mejor imitación de un famoso.",
+            "¡Inventa una regla completamente absurda para este juego!",
+            "Quédate completamente inmóvil como una estatua durante 1 minuto."
+        },
+        { // 3: Flirt y Parejas
+            "Susurra una frase divertida de coqueteo al oído de tu vecino.",
+            "¡Sujeta la mano de la persona a tu derecha hasta la siguiente ronda!",
+            "Baila un slow romántico de 15 segundos sin música.",
+            "Tómate un selfie de pareja súper tierno con una persona de tu elección.",
+            "Dale un suave beso en la mejilla a tu vecino."
+        },
+        { // 4: +18 Picante (VIP)
+            "Guiña un ojo de forma seductora a la persona que pregunta.",
+            "Susurra un secreto picante al oído de tu vecino.",
+            "Muérdete el labio de forma muy atractiva durante 10 segundos.",
+            "Dale un masaje de hombros relajante de 30 segundos a tu vecino.",
+            "¡Mantén un contacto visual intense desde muy cerca durante 10 segundos!"
+        }
+    };
+
     private void handleTypeChoiceTouch(float x, float y) {
         // Modal box: (100, 520, 980, 1120)
         // Close button: top right (900, 540, 960, 600)
@@ -2072,7 +2599,13 @@ public class GameView extends View {
 
     private void selectCardType(boolean isTruth) {
         typeChoiceModalOpen = false;
-        drawnCardType = isTruth ? (isTR() ? "DOĞRULUK" : "TRUTH") : (isTR() ? "CESARETLİK" : "DARE");
+        switch (selectedLanguage) {
+            case LANG_TR: drawnCardType = isTruth ? "DOĞRULUK" : "CESARETLİK"; break;
+            case LANG_DE: drawnCardType = isTruth ? "WAHRHEIT" : "PFLICHT"; break;
+            case LANG_FR: drawnCardType = isTruth ? "VÉRITÉ" : "DÉFI"; break;
+            case LANG_ES: drawnCardType = isTruth ? "VERDAD" : "RETO"; break;
+            default: drawnCardType = isTruth ? "TRUTH" : "DARE"; break;
+        }
 
         // Collect available active deck indices (Exclude 5: Free Mode)
         List<Integer> activePacks = new ArrayList<>();
@@ -2087,7 +2620,24 @@ public class GameView extends View {
         int chosenPack = activePacks.get(random.nextInt(activePacks.size()));
         drawnCardPackName = getPackName(chosenPack);
 
-        String[] pool = isTruth ? PACK_TRUTHS[chosenPack] : PACK_DARES[chosenPack];
+        String[] pool;
+        if (isTruth) {
+            switch (selectedLanguage) {
+                case LANG_TR: pool = PACK_TRUTHS_TR[chosenPack]; break;
+                case LANG_DE: pool = PACK_TRUTHS_DE[chosenPack]; break;
+                case LANG_FR: pool = PACK_TRUTHS_FR[chosenPack]; break;
+                case LANG_ES: pool = PACK_TRUTHS_ES[chosenPack]; break;
+                default: pool = PACK_TRUTHS[chosenPack]; break;
+            }
+        } else {
+            switch (selectedLanguage) {
+                case LANG_TR: pool = PACK_DARES_TR[chosenPack]; break;
+                case LANG_DE: pool = PACK_DARES_DE[chosenPack]; break;
+                case LANG_FR: pool = PACK_DARES_FR[chosenPack]; break;
+                case LANG_ES: pool = PACK_DARES_ES[chosenPack]; break;
+                default: pool = PACK_DARES[chosenPack]; break;
+            }
+        }
         drawnCardText = pool[random.nextInt(pool.length)];
 
         drawnCardModalOpen = true;
