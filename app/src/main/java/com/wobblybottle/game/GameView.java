@@ -100,6 +100,38 @@ public class GameView extends View {
     private int selectedQ = -1;
     private int selectedA = -1;
 
+    // Dynamic Language System
+    public static final int LANG_EN = 0;
+    public static final int LANG_TR = 1;
+    public static final int LANG_DE = 2;
+    public static final int LANG_FR = 3;
+    public static final int LANG_ES = 4;
+    private int selectedLanguage = LANG_TR; // Default to TR (Türkçe)
+
+    private static final String[] LANG_NAMES = {
+        "🇬🇧 English",
+        "🇹🇷 Türkçe",
+        "🇩🇪 Deutsch",
+        "🇫🇷 Français",
+        "🇪🇸 Español"
+    };
+
+    private boolean isTR() { return selectedLanguage == LANG_TR; }
+
+    private String getPackName(int index) {
+        if (isTR()) {
+            switch (index) {
+                case 0: return "PARTİ VE EĞLENCE";
+                case 1: return "DERİN İTİRAFLAR";
+                case 2: return "CESUR GÖREVLER";
+                case 3: return "FLÖRT VE ÇİFTLER";
+                case 4: return "+18 SPICY";
+                case 5: return "SERBEST MOD";
+            }
+        }
+        return PACK_NAMES[index].replace("\n", " ");
+    }
+
     // Truth & Dare Deck System
     private boolean typeChoiceModalOpen = false;
     private boolean drawnCardModalOpen = false;
@@ -260,11 +292,11 @@ public class GameView extends View {
 
     private void drawSetup(Canvas c) {
         drawLogo(c, 155, false);
-        neonText(c, "ADD PLAYERS", 100, 318, 42, Color.WHITE, Paint.Align.LEFT);
+        neonText(c, isTR() ? "OYUNCU EKLE" : "ADD PLAYERS", 100, 318, 42, Color.WHITE, Paint.Align.LEFT);
         neonRoundRect(c, new RectF(78, 330, 1002, 545), 34,
                 Color.rgb(0, 242, 254), Color.argb(140, 4, 25, 38), 4, 18);
 
-        // Dark Glass Neon '+' Add Button centered at (645, 430)
+        // Circular Neon '+' Add Button centered at (645, 430)
         float plusCx = 645, plusCy = 430, plusR = 42;
         p.setColor(Color.argb(160, 8, 22, 38));
         p.setStyle(Paint.Style.FILL);
@@ -285,7 +317,7 @@ public class GameView extends View {
         p.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
         p.setTextAlign(Paint.Align.CENTER);
         p.setColor(Color.rgb(155, 245, 255));
-        c.drawText("PICK COLOR", 835, 365, p);
+        c.drawText(isTR() ? "RENK SEÇİN" : "PICK COLOR", 835, 365, p);
         for (int i = 0; i < PLAYER_COLORS.length; i++) {
             float x = 760 + (i % 3) * 75;
             float y = 412 + (i / 3) * 65;
@@ -307,11 +339,11 @@ public class GameView extends View {
             p.setTextAlign(Paint.Align.CENTER);
             p.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
             p.setTextSize(38);
-            c.drawText("YOUR PLAYER LIST IS EMPTY", 540, 780, p);
+            c.drawText(isTR() ? "OYUNCU LİSTENİZ BOŞ" : "YOUR PLAYER LIST IS EMPTY", 540, 780, p);
             p.setTypeface(android.graphics.Typeface.DEFAULT);
             p.setTextSize(28);
             p.setColor(Color.argb(120, 170, 210, 220));
-            c.drawText("Add at least 2 players to continue", 540, 832, p);
+            c.drawText(isTR() ? "Devam etmek için en az 2 oyuncu ekleyin" : "Add at least 2 players to continue", 540, 832, p);
             drawEmptyFaces(c);
         } else {
             for (int i = 0; i < players.size(); i++) {
@@ -325,12 +357,12 @@ public class GameView extends View {
 
         boolean enabled = players.size() >= 2;
         drawActionButton(c, new RectF(120, 1640, 960, 1785),
-                "CONTINUE TO OBJECTS", enabled,
+                isTR() ? "NESNELERE GEÇ" : "CONTINUE TO OBJECTS", enabled,
                 enabled ? Color.rgb(255, 204, 0) : Color.rgb(75, 90, 105));
         p.setTextAlign(Paint.Align.CENTER);
         p.setTextSize(24);
         p.setColor(enabled ? Color.rgb(130, 230, 235) : Color.rgb(85, 100, 110));
-        c.drawText(players.size() + " PLAYER" + (players.size() == 1 ? "" : "S"), 540, 1825, p);
+        c.drawText(players.size() + (isTR() ? " OYUNCU" : " PLAYER" + (players.size() == 1 ? "" : "S")), 540, 1825, p);
     }
 
     private void drawEmptyFaces(Canvas c) {
@@ -413,31 +445,28 @@ public class GameView extends View {
     }
 
     private void drawPacks(Canvas c) {
-        drawBack(c);
-        neonText(c, "CHOOSE YOUR PACKS", 540, 130, 52, Color.WHITE, Paint.Align.CENTER);
-        float cardW = 455, cardH = 400;
+        drawLogo(c, 130, false);
+        neonText(c, isTR() ? "PAKETLERİNİ SEÇ" : "CHOOSE YOUR PACKS", 540, 275, 48, Color.WHITE, Paint.Align.CENTER);
         for (int i = 0; i < 6; i++) {
             int col = i % 2, row = i / 2;
-            float left = 55 + col * 515;
-            float top = 205 + row * 435;
-            RectF card = new RectF(left, top, left + cardW, top + cardH);
-            boolean locked = i == 4 && !vip;
+            RectF card = new RectF(55 + col * 515, 305 + row * 435,
+                    510 + col * 515, 705 + row * 435);
             int border = selectedPacks[i] ? Color.rgb(255, 214, 65) : Color.rgb(70, 79, 110);
             neonRoundRect(c, card, 25, border, Color.rgb(11, 16, 31), selectedPacks[i] ? 7 : 3,
                     selectedPacks[i] ? 25 : 5);
-            RectF image = new RectF(card.left + 12, card.top + 12, card.right - 12, card.bottom - 92);
-            drawPackImage(c, i, image);
-            if (locked) {
-                p.setColor(Color.argb(120, 0, 0, 0));
-                c.drawRoundRect(image, 18, 18, p);
-                neonText(c, "♛ VIP", image.centerX(), image.centerY() + 16, 50,
-                        Color.rgb(255, 204, 0), Paint.Align.CENTER);
-            }
-            drawMultilineCentered(c, PACK_NAMES[i], card.centerX(), card.bottom - 55,
-                    29, Color.WHITE, 33);
+            drawPackImage(c, i, new RectF(card.left + 14, card.top + 14, card.right - 14, card.bottom - 80));
+
+            neonRoundRect(c, new RectF(card.left + 14, card.bottom - 74, card.right - 14, card.bottom - 12),
+                    14, Color.TRANSPARENT, Color.argb(200, 5, 10, 20), 0, 0);
+
+            text(c, getPackName(i), card.centerX(), card.bottom - 36,
+                    22, selectedPacks[i] ? Color.rgb(255, 224, 75) : Color.WHITE, Paint.Align.CENTER, true);
         }
+
+        boolean enabled = anyPackSelected();
         drawActionButton(c, new RectF(72, 1580, 1008, 1725),
-                "START GAME", anyPackSelected(), Color.rgb(255, 204, 0));
+                isTR() ? "OYUNU BAŞLAT" : "START GAME", enabled,
+                enabled ? Color.rgb(0, 242, 254) : Color.rgb(75, 90, 105));
     }
 
     private void drawArena(Canvas c) {
@@ -465,29 +494,29 @@ public class GameView extends View {
         RectF info = new RectF(50, 1245, 1030, 1600);
         neonRoundRect(c, info, 35, Color.rgb(45, 80, 105), Color.argb(235, 9, 17, 31), 3, 6);
         if (questioner < 0) {
-            neonText(c, "READY?", 540, 1345, 54, Color.rgb(0, 242, 254), Paint.Align.CENTER);
-            text(c, "Tap the object — random wobble changes the pairing.", 540, 1415,
-                    29, Color.WHITE, Paint.Align.CENTER, false);
+            neonText(c, isTR() ? "HAZIR MIYIZ?" : "READY?", 540, 1345, 54, Color.rgb(0, 242, 254), Paint.Align.CENTER);
+            text(c, isTR() ? "Nesneye dokunun — şişe çevrilerek eşleşme sağlanır." : "Tap the object to spin and pick players.", 540, 1415,
+                    27, Color.WHITE, Paint.Align.CENTER, false);
             drawActionButton(c, new RectF(210, 1470, 870, 1565),
-                    "SPIN NOW", !spinning, Color.rgb(0, 242, 254));
+                    isTR() ? "ŞİŞEYİ ÇEVİR" : "SPIN NOW", !spinning, Color.rgb(0, 242, 254));
         } else {
             Player q = players.get(questioner), a = players.get(answerer);
-            text(c, "QUESTIONER: " + q.name.toUpperCase(Locale.ROOT), 540, 1305,
+            text(c, (isTR() ? "SORAN: " : "QUESTIONER: ") + q.name.toUpperCase(Locale.ROOT), 540, 1305,
                     31, q.color, Paint.Align.CENTER, true);
-            text(c, "ANSWERER: " + a.name.toUpperCase(Locale.ROOT), 540, 1349,
+            text(c, (isTR() ? "CEVAPLAYAN: " : "ANSWERER: ") + a.name.toUpperCase(Locale.ROOT), 540, 1349,
                     31, a.color, Paint.Align.CENTER, true);
 
             boolean isFreeMode = selectedPacks[5];
             if (isFreeMode) {
-                drawWrappedCentered(c, "Ask any question you want out loud!", 540, 1405, 800, 27, Color.rgb(180, 230, 255), 36);
+                drawWrappedCentered(c, isTR() ? "İstediğiniz soruyu sesli olarak sorun!" : "Ask any question you want out loud!", 540, 1405, 800, 27, Color.rgb(180, 230, 255), 36);
                 drawActionButton(c, new RectF(210, 1485, 870, 1575),
-                        "SPIN BOTTLE", !spinning, Color.rgb(0, 242, 254));
+                        isTR() ? "ŞİŞEYİ ÇEVİR" : "SPIN BOTTLE", !spinning, Color.rgb(0, 242, 254));
             } else {
                 drawWrappedCentered(c, currentPrompt, 540, 1405, 800, 28, Color.WHITE, 36);
                 drawActionButton(c, new RectF(100, 1498, 510, 1575),
-                        "ASK OURSELVES", true, Color.rgb(120, 255, 65));
+                        isTR() ? "KENDİMİZ SORACAĞIZ" : "ASK OURSELVES", true, Color.rgb(120, 255, 65));
                 drawActionButton(c, new RectF(570, 1498, 980, 1575),
-                        "DRAW FROM DECK", true, Color.rgb(230, 47, 191));
+                        isTR() ? "DESTEDEN ÇEK" : "DRAW FROM DECK", true, Color.rgb(230, 47, 191));
             }
         }
         drawNavbar(c);
@@ -724,9 +753,9 @@ public class GameView extends View {
         neonRoundRect(c, new RectF(0, 1665, 1080, 1920), 42,
                 Color.rgb(35, 70, 96), Color.argb(245, 2, 10, 24), 3, 6);
         neonText(c, "⌂", 240, 1775, 78, Color.rgb(210, 245, 255), Paint.Align.CENTER);
-        text(c, "HOME", 240, 1835, 27, Color.WHITE, Paint.Align.CENTER, true);
+        text(c, isTR() ? "ANA SAYFA" : "HOME", 240, 1835, 27, Color.WHITE, Paint.Align.CENTER, true);
         drawProfileIcon(c, 840, 1765, vip ? Color.rgb(255, 204, 0) : Color.rgb(0, 242, 254));
-        text(c, "PROFILE", 840, 1835, 27, vip ? Color.rgb(255, 220, 80) : Color.WHITE,
+        text(c, isTR() ? "PROFİL" : "PROFILE", 840, 1835, 27, vip ? Color.rgb(255, 220, 80) : Color.WHITE,
                 Paint.Align.CENTER, true);
     }
 
@@ -750,43 +779,52 @@ public class GameView extends View {
         c.drawRect(270, 0, 1080, VH, p);
         p.setShader(null);
         neonText(c, "×", 320, 105, 65, Color.WHITE, Paint.Align.CENTER);
-        neonText(c, "PROFILE", 650, 112, 48, Color.rgb(0, 242, 254), Paint.Align.CENTER);
+        neonText(c, isTR() ? "PROFİL" : "PROFILE", 650, 112, 48, Color.rgb(0, 242, 254), Paint.Align.CENTER);
 
         RectF vipCard = new RectF(320, 170, 1030, 420);
         neonRoundRect(c, vipCard, 36, Color.rgb(255, 204, 0),
                 Color.argb(230, 45, 30, 5), 6, 28);
-        neonText(c, vip ? "♛ VIP MEMBER" : "♛ GO VIP", 675, 255, 55,
+        neonText(c, vip ? (isTR() ? "♛ VIP ÜYE" : "♛ VIP MEMBER") : "♛ GO VIP", 675, 255, 55,
                 Color.rgb(255, 220, 70), Paint.Align.CENTER);
-        text(c, vip ? "All premium content is unlocked" : "Unlock Golden Champagne + Spicy pack",
+        text(c, vip ? (isTR() ? "Tüm içerikler açık" : "All premium content is unlocked") : (isTR() ? "Şampanya + Spicy paket kilitlerini aç" : "Unlock Golden Champagne + Spicy pack"),
                 675, 316, 27, Color.WHITE, Paint.Align.CENTER, false);
-        text(c, vip ? "ACTIVE" : "VIEW OFFER", 675, 374, 28,
+        text(c, vip ? (isTR() ? "AKTİF" : "ACTIVE") : (isTR() ? "İNCELE" : "VIEW OFFER"), 675, 374, 28,
                 Color.rgb(255, 220, 70), Paint.Align.CENTER, true);
 
-        neonText(c, "CHANGE OBJECT NOW", 330, 485, 31, Color.WHITE, Paint.Align.LEFT);
+        // Language Selector Box at (320, 445, 1030, 535)
+        RectF langCard = new RectF(320, 445, 1030, 535);
+        neonRoundRect(c, langCard, 22, Color.rgb(0, 242, 254), Color.argb(190, 10, 22, 38), 3, 12);
+        neonText(c, isTR() ? "DİL" : "LANGUAGE", langCard.left + 35, langCard.centerY() + 10, 26, Color.WHITE, Paint.Align.LEFT);
+
+        // Arrows & Selected Language
+        neonText(c, "◀", 590, langCard.centerY() + 10, 32, Color.rgb(0, 242, 254), Paint.Align.CENTER);
+        text(c, LANG_NAMES[selectedLanguage], 760, langCard.centerY() + 10, 27, Color.rgb(255, 220, 80), Paint.Align.CENTER, true);
+        neonText(c, "▶", 930, langCard.centerY() + 10, 32, Color.rgb(0, 242, 254), Paint.Align.CENTER);
+
+        neonText(c, isTR() ? "NESNEYİ DEĞİŞTİR" : "CHANGE OBJECT NOW", 330, 575, 29, Color.WHITE, Paint.Align.LEFT);
         for (int i = 0; i < 5; i++) {
-            float y = 520 + i * 132;
-            RectF row = new RectF(320, y, 1030, y + 112);
+            float y = 605 + i * 110;
+            RectF row = new RectF(320, y, 1030, y + 98);
             boolean available = unlockedObjects[i] || (i == 4 && vip);
             int border = selectedObject == i ? Color.rgb(80, 255, 140)
                     : (i == 4 ? Color.rgb(255, 204, 0) : Color.rgb(130, 78, 190));
             neonRoundRect(c, row, 22, border, Color.argb(190, 12, 18, 34), selectedObject == i ? 5 : 2, 10);
-            drawObjectIcon(c, i, new RectF(row.left + 5, row.top + 4, row.left + 125, row.bottom - 4), false);
-            text(c, OBJECT_NAMES[i], row.left + 140, row.centerY() + 10, 29,
+            drawObjectIcon(c, i, new RectF(row.left + 5, row.top + 4, row.left + 115, row.bottom - 4), false);
+            text(c, OBJECT_NAMES[i], row.left + 130, row.centerY() + 10, 27,
                     Color.WHITE, Paint.Align.LEFT, true);
-            text(c, available ? (selectedObject == i ? "SELECTED" : "CHOOSE")
-                            : (i == 4 ? "VIP" : "AD"),
+            text(c, available ? (selectedObject == i ? (isTR() ? "SEÇİLİ" : "SELECTED") : (isTR() ? "SEÇ" : "CHOOSE"))
+                            : (i == 4 ? "VIP" : "REKLAM"),
                     row.right - 25, row.centerY() + 10, 24, border, Paint.Align.RIGHT, true);
         }
 
-        neonText(c, "ACTIVE PACKS", 330, 1218, 31, Color.WHITE, Paint.Align.LEFT);
+        neonText(c, isTR() ? "AKTİF PAKETLER" : "ACTIVE PACKS", 330, 1175, 29, Color.WHITE, Paint.Align.LEFT);
         for (int i = 0; i < 6; i++) {
             int col = i % 2, row = i / 2;
-            RectF r = new RectF(320 + col * 365, 1250 + row * 122,
-                    662 + col * 365, 1350 + row * 122);
+            RectF r = new RectF(320 + col * 365, 1205 + row * 105,
+                    662 + col * 365, 1293 + row * 105);
             int border = selectedPacks[i] ? Color.rgb(255, 204, 0) : Color.rgb(55, 70, 95);
             neonRoundRect(c, r, 20, border, Color.argb(210, 11, 16, 30), selectedPacks[i] ? 4 : 2, 10);
-            String label = PACK_NAMES[i].replace("\n", " ");
-            text(c, ellipsize(label, 17), r.centerX(), r.centerY() + 8, 21,
+            text(c, ellipsize(getPackName(i), 17), r.centerX(), r.centerY() + 8, 20,
                     Color.WHITE, Paint.Align.CENTER, true);
         }
     }
@@ -1140,9 +1178,19 @@ public class GameView extends View {
             vipOfferOpen = true;
             return;
         }
+        // Language Selector Arrows Touch
+        if (hit(x, y, 540, 445, 630, 535)) {
+            selectedLanguage = (selectedLanguage + LANG_NAMES.length - 1) % LANG_NAMES.length;
+            return;
+        }
+        if (hit(x, y, 890, 445, 970, 535)) {
+            selectedLanguage = (selectedLanguage + 1) % LANG_NAMES.length;
+            return;
+        }
+
         for (int i = 0; i < 5; i++) {
-            float top = 520 + i * 132;
-            if (hit(x, y, 320, top, 1030, top + 112)) {
+            float top = 605 + i * 110;
+            if (hit(x, y, 320, top, 1030, top + 98)) {
                 if (i == 4 && !vip) vipOfferOpen = true;
                 else if (!unlockedObjects[i]) startRewardedAd(i);
                 else selectedObject = i;
@@ -1152,8 +1200,8 @@ public class GameView extends View {
         for (int i = 0; i < 6; i++) {
             int col = i % 2, row = i / 2;
             float left = 320 + col * 365;
-            float top = 1250 + row * 122;
-            if (hit(x, y, left, top, left + 342, top + 100)) {
+            float top = 1205 + row * 105;
+            if (hit(x, y, left, top, left + 342, top + 88)) {
                 if (i == 4 && !vip) vipOfferOpen = true;
                 else {
                     selectedPacks[i] = !selectedPacks[i];
@@ -1255,7 +1303,7 @@ public class GameView extends View {
 
     private void selectCardType(boolean isTruth) {
         typeChoiceModalOpen = false;
-        drawnCardType = isTruth ? "TRUTH" : "DARE";
+        drawnCardType = isTruth ? (isTR() ? "DOĞRULUK" : "TRUTH") : (isTR() ? "CESARETLİK" : "DARE");
 
         // Collect available active deck indices (Exclude 5: Free Mode)
         List<Integer> activePacks = new ArrayList<>();
@@ -1268,7 +1316,7 @@ public class GameView extends View {
         if (activePacks.isEmpty()) activePacks.add(0); // Fallback to Party & Fun
 
         int chosenPack = activePacks.get(random.nextInt(activePacks.size()));
-        drawnCardPackName = PACK_NAMES[chosenPack].replace("\n", " ");
+        drawnCardPackName = getPackName(chosenPack);
 
         String[] pool = isTruth ? PACK_TRUTHS[chosenPack] : PACK_DARES[chosenPack];
         drawnCardText = pool[random.nextInt(pool.length)];
@@ -1293,7 +1341,7 @@ public class GameView extends View {
         neonRoundRect(c, box, 36, Color.rgb(0, 242, 254), Color.argb(245, 12, 18, 36), 6, 26);
 
         neonText(c, "✕", 930, 580, 52, Color.WHITE, Paint.Align.CENTER);
-        neonText(c, "CHOOSE TYPE", 540, 620, 48, Color.rgb(0, 242, 254), Paint.Align.CENTER);
+        neonText(c, isTR() ? "KART TÜRÜNÜ SEÇ" : "CHOOSE TYPE", 540, 620, 48, Color.rgb(0, 242, 254), Paint.Align.CENTER);
 
         if (questioner >= 0 && answerer >= 0) {
             String sub = players.get(questioner).name.toUpperCase(Locale.ROOT) + "  ➜  " +
@@ -1301,8 +1349,8 @@ public class GameView extends View {
             text(c, sub, 540, 680, 31, Color.rgb(255, 204, 0), Paint.Align.CENTER, true);
         }
 
-        drawActionButton(c, new RectF(160, 770, 490, 930), "TRUTH", true, Color.rgb(0, 242, 254));
-        drawActionButton(c, new RectF(590, 770, 920, 930), "DARE", true, Color.rgb(245, 50, 120));
+        drawActionButton(c, new RectF(160, 770, 490, 930), isTR() ? "DOĞRULUK" : "TRUTH", true, Color.rgb(0, 242, 254));
+        drawActionButton(c, new RectF(590, 770, 920, 930), isTR() ? "CESARETLİK" : "DARE", true, Color.rgb(245, 50, 120));
     }
 
     private void drawDrawnCardModal(Canvas c) {
@@ -1310,15 +1358,16 @@ public class GameView extends View {
         c.drawRect(0, 0, VW, VH, p);
 
         RectF box = new RectF(80, 440, 1000, 1260);
-        int themeColor = "TRUTH".equals(drawnCardType) ? Color.rgb(0, 242, 254) : Color.rgb(245, 50, 120);
+        boolean isTruth = drawnCardType.contains("TRUTH") || drawnCardType.contains("DOĞRULUK");
+        int themeColor = isTruth ? Color.rgb(0, 242, 254) : Color.rgb(245, 50, 120);
         neonRoundRect(c, box, 40, themeColor, Color.argb(245, 10, 15, 32), 6, 30);
 
         neonText(c, "✕", 940, 510, 52, Color.WHITE, Paint.Align.CENTER);
 
-        // Header Pill Badge: TRUTH or DARE
-        RectF badge = new RectF(390, 490, 690, 570);
+        // Header Pill Badge: TRUTH or DARE / DOĞRULUK veya CESARETLİK
+        RectF badge = new RectF(340, 490, 740, 570);
         neonRoundRect(c, badge, 24, themeColor, themeColor, 0, 16);
-        neonText(c, drawnCardType, 540, 548, 44, Color.rgb(10, 15, 30), Paint.Align.CENTER);
+        neonText(c, drawnCardType, 540, 548, 42, Color.rgb(10, 15, 30), Paint.Align.CENTER);
 
         // Pack Tag
         text(c, "[ " + drawnCardPackName.toUpperCase(Locale.ROOT) + " ]", 540, 630, 26,
@@ -1335,7 +1384,7 @@ public class GameView extends View {
         drawWrappedCentered(c, drawnCardText, 540, 770, 800, 36, Color.WHITE, 50);
 
         // Done / Next Spin Button
-        drawActionButton(c, new RectF(220, 1110, 860, 1210), "NEXT SPIN", true, themeColor);
+        drawActionButton(c, new RectF(220, 1110, 860, 1210), isTR() ? "SONRAKİ TUR" : "NEXT SPIN", true, themeColor);
     }
 
     private static boolean hit(float x, float y, float l, float t, float r, float b) {
