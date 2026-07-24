@@ -1244,7 +1244,11 @@ public class GameView extends View {
             "Arkadaş grubumuz bir sitcom olsaydı, senin rolün ne olurdu? (Bilge, dram kraliçesi, unutulan...)",
             "Birlikte seyahat ederken yaptığım en sinir bozucu şey ne?",
             "Hayatını buradaki biriyle bir haftalığına değiştirebilseydin, bu kim olurdu ve ilk ne yapardın?",
-            "Çocukluğundan/ergenliğinden utanç verici bir anını anlat."
+            "Çocukluğundan/ergenliğinden utanç verici bir anını anlat.",
+            "Bir saat görünmez olsan ne yapardın?",
+            "Buradaki birinin ismini dövme yaptırmak zorunda kalsan, kimin olurdu?",
+            "Hiç herkesin içinde ailenden utandın mı?",
+            "Hiç bir şey çaldın mı (küçük bir şey bile olsa, mesela çakmak)?"
         },
         { // 1: Derin İtiraflar
             "Neredeyse kimseye anlatmadığın en gizli hayalin veya hedefin nedir?",
@@ -1260,7 +1264,11 @@ public class GameView extends View {
             "Sana bu soruyu soran kişiye tek bir hayat tavsiyesi verecek olsan, bu ne olurdu?",
             "Bendeki hangi huyuna en çok sinir oluyorsun?",
             "Birlikte yaşadığımız anılardan sadece birini tekrar yaşayabilseydin, hangisini seçerdin?",
-            "Beni korumak için söylediğin en garip yalan neydi?"
+            "Beni korumak için söylediğin en garip yalan neydi?",
+            "Öleceğin tarihi öğrenebilseydin, bilmek ister miydin?",
+            "Bir suçu yasallaştırabilsen, hangisi olurdu?",
+            "Bu odada en az sevdiğin kişi kim?",
+            "En büyük mantıksız korkunun ne?"
         },
         { // 2: Cesur Görevler
             "Bir cesaret oyunu uğruna yaptığın en çılgınca şey neydi?",
@@ -1281,7 +1289,10 @@ public class GameView extends View {
             "Seksi bir kıyafet giymen gerekseydi, bu ne olurdu?",
             "Bu oyunu oynarken hiç flört ettin mi? Anlat!",
             "Crush'ın bu odada olsaydı, ona hangi görevi verirdin?",
-            "En son ne zaman bir date'ten kaçmak için yalan söyledin?"
+            "En son ne zaman bir date'ten kaçmak için yalan söyledin?",
+            "Hiç aynı anda iki kişiye aşık oldun mu?",
+            "Sevgilinin telefonunu hiç karıştırdın mı?",
+            "Aşk için yaptığın en aptalca şey neydi?"
         },
         { // 4: +18 Ateşli
             "Seni romantik veya tutkulu anlamda en çok ne etkiler?",
@@ -1298,7 +1309,12 @@ public class GameView extends View {
             "Ne kadar sürede orgazm olursun?",
             "Sevişirken rahatsız edilmek için en kötü an hangisi?",
             "Hangi şarkı seni kesinlikle erotik moda sokar?",
-            "Eski sevgilinin adını taşıyan bir kokteyl yapsan içinde ne olurdu?"
+            "Eski sevgilinin adını taşıyan bir kokteyl yapsan içinde ne olurdu?",
+            "Gördüğün en tuhaf erotik rüya neydi?",
+            "Bu odadaki biriyle (şu anki partnerin hariç) yatmak zorunda olsan, kim olurdu?",
+            "Yatakta yaşadığın en utanç verici anı anlat.",
+            "Bir arkadaşının sevgilisine/eşine hiç baktın mı veya çaktın mı?",
+            "Hiç çıplak veya özel fotoğrafını gönderdin mi?"
         }
     };
 
@@ -1411,7 +1427,11 @@ public class GameView extends View {
             "If our friend group were a sitcom, what would your character trope be?",
             "What is the most annoying thing I do when we travel together?",
             "If you could swap lives with someone here for a week, who would it be and what would you do first?",
-            "Share your most embarrassing story from your childhood or teenage years!"
+            "Share your most embarrassing story from your childhood or teenage years!",
+            "If you were completely invisible for one hour, what would you do?",
+            "If you had to tattoo someone's name from this room, whose name would it be?",
+            "Have you ever felt embarrassed by your family in public?",
+            "Have you ever stolen anything, even something small like a lighter?"
         },
         { // 1: Deep Confessions
             "What is a secret dream or goal you rarely share with anyone?",
@@ -1427,7 +1447,11 @@ public class GameView extends View {
             "If you could give the questioner just one single piece of life advice, what would it be?",
             "Which habit or trait of mine annoys you the most?",
             "If you could relive just one memory we shared together, which one would you choose?",
-            "What is the weirdest lie you ever told to protect me?"
+            "What is the weirdest lie you ever told to protect me?",
+            "If you could find out the exact date of your death, would you want to know?",
+            "If you could legalize one crime for 24 hours, which would it be?",
+            "Who in this room do you honestly get along with the least?",
+            "What is your biggest irrational fear?"
         },
         { // 2: Bold Challenges
             "What is the boldest thing you have ever done on a dare?",
@@ -1442,7 +1466,16 @@ public class GameView extends View {
             "Describe your ideal romantic date in one sentence.",
             "What is the sweetest gesture someone has ever done for you?",
             "If you had to rate my taste in partners out of 10, what score would you give and why?",
-            "Have you ever had a secret crush on me or anyone else in this group?"
+            "Have you ever had a secret crush on me or anyone else in this group?",
+            "If you could pick any celebrity for a dream date, who would it be?",
+            "What username would you use on a secret dating app?",
+            "If you had to wear an outfit specifically to look sexy, what would it be?",
+            "Have you ever flirted with someone while playing this game? Tell us!",
+            "If your crush were in this room, what dare would you give them right now?",
+            "When was the last time you made up an excuse to escape a bad date?",
+            "Have you ever been in love with two people at the same time?",
+            "Have you ever secretly snooped through your partner's phone?",
+            "What is the dumbest thing you have ever done for love?"
         },
         { // 4: +18 Spicy (VIP)
             "What makes romantic chemistry unforgettable to you?",
