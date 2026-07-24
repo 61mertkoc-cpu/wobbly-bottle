@@ -1259,7 +1259,14 @@ public class GameView extends View {
             "Google'da en son ne aradın?",
             "Hangi komedi filmi senin hayatına en çok benziyor?",
             "Seni her zaman kahkahalarla güldüren şey nedir?",
-            "Hatırladığın en garip rüya nedir?"
+            "Hatırladığın en garip rüya nedir?",
+            "WhatsApp'ta gönderdiğin son mesajı oku.",
+            "WhatsApp'ta aldığın son mesajı oku.",
+            "Telefonunun tarayıcı geçmişindeki son üç sekmeyi göster.",
+            "Bir ebeveyne en son yazdığın mesajı oku.",
+            "Odadaki herkese eski sevgilinin sosyal medya üzerinden çekilmiş güncel bir fotoğrafını göster.",
+            "Telefonundaki son 10 fotoğrafı göster.",
+            "Telefonunda bulunan en utanç verici fotoğrafını göster."
         },
         { // 1: Derin İtiraflar
             "Neredeyse kimseye anlatmadığın en gizli hayalin veya hedefin nedir?",
@@ -1283,14 +1290,33 @@ public class GameView extends View {
             "Ailenin asla bilmemesini umduğun şey nedir?",
             "Bir dizi veya filmden en çok hangi karakterle kendini özdeşleştirebilirsin?",
             "Kendinle ilgili dürüstçe 'Red Flag'ini (kırmızı bayrak) söyle.",
-            "Hayatında gönderdiğin en utanç verici mesaj neydi?"
+            "Hayatında gönderdiğin en utanç verici mesaj neydi?",
+            "Gruba kendin hakkında bir yalan ve bir gerçek söyle, hangisinin doğru olduğunu tahmin etsinler!",
+            "Kendin hakkında herkesi güldürecek komik bir hikaye anlat.",
+            "Gruptaki herkesin 5 yıl içinde ne yapacağını düşündüğünü açıkla."
         },
         { // 2: Cesur Görevler
             "Bir cesaret oyunu uğruna yaptığın en çılgınca şey neydi?",
             "Başarıyla üstesinden geldiğin en büyük korkun nedir?",
             "Bir sınavda veya oyunda kopya çekip yakalanmadığın oldu mu?",
             "Ölmeden önce yapılacaklar listendeki en çılgın şey nedir?",
-            "Yaptığımı gördüğün en cesurca şey neydi?"
+            "Yaptığımı gördüğün en cesurca şey neydi?",
+            "Instagram'da en son kimin profilini aradığını herkese göster.",
+            "İstediğin bir baharattan bir çay kaşığı dolusu ye.",
+            "Bir buz küpünü eriyene kadar ağzında tut.",
+            "Instagram akışında görünen ilk 10 gönderiyi beğen.",
+            "Önümüzdeki 5 dakika içinde sadece fısılda.",
+            "Önümüzdeki 5 dakika içinde sadece çok yüksek sesle konuş.",
+            "Instagram hikayende 'tbt' ile eski bir selfie'ni yayınla.",
+            "Seçtiğin bir şarkının nakaratını son ses söyle.",
+            "Odadaki her kişiye ünlü ikizini söyle ve nedenini açıkla.",
+            "Odadaki bir kişinin koluna kalemle dövme yapmasını sağla.",
+            "Grubun önünde selfie çekip hikayende 'Şimdiye kadarki en iyi gece' yazarak paylaş.",
+            "Zaman akışında yer alan ilk 3 Instagram hikayesine yanıt ver.",
+            "Bir dakika boyunca seçtiğin bir yoga pozunu yap.",
+            "Masada bulunan üç içeceği birbirine karıştırıp iç.",
+            "Odadaki 3 kişiye belirsiz ve gizemli bir iltifat et.",
+            "Instagram akışında tanıdığın kişilerin ilk 3 fotoğrafına ateş emojisiyle yorum yap."
         },
         { // 3: Flört ve Çiftler
             "Bir insanda seni en çok etkileyen 3 özellik nedir?",
@@ -1318,7 +1344,11 @@ public class GameView extends View {
             "İlk randevun nasıldı? Tarif et!",
             "Odadaki en güzel fiziğe/görünüşe sahip kişi kim?",
             "Flört ederken neyi karşı konulmaz bulursun?",
-            "Birini baştan çıkarmak için ne giyersin?"
+            "Birini baştan çıkarmak için ne giyersin?",
+            "Oyunda hangi kişinin saçının daha iyi koktuğunu test et!",
+            "Her kişinin boynunu kokla ve hangi parfümün en iyi koktuğunu söyle.",
+            "Birinin boynunu öpmesine izin ver.",
+            "Gruptan birinin gözlerinin içine 1 dakika boyunca hiç kırpmadan bak."
         },
         { // 4: +18 Ateşli
             "Seni romantik veya tutkulu anlamda en çok ne etkiler?",
@@ -1408,7 +1438,17 @@ public class GameView extends View {
             "İdeal ön sevişme senin için neye benziyor?",
             "Hiç tutkulu bir anda yakalandın mı?",
             "Hatırladığın en ateşli rüya neydi?",
-            "Ne tür tutkulu içerikler seni moduna sokar?"
+            "Ne tür tutkulu içerikler seni moduna sokar?",
+            "Solundaki kişiye çok imalı/müstehcen bir cümle fısılda.",
+            "Sağındaki kişinin koltuk altını kokla ve tepki ver!",
+            "Bunun sorun olmayacağı bir oyuncunun üstündeki kıyafeti ağzınla çıkarmaya çalış.",
+            "Turdan bir kişinin kulağını 10 saniye boyunca hafifçe ısır veya fısılda.",
+            "Hayatının en iyi ve en unutulmaz gecesi hakkında bazı heyecanlı detaylar anlat.",
+            "Birine son derece iddialı ve flörtöz bir kısa mesaj gönder.",
+            "Hiç gülmeden tutkulu veya erotik bir metni grubun önünde oku.",
+            "Bir eğlence ürünü temsilcisiymiş gibi davran ve gruba en iyi ürününü sat!",
+            "Dört dizelik romantik ve ateşli bir şiir yazıp grupta oku.",
+            "Seçtiğin bir şarkı eşliğinde 30 saniye boyunca iddialı bir şekilde dans et!"
         }
     };
 
@@ -1536,7 +1576,14 @@ public class GameView extends View {
             "What was the very last thing you searched on Google?",
             "Which comedy movie most resembles your life?",
             "What never fails to make you laugh out loud?",
-            "What is the strangest dream you remember?"
+            "What is the strangest dream you remember?",
+            "Read the last text message you sent on WhatsApp out loud.",
+            "Read the last text message you received on WhatsApp out loud.",
+            "Show the last three open tabs in your browser history.",
+            "Read the last text message you sent to a parent.",
+            "Show everyone a recent photo of your ex from social media.",
+            "Show the last 10 photos in your phone gallery.",
+            "Show the most embarrassing photo stored on your phone."
         },
         { // 1: Deep Confessions
             "What is a secret dream or goal you rarely share with anyone?",
@@ -1560,7 +1607,10 @@ public class GameView extends View {
             "What is something you hope your family never finds out?",
             "Which movie/TV character do you identify with most?",
             "What is your honest biggest Red Flag about yourself?",
-            "What is the most embarrassing text message you ever sent?"
+            "What is the most embarrassing text message you ever sent?",
+            "Tell the group one lie and one truth about yourself and let them guess!",
+            "Tell a funny story about yourself that will make everyone laugh.",
+            "Predict what everyone in the group will be doing in 5 years."
         },
         { // 2: Bold Challenges
             "What is the boldest thing you have ever done on a dare?",
@@ -1595,7 +1645,11 @@ public class GameView extends View {
             "How was your very first date ever? Describe it!",
             "Who has the best physical appearance/vibe in this room?",
             "What do you find completely irresistible when someone flirts?",
-            "What would you wear if you wanted to seduce someone?"
+            "What would you wear if you wanted to seduce someone?",
+            "Test whose hair smells better between two players in the room!",
+            "Smell everyone's neck and declare who has the best smelling perfume.",
+            "Let someone give you a gentle kiss on your neck.",
+            "Look into someone's eyes for 1 full minute without blinking."
         },
         { // 4: +18 Spicy (VIP)
             "What makes romantic chemistry unforgettable to you?",
