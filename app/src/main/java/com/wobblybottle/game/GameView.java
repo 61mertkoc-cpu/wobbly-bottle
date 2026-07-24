@@ -1370,7 +1370,27 @@ public class GameView extends View {
             "Solundaki kişinin kulağına iddialı bir sır fısılda.",
             "Soran kişiye o anda 2 satırlık tatlı bir şiir uydur!",
             "Pantolonunu veya üstünü başka bir oyuncuyla değiştir (tabii o da kabul ederse!). Ve bir sonraki turuna kadar öyle kal.",
-            "Crush'ına (veya cesaretin varsa eski sevgiline!) nasıl olduğunu soran bir sesli mesaj gönder."
+            "Crush'ına (veya cesaretin varsa eski sevgiline!) nasıl olduğunu soran bir sesli mesaj gönder.",
+            "En iddialı ve seksi dansını 15 saniye boyunca sergile!",
+            "Solundaki komşunun kulağına ateşli bir cümle fısılda.",
+            "Sağındaki komşuna en tutkulu bakışını at ve yanağından öp.",
+            "Solundaki komşuna açıkça yürü ve etkilemeye çalış.",
+            "Abartılı ve tutkulu sesler çıkararak 10 şınav çek!",
+            "En kötü ayrılığını sadece şarkı isimleri kullanarak anlat.",
+            "Gruptaki her kişiye çok imalı ve seksi bir iltifat et.",
+            "Üstündeki bir kıyafeti solundaki komşunla değiştir.",
+            "Eski sevgiline sadece 'Biliyor musun? Düşünüyorum da...' diyen bir sesli mesaj gönder ve hemen kapat.",
+            "30 saniye boyunca boşluğa nasıl öpüştüğünü göster.",
+            "Gruptakileri kahkahaya boğacak müstehcen bir fıkra anlat.",
+            "İzlediğin en ateşli veya romantik film sahnesini anlat.",
+            "Komşunun kolunu koklayarak seksi bir parfüm eleştirisi yap.",
+            "Üzerinden istediğin 2-3 parça aksesuarı veya kıyafeti çıkar.",
+            "Gece yarısı verilen en saçma ve iddialı bahaneyi uydur.",
+            "'Özel bir an' sırasında telefona cevap veriyormuş gibi yap.",
+            "Bir muzu veya çikolatayı olabilecek en seksi şekilde ye.",
+            "Gönderdiğin son ateşli veya iddialı mesajı sesli oku.",
+            "Atıştırmalık bir yiyeceği olabilecek en erotik şekilde ye.",
+            "Olabildiğince iddialı ve abartılı bir tutku sahnesini tek başına canlandır!"
         }
     };
 
