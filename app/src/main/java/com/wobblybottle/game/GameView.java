@@ -1316,7 +1316,8 @@ public class GameView extends View {
             "Bir dakika boyunca seçilen bir yoga duruşunda dengede kal!",
             "Masadaki 3 farklı içeceği tek bir bardakta karıştırıp iç!",
             "Odadaki 3 farklı kişiye gizemli ve tatlı bir iltifat et!",
-            "Instagram akışında gördüğün ilk 3 tanıdık fotoğrafa alev emojisiyle yorum yap!"
+            "Instagram akışında gördüğün ilk 3 tanıdık fotoğrafa alev emojisiyle yorum yap!",
+            "Kendini en çekici ve özgüvenli hissettiğin anlar hangileridir?"
         },
         { // 3: Flört ve Çiftler
             "Karşı cinste seni ilk anda büyüleyen 3 temel özellik nedir?",
@@ -1348,24 +1349,23 @@ public class GameView extends View {
             "Odadaki iki kişinin saç kokusunu karşılaştırıp hangisinin daha iyi olduğunu seç!",
             "Odadakilerin parfüm kokularını değerlendirip en iyi kokuyu ilan et!",
             "Bir oyuncunun seni yanağından veya boynundan nazikçe öpmesine izin ver!",
-            "Gruptan seçeceğin biriyle 1 dakika boyunca hiç gözlerini kaçırmadan bakış!"
+            "Gruptan seçeceğin biriyle 1 dakika boyunca hiç gözlerini kaçırmadan bakış!",
+            "Kimsenin bilmesini istemediğin en iddialı romantik anın nedir?",
+            "Birine attığın en cesur ve flörtöz mesaj neydi?",
+            "Birini öptüğün en alışılmadık veya sürpriz lokasyon neresiydi?",
+            "Duymaktan en çok keyif alacağın iddialı iltifat nedir?",
+            "Eski sevgilinin adını taşıyan bir kokteyl hazırlasan içine ne koyardın?"
         },
         { // 4: +18 Ateşli
             "Tutku ve romantizm dolu anlarda seni en çok ne etkiler?",
-            "Kimsenin bilmesini istemediğin en iddialı romantik anın nedir?",
-            "Birine attığın en cesur ve flörtöz mesaj neydi?",
             "Unutulmaz bir ten uyumu senin için ne ifade ediyor?",
             "Kendi fiziğinde en beğendiğin ve seksi bulduğun nokta neresidir?",
             "Sadece tek bir kişiyle özel bir gece geçirme şansın olsa odadan kimi seçerdin?",
-            "Birini öptüğün en alışılmadık veya sürpriz lokasyon neresiydi?",
-            "Kendini en çekici ve özgüvenli hissettiğin anlar hangileridir?",
             "Zihnini meşgul eden en büyük romantik fantezin nedir?",
-            "Duymaktan en çok keyif alacağın iddialı iltifat nedir?",
             "Bu odadan kaç kişiyle romantik bir yakınlaşma yaşayabilirdin?",
             "Özel anlarda çekim gücünün tepe noktasına ulaşması ne kadar sürer?",
             "Romantik bir anda bölünmek için en talihsiz zaman hangisidir?",
             "Seni anında romantik moda sokan o özel şarkı hangisi?",
-            "Eski sevgilinin adını taşıyan bir kokteyl hazırlasan içine ne koyardın?",
             "Hatırladığın en sürreal ve iddialı rüya neydi?",
             "Bu odadan biriyle baş başa kalmak zorunda olsaydın kimi seçerdin?",
             "Yakınlaşma anında yaşadığın en komik veya utandırıcı olay neydi?",
@@ -1617,7 +1617,8 @@ public class GameView extends View {
             "What is a fear you have successfully overcome?",
             "Have you ever cheated in a game or test and gotten away with it?",
             "What is something wild on your bucket list?",
-            "What is the bravest thing you have ever seen me do?"
+            "What is the bravest thing you have ever seen me do?",
+            "When do you feel at your absolute peak of attractiveness?"
         },
         { // 3: Flirt and Couples
             "What three qualities do you find most attractive in someone?",
@@ -1649,12 +1650,15 @@ public class GameView extends View {
             "Test whose hair smells better between two players in the room!",
             "Smell everyone's neck and declare who has the best smelling perfume.",
             "Let someone give you a gentle kiss on your neck.",
-            "Look into someone's eyes for 1 full minute without blinking."
+            "Look into someone's eyes for 1 full minute without blinking.",
+            "What is your secret romantic guilty pleasure?",
+            "What is the boldest romantic text you have ever sent?",
+            "What is the most unusual or unexpected location where you kissed someone?",
+            "What is the boldest, most daring compliment you'd love to hear?",
+            "If you named a cocktail after your ex, what ingredients would be in it?"
         },
         { // 4: +18 Spicy (VIP)
             "What makes romantic chemistry unforgettable to you?",
-            "What is your secret romantic guilty pleasure?",
-            "What is the boldest romantic text you have ever sent?",
             "Describe your idea of perfect passion."
         }
     };
