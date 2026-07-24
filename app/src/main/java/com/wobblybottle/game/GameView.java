@@ -1275,13 +1275,30 @@ public class GameView extends View {
             "Hayalindeki en romantik buluşmayı tek cümleyle tarif et.",
             "Birinin senin için yaptığı en tatlı ve unutulmaz jest neydi?",
             "Sevgili seçme konusundaki becerimi 10 üzerinden puanlaman gerekseydi, kaç verirdin? Neden?",
-            "Bana veya gruptaki başka birine hiç 'crush' oldun mu?"
+            "Bana veya gruptaki başka birine hiç 'crush' oldun mu?",
+            "Bir date için bir ünlü seçmen gerekseydi, bu kim olurdu?",
+            "Gizli bir tanışma uygulamasında hangi takma adı kullanırdın?",
+            "Seksi bir kıyafet giymen gerekseydi, bu ne olurdu?",
+            "Bu oyunu oynarken hiç flört ettin mi? Anlat!",
+            "Crush'ın bu odada olsaydı, ona hangi görevi verirdin?",
+            "En son ne zaman bir date'ten kaçmak için yalan söyledin?"
         },
         { // 4: +18 Ateşli
             "Seni romantik veya tutkulu anlamda en çok ne etkiler?",
             "Gizli kalmasını istediğin en romantik veya iddialı anın nedir?",
             "Attığın en iddialı veya cesur mesaj neydi?",
-            "Unutulmaz bir uyum senin için ne anlama gelir?"
+            "Unutulmaz bir uyum senin için ne anlama gelir?",
+            "Vücudunun en seksi bulduğun yeri neresi?",
+            "Buradaki tek bir kişiyle yatman gerekseydi, bu kim olurdu?",
+            "Birini öptüğün en sıra dışı yer neresiydi?",
+            "Kendini ne zaman en çekici hissediyorsun?",
+            "En büyük fantezin ne?",
+            "Duymayı hayal ettiğin en cüretkar iltifat ne?",
+            "Buradaki kaç kişiyle yatabilirdin?",
+            "Ne kadar sürede orgazm olursun?",
+            "Sevişirken rahatsız edilmek için en kötü an hangisi?",
+            "Hangi şarkı seni kesinlikle erotik moda sokar?",
+            "Eski sevgilinin adını taşıyan bir kokteyl yapsan içinde ne olurdu?"
         }
     };
 
