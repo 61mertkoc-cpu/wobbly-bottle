@@ -240,43 +240,107 @@ public class GameView extends View {
     private float drawOffsetX;
     private float drawOffsetY;
 
-    // SoundPool Custom Audio Effects System
+    // SoundPool & BGM Custom Audio System
     private android.media.SoundPool soundPool;
-    private int[] soundObjects = new int[5]; // 0: soda, 1: chicken, 2: pickle, 3: slipper, 4: champagne
+    private android.media.MediaPlayer bgmPlayer;
+    private int[] soundLoops = new int[5]; // 0: soda_loop, 1: chicken_loop, 2: pickle_loop, 3: slipper_loop, 4: champagne_loop
+    private int soundSlap;
+    private int soundPop;
     private int soundCard;
+
+    private int activeSpinStreamId = 0;
+    private float musicVolume = 0.5f; // Default 50%
+    private float sfxVolume = 1.0f;   // Default 100%
+
+    private void loadAudioPrefs() {
+        try {
+            android.content.SharedPreferences sp = getContext().getSharedPreferences("wobbly_prefs", Context.MODE_PRIVATE);
+            musicVolume = sp.getFloat("music_vol", 0.5f);
+            sfxVolume = sp.getFloat("sfx_vol", 1.0f);
+        } catch (Exception ignored) {}
+    }
+
+    private void saveAudioPrefs() {
+        try {
+            android.content.SharedPreferences sp = getContext().getSharedPreferences("wobbly_prefs", Context.MODE_PRIVATE);
+            sp.edit().putFloat("music_vol", musicVolume).putFloat("sfx_vol", sfxVolume).apply();
+        } catch (Exception ignored) {}
+    }
 
     private void initSounds(Context context) {
         try {
+            loadAudioPrefs();
             if (android.os.Build.VERSION.SDK_INT >= 21) {
                 android.media.AudioAttributes attrs = new android.media.AudioAttributes.Builder()
                         .setUsage(android.media.AudioAttributes.USAGE_GAME)
                         .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION)
                         .build();
                 soundPool = new android.media.SoundPool.Builder()
-                        .setMaxStreams(6)
+                        .setMaxStreams(8)
                         .setAudioAttributes(attrs)
                         .build();
             } else {
-                soundPool = new android.media.SoundPool(6, android.media.AudioManager.STREAM_MUSIC, 0);
+                soundPool = new android.media.SoundPool(8, android.media.AudioManager.STREAM_MUSIC, 0);
             }
-            soundObjects[0] = soundPool.load(context, R.raw.sound_soda, 1);
-            soundObjects[1] = soundPool.load(context, R.raw.sound_chicken, 1);
-            soundObjects[2] = soundPool.load(context, R.raw.sound_pickle, 1);
-            soundObjects[3] = soundPool.load(context, R.raw.sound_slipper, 1);
-            soundObjects[4] = soundPool.load(context, R.raw.sound_champagne, 1);
+            soundLoops[0] = soundPool.load(context, R.raw.sound_soda_loop, 1);
+            soundLoops[1] = soundPool.load(context, R.raw.sound_chicken_loop, 1);
+            soundLoops[2] = soundPool.load(context, R.raw.sound_pickle_loop, 1);
+            soundLoops[3] = soundPool.load(context, R.raw.sound_slipper_loop, 1);
+            soundLoops[4] = soundPool.load(context, R.raw.sound_champagne_loop, 1);
+            soundSlap = soundPool.load(context, R.raw.sound_slipper_slap, 1);
+            soundPop = soundPool.load(context, R.raw.sound_champagne_pop, 1);
             soundCard = soundPool.load(context, R.raw.sound_card, 1);
+
+            startBgm(context);
         } catch (Exception ignored) {}
     }
 
-    private void playObjectSound(int index) {
-        if (soundPool != null && index >= 0 && index < 5 && soundObjects[index] != 0) {
-            soundPool.play(soundObjects[index], 1.0f, 1.0f, 1, 0, 1.0f);
+    private void startBgm(Context context) {
+        try {
+            if (bgmPlayer == null) {
+                bgmPlayer = android.media.MediaPlayer.create(context, R.raw.bgm_party);
+                if (bgmPlayer != null) {
+                    bgmPlayer.setLooping(true);
+                    bgmPlayer.setVolume(musicVolume, musicVolume);
+                    bgmPlayer.start();
+                }
+            }
+        } catch (Exception ignored) {}
+    }
+
+    private void updateAudioVolumes() {
+        if (bgmPlayer != null) {
+            try { bgmPlayer.setVolume(musicVolume, musicVolume); } catch (Exception ignored) {}
+        }
+        saveAudioPrefs();
+    }
+
+    private void playObjectLoop(int index) {
+        stopObjectLoop();
+        if (soundPool != null && index >= 0 && index < 5 && soundLoops[index] != 0 && sfxVolume > 0f) {
+            activeSpinStreamId = soundPool.play(soundLoops[index], sfxVolume, sfxVolume, 1, -1, 1.0f);
+        }
+    }
+
+    private void stopObjectLoop() {
+        if (soundPool != null && activeSpinStreamId != 0) {
+            try { soundPool.stop(activeSpinStreamId); } catch (Exception ignored) {}
+            activeSpinStreamId = 0;
+        }
+    }
+
+    private void playImpactSound(int objectIndex) {
+        if (soundPool == null || sfxVolume <= 0f) return;
+        if (objectIndex == 3 && soundSlap != 0) { // Silly Slipper: SHAP!
+            soundPool.play(soundSlap, sfxVolume, sfxVolume, 1, 0, 1.0f);
+        } else if (objectIndex == 4 && soundPop != 0) { // Champagne: POP!
+            soundPool.play(soundPop, sfxVolume, sfxVolume, 1, 0, 1.0f);
         }
     }
 
     private void playCardSound() {
-        if (soundPool != null && soundCard != 0) {
-            soundPool.play(soundCard, 1.0f, 1.0f, 1, 0, 1.0f);
+        if (soundPool != null && soundCard != 0 && sfxVolume > 0f) {
+            soundPool.play(soundCard, sfxVolume, sfxVolume, 1, 0, 1.0f);
         }
     }
 
@@ -808,6 +872,8 @@ public class GameView extends View {
         }
         if (t >= 1f) {
             spinning = false;
+            stopObjectLoop();
+            playImpactSound(selectedObject);
             currentAngle = normalizeAngle(currentAngle);
             questioner = selectedQ;
             answerer = selectedA;
@@ -857,7 +923,7 @@ public class GameView extends View {
 
     private void startSpin() {
         if (players.size() < 2 || spinning) return;
-        playObjectSound(selectedObject);
+        playObjectLoop(selectedObject);
         spinning = true;
         questioner = -1;
         answerer = -1;
@@ -939,27 +1005,48 @@ public class GameView extends View {
         text(c, LANG_NAMES[selectedLanguage], 760, langCard.centerY() + 10, 27, Color.rgb(255, 220, 80), Paint.Align.CENTER, true);
         neonText(c, "▶", 930, langCard.centerY() + 10, 32, Color.rgb(0, 242, 254), Paint.Align.CENTER);
 
-        neonText(c, isTR() ? "NESNEYİ DEĞİŞTİR" : "CHANGE OBJECT NOW", 330, 575, 29, Color.WHITE, Paint.Align.LEFT);
+        // Compact Audio Settings Box right below Language at (320, 545, 1030, 665)
+        RectF audioCard = new RectF(320, 545, 1030, 665);
+        neonRoundRect(c, audioCard, 22, Color.rgb(255, 180, 50), Color.argb(190, 15, 20, 38), 3, 12);
+
+        // Music Column (Left half)
+        text(c, isTR() ? "MÜZİK" : "MUSIC", 445, 580, 23, Color.rgb(255, 220, 80), Paint.Align.CENTER, true);
+        neonText(c, "-", 360, 632, 36, Color.rgb(255, 100, 120), Paint.Align.CENTER);
+        int musicPct = Math.round(musicVolume * 100f);
+        text(c, musicPct + "%", 445, 630, 26, Color.WHITE, Paint.Align.CENTER, true);
+        neonText(c, "+", 530, 632, 34, Color.rgb(80, 255, 140), Paint.Align.CENTER);
+
+        p.setColor(Color.rgb(60, 75, 100));
+        c.drawLine(675, 555, 675, 655, p);
+
+        // SFX Column (Right half)
+        text(c, isTR() ? "EFEKTLER" : "EFFECTS", 850, 580, 23, Color.rgb(0, 242, 254), Paint.Align.CENTER, true);
+        neonText(c, "-", 730, 632, 36, Color.rgb(255, 100, 120), Paint.Align.CENTER);
+        int sfxPct = Math.round(sfxVolume * 100f);
+        text(c, sfxPct + "%", 850, 630, 26, Color.WHITE, Paint.Align.CENTER, true);
+        neonText(c, "+", 970, 632, 34, Color.rgb(80, 255, 140), Paint.Align.CENTER);
+
+        neonText(c, isTR() ? "NESNEYİ DEĞİŞTİR" : "CHANGE OBJECT NOW", 330, 700, 28, Color.WHITE, Paint.Align.LEFT);
         for (int i = 0; i < 5; i++) {
-            float y = 605 + i * 110;
-            RectF row = new RectF(320, y, 1030, y + 98);
+            float y = 730 + i * 105;
+            RectF row = new RectF(320, y, 1030, y + 94);
             boolean available = unlockedObjects[i] || (i == 4 && vip);
             int border = selectedObject == i ? Color.rgb(80, 255, 140)
                     : (i == 4 ? Color.rgb(255, 204, 0) : Color.rgb(130, 78, 190));
             neonRoundRect(c, row, 22, border, Color.argb(190, 12, 18, 34), selectedObject == i ? 5 : 2, 10);
             drawObjectIcon(c, i, new RectF(row.left + 5, row.top + 4, row.left + 115, row.bottom - 4), false);
-            text(c, getObjectName(i), row.left + 130, row.centerY() + 10, 27,
+            text(c, getObjectName(i), row.left + 130, row.centerY() + 10, 26,
                     Color.WHITE, Paint.Align.LEFT, true);
             text(c, available ? (selectedObject == i ? (isTR() ? "SEÇİLİ" : "SELECTED") : (isTR() ? "SEÇ" : "CHOOSE"))
                             : (i == 4 ? "VIP" : "REKLAM"),
-                    row.right - 25, row.centerY() + 10, 24, border, Paint.Align.RIGHT, true);
+                    row.right - 25, row.centerY() + 10, 23, border, Paint.Align.RIGHT, true);
         }
 
-        neonText(c, isTR() ? "AKTİF PAKETLER" : "ACTIVE PACKS", 330, 1175, 29, Color.WHITE, Paint.Align.LEFT);
+        neonText(c, isTR() ? "AKTİF PAKETLER" : "ACTIVE PACKS", 330, 1285, 28, Color.WHITE, Paint.Align.LEFT);
         for (int i = 0; i < 6; i++) {
             int col = i % 2, row = i / 2;
-            RectF r = new RectF(320 + col * 365, 1205 + row * 105,
-                    662 + col * 365, 1293 + row * 105);
+            RectF r = new RectF(320 + col * 365, 1315 + row * 98,
+                    662 + col * 365, 1398 + row * 98);
             int border = selectedPacks[i] ? Color.rgb(255, 204, 0) : Color.rgb(55, 70, 95);
             neonRoundRect(c, r, 20, border, Color.argb(210, 11, 16, 30), selectedPacks[i] ? 4 : 2, 10);
             text(c, ellipsize(getPackName(i), 17), r.centerX(), r.centerY() + 8, 20,
@@ -1326,9 +1413,31 @@ public class GameView extends View {
             return;
         }
 
+        // Audio Controls Touch (Music & SFX buttons)
+        if (hit(x, y, 320, 590, 400, 665)) { // Music -
+            musicVolume = Math.max(0.0f, musicVolume - 0.1f);
+            updateAudioVolumes();
+            return;
+        }
+        if (hit(x, y, 490, 590, 570, 665)) { // Music +
+            musicVolume = Math.min(1.0f, musicVolume + 0.1f);
+            updateAudioVolumes();
+            return;
+        }
+        if (hit(x, y, 690, 590, 770, 665)) { // SFX -
+            sfxVolume = Math.max(0.0f, sfxVolume - 0.1f);
+            saveAudioPrefs();
+            return;
+        }
+        if (hit(x, y, 930, 590, 1010, 665)) { // SFX +
+            sfxVolume = Math.min(1.0f, sfxVolume + 0.1f);
+            saveAudioPrefs();
+            return;
+        }
+
         for (int i = 0; i < 5; i++) {
-            float top = 605 + i * 110;
-            if (hit(x, y, 320, top, 1030, top + 98)) {
+            float top = 730 + i * 105;
+            if (hit(x, y, 320, top, 1030, top + 94)) {
                 if (i == 4 && !vip) vipOfferOpen = true;
                 else if (!unlockedObjects[i]) startRewardedAd(i);
                 else selectedObject = i;
@@ -1338,8 +1447,8 @@ public class GameView extends View {
         for (int i = 0; i < 6; i++) {
             int col = i % 2, row = i / 2;
             float left = 320 + col * 365;
-            float top = 1205 + row * 105;
-            if (hit(x, y, left, top, left + 342, top + 88)) {
+            float top = 1315 + row * 98;
+            if (hit(x, y, left, top, left + 342, top + 83)) {
                 if (i == 4 && !vip) vipOfferOpen = true;
                 else {
                     selectedPacks[i] = !selectedPacks[i];
