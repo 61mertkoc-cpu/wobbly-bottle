@@ -1,8 +1,8 @@
 {
   "version": 3,
   "artifactType": {
-    "type": "PACKAGED_MANIFESTS",
-    "kind": "Directory"
+    "type": "BUNDLE",
+    "kind": "RegularFile"
   },
   "applicationId": "com.wobblybottle.game",
   "variantName": "debug",
@@ -11,9 +11,7 @@
       "type": "SINGLE",
       "filters": [],
       "attributes": [],
-      "versionCode": 25,
-      "versionName": "6.0",
-      "outputFile": "AndroidManifest.xml"
+      "outputFile": "../../../../outputs/bundle/debug/app-debug.aab"
     }
   ],
   "elementType": "File"
