@@ -240,6 +240,46 @@ public class GameView extends View {
     private float drawOffsetX;
     private float drawOffsetY;
 
+    // SoundPool Custom Audio Effects System
+    private android.media.SoundPool soundPool;
+    private int[] soundObjects = new int[5]; // 0: soda, 1: chicken, 2: pickle, 3: slipper, 4: champagne
+    private int soundCard;
+
+    private void initSounds(Context context) {
+        try {
+            if (android.os.Build.VERSION.SDK_INT >= 21) {
+                android.media.AudioAttributes attrs = new android.media.AudioAttributes.Builder()
+                        .setUsage(android.media.AudioAttributes.USAGE_GAME)
+                        .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                        .build();
+                soundPool = new android.media.SoundPool.Builder()
+                        .setMaxStreams(6)
+                        .setAudioAttributes(attrs)
+                        .build();
+            } else {
+                soundPool = new android.media.SoundPool(6, android.media.AudioManager.STREAM_MUSIC, 0);
+            }
+            soundObjects[0] = soundPool.load(context, R.raw.sound_soda, 1);
+            soundObjects[1] = soundPool.load(context, R.raw.sound_chicken, 1);
+            soundObjects[2] = soundPool.load(context, R.raw.sound_pickle, 1);
+            soundObjects[3] = soundPool.load(context, R.raw.sound_slipper, 1);
+            soundObjects[4] = soundPool.load(context, R.raw.sound_champagne, 1);
+            soundCard = soundPool.load(context, R.raw.sound_card, 1);
+        } catch (Exception ignored) {}
+    }
+
+    private void playObjectSound(int index) {
+        if (soundPool != null && index >= 0 && index < 5 && soundObjects[index] != 0) {
+            soundPool.play(soundObjects[index], 1.0f, 1.0f, 1, 0, 1.0f);
+        }
+    }
+
+    private void playCardSound() {
+        if (soundPool != null && soundCard != 0) {
+            soundPool.play(soundCard, 1.0f, 1.0f, 1, 0, 1.0f);
+        }
+    }
+
     public GameView(Context context) {
         super(context);
         setLayerType(View.LAYER_TYPE_SOFTWARE, null);
@@ -248,6 +288,7 @@ public class GameView extends View {
         bgBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.game_bg);
         sliceObjectSheet();
         loadBentSprites();
+        initSounds(context);
         for (int i = 0; i < starX.length; i++) {
             starX[i] = random.nextFloat() * VW;
             starY[i] = random.nextFloat() * VH;
@@ -816,6 +857,7 @@ public class GameView extends View {
 
     private void startSpin() {
         if (players.size() < 2 || spinning) return;
+        playObjectSound(selectedObject);
         spinning = true;
         questioner = -1;
         answerer = -1;
@@ -2774,6 +2816,7 @@ public class GameView extends View {
 
     private void selectCardType(boolean isTruth) {
         typeChoiceModalOpen = false;
+        playCardSound();
         switch (selectedLanguage) {
             case LANG_TR: drawnCardType = isTruth ? "DOĞRULUK" : "CESARETLİK"; break;
             case LANG_DE: drawnCardType = isTruth ? "WAHRHEIT" : "PFLICHT"; break;

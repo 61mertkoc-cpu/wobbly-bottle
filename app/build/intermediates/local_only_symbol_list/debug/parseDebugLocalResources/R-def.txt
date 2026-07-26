@@ -41,4 +41,10 @@ drawable object_sheet
 drawable object_sheet_alpha
 drawable pack_sheet
 drawable upright_0
+raw sound_card
+raw sound_champagne
+raw sound_chicken
+raw sound_pickle
+raw sound_slipper
+raw sound_soda
 style AppTheme
