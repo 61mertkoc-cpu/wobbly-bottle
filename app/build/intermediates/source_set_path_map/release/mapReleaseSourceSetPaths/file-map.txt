@@ -1,0 +1,7 @@
+com.wobblybottle.game.app-pngs-0 C:\Users\PC\Desktop\WOBBLY BOTTLE - ANTİGRAVİTY\app\build\generated\res\pngs\release
+com.wobblybottle.game.app-resValues-1 C:\Users\PC\Desktop\WOBBLY BOTTLE - ANTİGRAVİTY\app\build\generated\res\resValues\release
+com.wobblybottle.game.app-packageReleaseResources-2 C:\Users\PC\Desktop\WOBBLY BOTTLE - ANTİGRAVİTY\app\build\intermediates\incremental\release\packageReleaseResources\merged.dir
+com.wobblybottle.game.app-packageReleaseResources-3 C:\Users\PC\Desktop\WOBBLY BOTTLE - ANTİGRAVİTY\app\build\intermediates\incremental\release\packageReleaseResources\stripped.dir
+com.wobblybottle.game.app-release-4 C:\Users\PC\Desktop\WOBBLY BOTTLE - ANTİGRAVİTY\app\build\intermediates\merged_res\release\mergeReleaseResources
+com.wobblybottle.game.app-main-5 C:\Users\PC\Desktop\WOBBLY BOTTLE - ANTİGRAVİTY\app\src\main\res
+com.wobblybottle.game.app-release-6 C:\Users\PC\Desktop\WOBBLY BOTTLE - ANTİGRAVİTY\app\src\release\res

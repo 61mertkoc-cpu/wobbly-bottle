@@ -8,12 +8,25 @@ android {
         applicationId "com.wobblybottle.game"
         minSdk 24
         targetSdk 36
-        versionCode 32
-        versionName "10.0"
+        versionCode 36
+        versionName "10.2"
+    }
+
+    signingConfigs {
+        release {
+            storeFile file("C:/Users/PC/Desktop/wobbly-release-key.jks")
+            storePassword "WobblyPass123!"
+            keyAlias "wobblykey"
+            keyPassword "WobblyPass123!"
+        }
     }
 
     buildTypes {
+        debug {
+            signingConfig signingConfigs.release
+        }
         release {
+            signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
         }

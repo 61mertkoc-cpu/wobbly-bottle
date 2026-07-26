@@ -1,0 +1,20 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.wobblybottle.game.app-release-4:/values_values.arsc.flat",
+            "map": [
+                {
+                    "source": "C:\\Users\\PC\\Desktop\\WOBBLY BOTTLE - ANTİGRAVİTY\\app\\src\\main\\res\\values\\styles.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endLines": "10",
+                        "endColumns": "12",
+                        "endOffsets": "563"
+                    }
+                }
+            ]
+        }
+    ]
+}
