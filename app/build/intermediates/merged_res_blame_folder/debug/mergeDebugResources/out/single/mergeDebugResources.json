@@ -20,12 +20,12 @@
         "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-6:\\drawable-nodpi\\bent_1_dr.png"
     },
     {
-        "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-debug-4:\\raw_sound_champagne_pop.mp3.flat",
-        "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-6:\\raw\\sound_champagne_pop.mp3"
-    },
-    {
         "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-debug-4:\\raw_bgm_party.mp3.flat",
         "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-6:\\raw\\bgm_party.mp3"
+    },
+    {
+        "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-debug-4:\\raw_sound_champagne_pop.mp3.flat",
+        "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-6:\\raw\\sound_champagne_pop.mp3"
     },
     {
         "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-debug-4:\\drawable-nodpi_bent_3_ul.png.flat",
@@ -78,6 +78,10 @@
     {
         "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-debug-4:\\drawable-nodpi_bent_0_ur.png.flat",
         "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-6:\\drawable-nodpi\\bent_0_ur.png"
+    },
+    {
+        "merged": "com.wobblybottle.game.app-debug-4:/raw_btn_click.mp3.flat",
+        "source": "com.wobblybottle.game.app-main-6:/raw/btn_click.mp3"
     },
     {
         "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-debug-4:\\drawable-nodpi_bent_4_dl.png.flat",
@@ -178,18 +182,6 @@
     {
         "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-debug-4:\\raw_sound_champagne_loop.mp3.flat",
         "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-6:\\raw\\sound_champagne_loop.mp3"
-    },
-    {
-        "merged": "com.wobblybottle.game.app-debug-4:/raw_sound_soda_loop.mp3.flat",
-        "source": "com.wobblybottle.game.app-main-6:/raw/sound_soda_loop.mp3"
-    },
-    {
-        "merged": "com.wobblybottle.game.app-debug-4:/raw_bgm_party.mp3.flat",
-        "source": "com.wobblybottle.game.app-main-6:/raw/bgm_party.mp3"
-    },
-    {
-        "merged": "com.wobblybottle.game.app-debug-4:/raw_sound_pickle_loop.mp3.flat",
-        "source": "com.wobblybottle.game.app-main-6:/raw/sound_pickle_loop.mp3"
     },
     {
         "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-debug-4:\\drawable-nodpi_bent_3_0.png.flat",

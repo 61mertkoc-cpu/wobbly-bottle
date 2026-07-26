@@ -247,6 +247,7 @@ public class GameView extends View {
     private int soundSlap;
     private int soundPop;
     private int soundCard;
+    private int soundClick;
 
     private int activeSpinStreamId = 0;
     private float musicVolume = 0.5f; // Default 50%
@@ -290,6 +291,7 @@ public class GameView extends View {
             soundSlap = soundPool.load(context, R.raw.sound_slipper_slap, 1);
             soundPop = soundPool.load(context, R.raw.sound_champagne_pop, 1);
             soundCard = soundPool.load(context, R.raw.sound_card, 1);
+            soundClick = soundPool.load(context, R.raw.btn_click, 1);
 
             startBgm(context);
         } catch (Exception ignored) {}
@@ -343,6 +345,12 @@ public class GameView extends View {
     private void playCardSound() {
         if (soundPool != null && soundCard != 0 && sfxVolume > 0f) {
             soundPool.play(soundCard, sfxVolume, sfxVolume, 1, 0, 1.0f);
+        }
+    }
+
+    private void playClickSound() {
+        if (soundPool != null && soundClick != 0 && sfxVolume > 0f) {
+            soundPool.play(soundClick, sfxVolume, sfxVolume, 1, 0, 1.0f);
         }
     }
 
@@ -1247,6 +1255,8 @@ public class GameView extends View {
         float x = (event.getX() - drawOffsetX) / drawScale;
         float y = (event.getY() - drawOffsetY) / drawScale;
         if (x < 0 || x > VW || y < 0 || y > VH) return true;
+
+        playClickSound();
 
         if (vipOfferOpen) {
             if (hit(x, y, 830, 430, 965, 570)) vipOfferOpen = false;

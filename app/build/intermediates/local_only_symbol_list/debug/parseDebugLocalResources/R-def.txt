@@ -42,6 +42,7 @@ drawable object_sheet_alpha
 drawable pack_sheet
 drawable upright_0
 raw bgm_party
+raw btn_click
 raw sound_card
 raw sound_champagne_loop
 raw sound_champagne_pop
