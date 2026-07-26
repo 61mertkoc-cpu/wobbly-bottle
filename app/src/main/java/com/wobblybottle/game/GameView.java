@@ -320,6 +320,10 @@ public class GameView extends View {
         if (soundPool != null && index >= 0 && index < 5 && soundLoops[index] != 0 && sfxVolume > 0f) {
             activeSpinStreamId = soundPool.play(soundLoops[index], sfxVolume, sfxVolume, 1, -1, 1.0f);
         }
+        // Champagne (index 4): Instant Cork POP when spin starts!
+        if (index == 4 && soundPool != null && soundPop != 0 && sfxVolume > 0f) {
+            soundPool.play(soundPop, sfxVolume, sfxVolume, 1, 0, 1.0f);
+        }
     }
 
     private void stopObjectLoop() {
@@ -331,10 +335,8 @@ public class GameView extends View {
 
     private void playImpactSound(int objectIndex) {
         if (soundPool == null || sfxVolume <= 0f) return;
-        if (objectIndex == 3 && soundSlap != 0) { // Silly Slipper: SHAP!
+        if (objectIndex == 3 && soundSlap != 0) { // Silly Slipper: Cartoon Slap SHAP!
             soundPool.play(soundSlap, sfxVolume, sfxVolume, 1, 0, 1.0f);
-        } else if (objectIndex == 4 && soundPop != 0) { // Champagne: POP!
-            soundPool.play(soundPop, sfxVolume, sfxVolume, 1, 0, 1.0f);
         }
     }
 
