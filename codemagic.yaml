@@ -1,9 +1,12 @@
 workflows:
   ios-release:
     name: iOS Release
-    instance_type: mac_mini_m2
+    triggering:
+      events:
+        - push
     integrations:
       app_store_connect: Codemagic
+    instance_type: mac_mini_m2
     environment:
       flutter: 3.41.8
       xcode: latest
@@ -29,7 +32,7 @@ workflows:
           xcode-project use-profiles
       - name: Build ipa for distribution
         script: |
-          flutter build ipa --release
+          flutter build ipa --release --export-options-plist=/Users/builder/export_options.plist
     artifacts:
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
