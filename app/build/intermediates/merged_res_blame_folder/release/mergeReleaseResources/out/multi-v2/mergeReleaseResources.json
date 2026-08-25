@@ -6,6 +6,37 @@
                 {
                     "source": "C:\\Users\\PC\\Desktop\\WOBBLY BOTTLE - ANTİGRAVİTY\\app\\src\\main\\res\\values\\styles.xml",
                     "from": {
+                        "startLines": "-1",
+                        "startColumns": "-1",
+                        "startOffsets": "-1"
+                    },
+                    "to": {
+                        "startLines": "3",
+                        "startColumns": "4",
+                        "startOffsets": "112",
+                        "endLines": "11",
+                        "endColumns": "12",
+                        "endOffsets": "620"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\PC\\Desktop\\WOBBLY BOTTLE - ANTİGRAVİTY\\app\\src\\main\\res\\values\\colors.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "56",
+                        "endOffsets": "107"
+                    }
+                }
+            ]
+        },
+        {
+            "outputFile": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-release-4:\\values_values.arsc.flat",
+            "map": [
+                {
+                    "source": "C:\\Users\\PC\\Desktop\\WOBBLY BOTTLE - ANTİGRAVİTY\\app\\src\\main\\res\\values\\styles.xml",
+                    "from": {
                         "startLines": "2",
                         "startColumns": "4",
                         "startOffsets": "55",

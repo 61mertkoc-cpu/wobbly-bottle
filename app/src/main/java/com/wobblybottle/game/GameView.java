@@ -24,6 +24,7 @@ import java.util.Locale;
 import java.util.Random;
 
 public class GameView extends View {
+    public static final int SCREEN_SPLASH = -1;
     public static final int SCREEN_SETUP = 0;
     public static final int SCREEN_OBJECTS = 1;
     public static final int SCREEN_PACKS = 2;
@@ -73,7 +74,8 @@ public class GameView extends View {
     private static final String[] BEND_CODES = {"0", "ur", "r", "dr", "ul", "l", "dl"};
     private static final float[] BEND_ANGLES_DEG = {0f, 45f, 90f, 135f, -45f, -90f, -135f};
     private static final int BENT_SIZE = 800; // OUT_SIZE from BendGen (800x800)
-    private int screen = SCREEN_SETUP;
+    private int screen = SCREEN_SPLASH;
+    private long splashStartTime = SystemClock.uptimeMillis();
     private int selectedColor = 0;
     private int selectedObject = 0;
     private boolean online;
@@ -426,7 +428,8 @@ public class GameView extends View {
         canvas.translate(drawOffsetX, drawOffsetY);
         canvas.scale(drawScale, drawScale);
         drawBackground(canvas);
-        if (screen == SCREEN_SETUP) drawSetup(canvas);
+        if (screen == SCREEN_SPLASH) drawSplash(canvas);
+        else if (screen == SCREEN_SETUP) drawSetup(canvas);
         else if (screen == SCREEN_OBJECTS) drawObjects(canvas);
         else if (screen == SCREEN_PACKS) drawPacks(canvas);
         else drawArena(canvas);
@@ -437,9 +440,77 @@ public class GameView extends View {
         if (!online) drawOffline(canvas);
         canvas.restore();
 
-        if (running && (spinning || adActive || screen == SCREEN_ARENA)) {
+        if (running && (screen == SCREEN_SPLASH || spinning || adActive || screen == SCREEN_ARENA)) {
             postInvalidateOnAnimation();
         }
+    }
+
+    private void drawSplash(Canvas c) {
+        long elapsed = SystemClock.uptimeMillis() - splashStartTime;
+        if (elapsed > 2800) {
+            goTo(SCREEN_SETUP);
+            return;
+        }
+
+        // Animated Party Background - Glowing Disco Pulse
+        float pulse = (float) (Math.sin(elapsed * 0.005) * 0.5 + 0.5);
+        glow.setShader(new android.graphics.RadialGradient(
+                540, 850, 600,
+                new int[]{
+                        Color.argb((int)(120 * pulse + 60), 255, 8, 160),
+                        Color.argb((int)(100 * (1f - pulse) + 40), 0, 242, 254),
+                        Color.argb(0, 10, 15, 30)
+                },
+                null, Shader.TileMode.CLAMP
+        ));
+        c.drawCircle(540, 850, 600, glow);
+        glow.setShader(null);
+
+        // Dynamic Floating Party Sparkles
+        for (int i = 0; i < 24; i++) {
+            float sx = (starX[i] + (float) Math.sin(elapsed * 0.002 + i) * 35f) % VW;
+            float sy = (starY[i] - (elapsed * 0.06f + i * 20f)) % VH;
+            if (sy < 0) sy += VH;
+            float sr = starR[i] * (1.2f + 0.5f * (float) Math.sin(elapsed * 0.008 + i));
+            p.setColor(i % 2 == 0 ? Color.rgb(255, 204, 0) : Color.rgb(255, 8, 160));
+            c.drawCircle(sx, sy, sr, p);
+        }
+
+        // Wobble & Bounce animation for bottle logo
+        float wobbleAngle = (float) (Math.sin(elapsed * 0.006) * 14.0);
+        float bounceY = (float) (Math.abs(Math.sin(elapsed * 0.004)) * 22.0);
+
+        // Logo Title
+        drawLogo(c, 280 - bounceY * 0.4f, true);
+
+        // Animated Bottle Icon in Center
+        if (objectIcons[0] != null) {
+            c.save();
+            c.translate(540, 880 - bounceY);
+            c.rotate(wobbleAngle);
+
+            p.setColor(Color.argb(160, 255, 204, 0));
+            p.setShadowLayer(45, 0, 0, Color.rgb(255, 8, 160));
+            c.drawCircle(0, 0, 140, p);
+            p.clearShadowLayer();
+
+            float iconW = 260;
+            float iconH = iconW * (objectIcons[0].getHeight() / (float) objectIcons[0].getWidth());
+            c.drawBitmap(objectIcons[0], null, new RectF(-iconW / 2f, -iconH / 2f, iconW / 2f, iconH / 2f), p);
+            c.restore();
+        }
+
+        // Tagline / Subtitle
+        neonText(c, isTR() ? "PARTİ BAŞLIYOR..." : "LET'S GET THE PARTY STARTED!",
+                540, 1260, 44, Color.rgb(255, 224, 55), Paint.Align.CENTER);
+
+        // Tap to skip hint
+        float alphaPulse = (float) (Math.sin(elapsed * 0.008) * 0.35 + 0.65);
+        p.setColor(withAlpha(Color.rgb(0, 242, 254), (int) (alphaPulse * 255)));
+        p.setTextSize(28);
+        p.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
+        p.setTextAlign(Paint.Align.CENTER);
+        c.drawText(isTR() ? "DEVAM ETMEK İÇİN EKRANA DOKUNUN" : "TAP ANYWHERE TO START", 540, 1680, p);
     }
 
     private void drawBackground(Canvas c) {
@@ -1281,6 +1352,11 @@ public class GameView extends View {
         if (profileOpen) {
             handleProfileTouch(x, y);
             invalidate();
+            return true;
+        }
+
+        if (screen == SCREEN_SPLASH) {
+            goTo(SCREEN_SETUP);
             return true;
         }
 

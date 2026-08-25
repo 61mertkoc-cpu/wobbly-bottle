@@ -1,0 +1,4 @@
+#Fri Aug 07 13:24:02 TRT 2026
+base.0=C\:\\Users\\PC\\Desktop\\WOBBLY BOTTLE - ANTİGRAVİTY\\app\\build\\intermediates\\dex\\release\\mergeDexRelease\\classes.dex
+renamed.0=classes.dex
+path.0=classes.dex

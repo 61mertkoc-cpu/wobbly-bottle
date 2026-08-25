@@ -1,206 +1,278 @@
 [
     {
-        "merged": "com.wobblybottle.game.app-release-4:/drawable-nodpi_bent_1_l.png.flat",
-        "source": "com.wobblybottle.game.app-main-5:/drawable-nodpi/bent_1_l.png"
+        "merged": "com.wobblybottle.game.app-release-4:/mipmap-hdpi_ic_launcher_round.png.flat",
+        "source": "com.wobblybottle.game.app-main-5:/mipmap-hdpi/ic_launcher_round.png"
     },
     {
-        "merged": "com.wobblybottle.game.app-release-4:/drawable-nodpi_upright_0.png.flat",
-        "source": "com.wobblybottle.game.app-main-5:/drawable-nodpi/upright_0.png"
+        "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-release-4:\\drawable-nodpi_bent_0_r.png.flat",
+        "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-5:\\drawable-nodpi\\bent_0_r.png"
     },
     {
-        "merged": "com.wobblybottle.game.app-release-4:/drawable-nodpi_bent_3_l.png.flat",
-        "source": "com.wobblybottle.game.app-main-5:/drawable-nodpi/bent_3_l.png"
+        "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-release-4:\\drawable-nodpi_object_sheet_alpha.png.flat",
+        "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-5:\\drawable-nodpi\\object_sheet_alpha.png"
     },
     {
-        "merged": "com.wobblybottle.game.app-release-4:/raw_sound_slipper_loop.mp3.flat",
-        "source": "com.wobblybottle.game.app-main-5:/raw/sound_slipper_loop.mp3"
+        "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-release-4:\\drawable-nodpi_bent_1_dr.png.flat",
+        "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-5:\\drawable-nodpi\\bent_1_dr.png"
     },
     {
-        "merged": "com.wobblybottle.game.app-release-4:/drawable-nodpi_bent_4_l.png.flat",
-        "source": "com.wobblybottle.game.app-main-5:/drawable-nodpi/bent_4_l.png"
+        "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-release-4:\\drawable-nodpi_bent_3_dr.png.flat",
+        "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-5:\\drawable-nodpi\\bent_3_dr.png"
     },
     {
-        "merged": "com.wobblybottle.game.app-release-4:/drawable-nodpi_bent_0_l.png.flat",
-        "source": "com.wobblybottle.game.app-main-5:/drawable-nodpi/bent_0_l.png"
+        "merged": "com.wobblybottle.game.app-release-4:/mipmap-mdpi_ic_launcher.png.flat",
+        "source": "com.wobblybottle.game.app-main-5:/mipmap-mdpi/ic_launcher.png"
     },
     {
-        "merged": "com.wobblybottle.game.app-release-4:/drawable-nodpi_bent_0_ul.png.flat",
-        "source": "com.wobblybottle.game.app-main-5:/drawable-nodpi/bent_0_ul.png"
+        "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-release-4:\\drawable-nodpi_object_sheet.png.flat",
+        "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-5:\\drawable-nodpi\\object_sheet.png"
     },
     {
-        "merged": "com.wobblybottle.game.app-release-4:/drawable-nodpi_bent_0_dl.png.flat",
-        "source": "com.wobblybottle.game.app-main-5:/drawable-nodpi/bent_0_dl.png"
+        "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-release-4:\\drawable-nodpi_bent_1_ur.png.flat",
+        "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-5:\\drawable-nodpi\\bent_1_ur.png"
     },
     {
-        "merged": "com.wobblybottle.game.app-release-4:/raw_sound_champagne_loop.mp3.flat",
-        "source": "com.wobblybottle.game.app-main-5:/raw/sound_champagne_loop.mp3"
+        "merged": "com.wobblybottle.game.app-release-4:/drawable-mdpi_ic_launcher_foreground.png.flat",
+        "source": "com.wobblybottle.game.app-main-5:/drawable-mdpi/ic_launcher_foreground.png"
     },
     {
-        "merged": "com.wobblybottle.game.app-release-4:/drawable-nodpi_object_sheet_alpha.png.flat",
-        "source": "com.wobblybottle.game.app-main-5:/drawable-nodpi/object_sheet_alpha.png"
+        "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-release-4:\\drawable-nodpi_app_icon.png.flat",
+        "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-5:\\drawable-nodpi\\app_icon.png"
     },
     {
-        "merged": "com.wobblybottle.game.app-release-4:/drawable-nodpi_bent_2_ul.png.flat",
-        "source": "com.wobblybottle.game.app-main-5:/drawable-nodpi/bent_2_ul.png"
+        "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-release-4:\\drawable-nodpi_bent_3_ur.png.flat",
+        "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-5:\\drawable-nodpi\\bent_3_ur.png"
     },
     {
-        "merged": "com.wobblybottle.game.app-release-4:/drawable-nodpi_bent_4_ul.png.flat",
-        "source": "com.wobblybottle.game.app-main-5:/drawable-nodpi/bent_4_ul.png"
+        "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-release-4:\\raw_btn_click.mp3.flat",
+        "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-5:\\raw\\btn_click.mp3"
     },
     {
-        "merged": "com.wobblybottle.game.app-release-4:/drawable-nodpi_pack_sheet.png.flat",
-        "source": "com.wobblybottle.game.app-main-5:/drawable-nodpi/pack_sheet.png"
+        "merged": "com.wobblybottle.game.app-release-4:/mipmap-xhdpi_ic_launcher_round.png.flat",
+        "source": "com.wobblybottle.game.app-main-5:/mipmap-xhdpi/ic_launcher_round.png"
     },
     {
-        "merged": "com.wobblybottle.game.app-release-4:/drawable-nodpi_bent_0_ur.png.flat",
-        "source": "com.wobblybottle.game.app-main-5:/drawable-nodpi/bent_0_ur.png"
+        "merged": "com.wobblybottle.game.app-release-4:/mipmap-xxxhdpi_ic_launcher.png.flat",
+        "source": "com.wobblybottle.game.app-main-5:/mipmap-xxxhdpi/ic_launcher.png"
     },
     {
-        "merged": "com.wobblybottle.game.app-release-4:/drawable-nodpi_bent_0_0.png.flat",
-        "source": "com.wobblybottle.game.app-main-5:/drawable-nodpi/bent_0_0.png"
+        "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-release-4:\\drawable-nodpi_bent_2_ul.png.flat",
+        "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-5:\\drawable-nodpi\\bent_2_ul.png"
     },
     {
-        "merged": "com.wobblybottle.game.app-release-4:/drawable-nodpi_bent_2_dr.png.flat",
-        "source": "com.wobblybottle.game.app-main-5:/drawable-nodpi/bent_2_dr.png"
+        "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-release-4:\\drawable-nodpi_bent_4_dl.png.flat",
+        "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-5:\\drawable-nodpi\\bent_4_dl.png"
     },
     {
-        "merged": "com.wobblybottle.game.app-release-4:/drawable-nodpi_bent_1_dr.png.flat",
-        "source": "com.wobblybottle.game.app-main-5:/drawable-nodpi/bent_1_dr.png"
+        "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-release-4:\\drawable-nodpi_bent_1_ul.png.flat",
+        "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-5:\\drawable-nodpi\\bent_1_ul.png"
     },
     {
-        "merged": "com.wobblybottle.game.app-release-4:/drawable-nodpi_bent_4_dr.png.flat",
-        "source": "com.wobblybottle.game.app-main-5:/drawable-nodpi/bent_4_dr.png"
+        "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-release-4:\\drawable-nodpi_bent_0_ul.png.flat",
+        "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-5:\\drawable-nodpi\\bent_0_ul.png"
     },
     {
-        "merged": "com.wobblybottle.game.app-release-4:/drawable-nodpi_bent_2_0.png.flat",
-        "source": "com.wobblybottle.game.app-main-5:/drawable-nodpi/bent_2_0.png"
+        "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-release-4:\\drawable-nodpi_bent_2_dl.png.flat",
+        "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-5:\\drawable-nodpi\\bent_2_dl.png"
     },
     {
-        "merged": "com.wobblybottle.game.app-release-4:/drawable-nodpi_bent_2_ur.png.flat",
-        "source": "com.wobblybottle.game.app-main-5:/drawable-nodpi/bent_2_ur.png"
+        "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-release-4:\\drawable-nodpi_bent_3_ul.png.flat",
+        "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-5:\\drawable-nodpi\\bent_3_ul.png"
     },
     {
-        "merged": "com.wobblybottle.game.app-release-4:/drawable-nodpi_bent_1_ur.png.flat",
-        "source": "com.wobblybottle.game.app-main-5:/drawable-nodpi/bent_1_ur.png"
+        "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-release-4:\\drawable-nodpi_bent_1_dl.png.flat",
+        "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-5:\\drawable-nodpi\\bent_1_dl.png"
     },
     {
-        "merged": "com.wobblybottle.game.app-release-4:/drawable-nodpi_bent_1_0.png.flat",
-        "source": "com.wobblybottle.game.app-main-5:/drawable-nodpi/bent_1_0.png"
+        "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-release-4:\\drawable-nodpi_bent_0_dl.png.flat",
+        "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-5:\\drawable-nodpi\\bent_0_dl.png"
     },
     {
-        "merged": "com.wobblybottle.game.app-release-4:/drawable-nodpi_bent_3_dr.png.flat",
-        "source": "com.wobblybottle.game.app-main-5:/drawable-nodpi/bent_3_dr.png"
+        "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-release-4:\\drawable-nodpi_bent_4_ul.png.flat",
+        "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-5:\\drawable-nodpi\\bent_4_ul.png"
     },
     {
-        "merged": "com.wobblybottle.game.app-release-4:/drawable-nodpi_bent_4_0.png.flat",
-        "source": "com.wobblybottle.game.app-main-5:/drawable-nodpi/bent_4_0.png"
+        "merged": "com.wobblybottle.game.app-release-4:/mipmap-mdpi_ic_launcher_round.png.flat",
+        "source": "com.wobblybottle.game.app-main-5:/mipmap-mdpi/ic_launcher_round.png"
     },
     {
-        "merged": "com.wobblybottle.game.app-release-4:/drawable-nodpi_bent_0_dr.png.flat",
-        "source": "com.wobblybottle.game.app-main-5:/drawable-nodpi/bent_0_dr.png"
+        "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-release-4:\\raw_sound_chicken_loop.mp3.flat",
+        "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-5:\\raw\\sound_chicken_loop.mp3"
     },
     {
-        "merged": "com.wobblybottle.game.app-release-4:/drawable-nodpi_bent_3_0.png.flat",
-        "source": "com.wobblybottle.game.app-main-5:/drawable-nodpi/bent_3_0.png"
+        "merged": "com.wobblybottle.game.app-release-4:/drawable-xxhdpi_ic_launcher_foreground.png.flat",
+        "source": "com.wobblybottle.game.app-main-5:/drawable-xxhdpi/ic_launcher_foreground.png"
     },
     {
-        "merged": "com.wobblybottle.game.app-release-4:/raw_sound_soda_loop.mp3.flat",
-        "source": "com.wobblybottle.game.app-main-5:/raw/sound_soda_loop.mp3"
+        "merged": "com.wobblybottle.game.app-release-4:/mipmap-xxhdpi_ic_launcher.png.flat",
+        "source": "com.wobblybottle.game.app-main-5:/mipmap-xxhdpi/ic_launcher.png"
     },
     {
-        "merged": "com.wobblybottle.game.app-release-4:/drawable-nodpi_bent_2_dl.png.flat",
-        "source": "com.wobblybottle.game.app-main-5:/drawable-nodpi/bent_2_dl.png"
+        "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-release-4:\\drawable-nodpi_bent_3_dl.png.flat",
+        "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-5:\\drawable-nodpi\\bent_3_dl.png"
     },
     {
-        "merged": "com.wobblybottle.game.app-release-4:/drawable_app_icon.xml.flat",
-        "source": "com.wobblybottle.game.app-main-5:/drawable/app_icon.xml"
+        "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-release-4:\\raw_sound_champagne_pop.mp3.flat",
+        "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-5:\\raw\\sound_champagne_pop.mp3"
     },
     {
-        "merged": "com.wobblybottle.game.app-release-4:/drawable-nodpi_bent_4_dl.png.flat",
-        "source": "com.wobblybottle.game.app-main-5:/drawable-nodpi/bent_4_dl.png"
+        "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-release-4:\\drawable-nodpi_bent_4_r.png.flat",
+        "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-5:\\drawable-nodpi\\bent_4_r.png"
     },
     {
-        "merged": "com.wobblybottle.game.app-release-4:/drawable-nodpi_bent_3_dl.png.flat",
-        "source": "com.wobblybottle.game.app-main-5:/drawable-nodpi/bent_3_dl.png"
+        "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-release-4:\\drawable-nodpi_bent_2_r.png.flat",
+        "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-5:\\drawable-nodpi\\bent_2_r.png"
     },
     {
-        "merged": "com.wobblybottle.game.app-release-4:/drawable-nodpi_object_sheet.png.flat",
-        "source": "com.wobblybottle.game.app-main-5:/drawable-nodpi/object_sheet.png"
+        "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-release-4:\\drawable-nodpi_bent_1_r.png.flat",
+        "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-5:\\drawable-nodpi\\bent_1_r.png"
     },
     {
-        "merged": "com.wobblybottle.game.app-release-4:/drawable-nodpi_bent_3_ur.png.flat",
-        "source": "com.wobblybottle.game.app-main-5:/drawable-nodpi/bent_3_ur.png"
+        "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-release-4:\\drawable-nodpi_bent_3_r.png.flat",
+        "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-5:\\drawable-nodpi\\bent_3_r.png"
     },
     {
-        "merged": "com.wobblybottle.game.app-release-4:/drawable-nodpi_bent_4_ur.png.flat",
-        "source": "com.wobblybottle.game.app-main-5:/drawable-nodpi/bent_4_ur.png"
+        "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-release-4:\\raw_sound_pickle_loop.mp3.flat",
+        "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-5:\\raw\\sound_pickle_loop.mp3"
     },
     {
-        "merged": "com.wobblybottle.game.app-release-4:/drawable-nodpi_game_bg.png.flat",
-        "source": "com.wobblybottle.game.app-main-5:/drawable-nodpi/game_bg.png"
+        "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-release-4:\\drawable-nodpi_game_bg.png.flat",
+        "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-5:\\drawable-nodpi\\game_bg.png"
     },
     {
-        "merged": "com.wobblybottle.game.app-release-4:/raw_sound_champagne_pop.mp3.flat",
-        "source": "com.wobblybottle.game.app-main-5:/raw/sound_champagne_pop.mp3"
+        "merged": "com.wobblybottle.game.app-release-4:/mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "com.wobblybottle.game.app-main-5:/mipmap-anydpi-v26/ic_launcher.xml"
     },
     {
-        "merged": "com.wobblybottle.game.app-release-4:/raw_btn_click.mp3.flat",
-        "source": "com.wobblybottle.game.app-main-5:/raw/btn_click.mp3"
+        "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-release-4:\\drawable-nodpi_bent_0_ur.png.flat",
+        "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-5:\\drawable-nodpi\\bent_0_ur.png"
     },
     {
-        "merged": "com.wobblybottle.game.app-release-4:/raw_sound_pickle_loop.mp3.flat",
-        "source": "com.wobblybottle.game.app-main-5:/raw/sound_pickle_loop.mp3"
+        "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-release-4:\\raw_sound_champagne_loop.mp3.flat",
+        "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-5:\\raw\\sound_champagne_loop.mp3"
     },
     {
-        "merged": "com.wobblybottle.game.app-release-4:/drawable-nodpi_bent_1_dl.png.flat",
-        "source": "com.wobblybottle.game.app-main-5:/drawable-nodpi/bent_1_dl.png"
+        "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-release-4:\\drawable-nodpi_bent_2_dr.png.flat",
+        "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-5:\\drawable-nodpi\\bent_2_dr.png"
     },
     {
-        "merged": "com.wobblybottle.game.app-release-4:/raw_sound_slipper_slap.mp3.flat",
-        "source": "com.wobblybottle.game.app-main-5:/raw/sound_slipper_slap.mp3"
+        "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-release-4:\\raw_bgm_party.mp3.flat",
+        "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-5:\\raw\\bgm_party.mp3"
     },
     {
-        "merged": "com.wobblybottle.game.app-release-4:/drawable-nodpi_bent_0_r.png.flat",
-        "source": "com.wobblybottle.game.app-main-5:/drawable-nodpi/bent_0_r.png"
+        "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-release-4:\\raw_sound_slipper_loop.mp3.flat",
+        "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-5:\\raw\\sound_slipper_loop.mp3"
     },
     {
-        "merged": "com.wobblybottle.game.app-release-4:/raw_sound_chicken_loop.mp3.flat",
-        "source": "com.wobblybottle.game.app-main-5:/raw/sound_chicken_loop.mp3"
+        "merged": "com.wobblybottle.game.app-release-4:/drawable-xhdpi_ic_launcher_foreground.png.flat",
+        "source": "com.wobblybottle.game.app-main-5:/drawable-xhdpi/ic_launcher_foreground.png"
     },
     {
-        "merged": "com.wobblybottle.game.app-release-4:/drawable-nodpi_bent_1_ul.png.flat",
-        "source": "com.wobblybottle.game.app-main-5:/drawable-nodpi/bent_1_ul.png"
+        "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-release-4:\\drawable-nodpi_bent_2_ur.png.flat",
+        "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-5:\\drawable-nodpi\\bent_2_ur.png"
     },
     {
-        "merged": "com.wobblybottle.game.app-release-4:/drawable-nodpi_bent_2_r.png.flat",
-        "source": "com.wobblybottle.game.app-main-5:/drawable-nodpi/bent_2_r.png"
+        "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-release-4:\\drawable-nodpi_pack_sheet.png.flat",
+        "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-5:\\drawable-nodpi\\pack_sheet.png"
     },
     {
-        "merged": "com.wobblybottle.game.app-release-4:/drawable-nodpi_bent_1_r.png.flat",
-        "source": "com.wobblybottle.game.app-main-5:/drawable-nodpi/bent_1_r.png"
+        "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-release-4:\\drawable-nodpi_bent_4_dr.png.flat",
+        "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-5:\\drawable-nodpi\\bent_4_dr.png"
     },
     {
-        "merged": "com.wobblybottle.game.app-release-4:/drawable-nodpi_bent_3_ul.png.flat",
-        "source": "com.wobblybottle.game.app-main-5:/drawable-nodpi/bent_3_ul.png"
+        "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-release-4:\\drawable-nodpi_bent_1_l.png.flat",
+        "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-5:\\drawable-nodpi\\bent_1_l.png"
     },
     {
-        "merged": "com.wobblybottle.game.app-release-4:/drawable-nodpi_bent_4_r.png.flat",
-        "source": "com.wobblybottle.game.app-main-5:/drawable-nodpi/bent_4_r.png"
+        "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-release-4:\\drawable-nodpi_bent_4_ur.png.flat",
+        "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-5:\\drawable-nodpi\\bent_4_ur.png"
     },
     {
-        "merged": "com.wobblybottle.game.app-release-4:/drawable-nodpi_bent_3_r.png.flat",
-        "source": "com.wobblybottle.game.app-main-5:/drawable-nodpi/bent_3_r.png"
+        "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-release-4:\\drawable-nodpi_bent_0_l.png.flat",
+        "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-5:\\drawable-nodpi\\bent_0_l.png"
     },
     {
-        "merged": "com.wobblybottle.game.app-release-4:/raw_bgm_party.mp3.flat",
-        "source": "com.wobblybottle.game.app-main-5:/raw/bgm_party.mp3"
+        "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-release-4:\\drawable-nodpi_bent_4_l.png.flat",
+        "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-5:\\drawable-nodpi\\bent_4_l.png"
     },
     {
-        "merged": "com.wobblybottle.game.app-release-4:/raw_sound_card.mp3.flat",
-        "source": "com.wobblybottle.game.app-main-5:/raw/sound_card.mp3"
+        "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-release-4:\\raw_sound_soda_loop.mp3.flat",
+        "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-5:\\raw\\sound_soda_loop.mp3"
     },
     {
-        "merged": "com.wobblybottle.game.app-release-4:/drawable-nodpi_bent_2_l.png.flat",
-        "source": "com.wobblybottle.game.app-main-5:/drawable-nodpi/bent_2_l.png"
+        "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-release-4:\\drawable-nodpi_bent_0_dr.png.flat",
+        "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-5:\\drawable-nodpi\\bent_0_dr.png"
+    },
+    {
+        "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-release-4:\\drawable-nodpi_bent_3_l.png.flat",
+        "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-5:\\drawable-nodpi\\bent_3_l.png"
+    },
+    {
+        "merged": "com.wobblybottle.game.app-release-4:/mipmap-xxxhdpi_ic_launcher_round.png.flat",
+        "source": "com.wobblybottle.game.app-main-5:/mipmap-xxxhdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "com.wobblybottle.game.app-release-4:/mipmap-hdpi_ic_launcher.png.flat",
+        "source": "com.wobblybottle.game.app-main-5:/mipmap-hdpi/ic_launcher.png"
+    },
+    {
+        "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-release-4:\\drawable-nodpi_bent_2_l.png.flat",
+        "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-5:\\drawable-nodpi\\bent_2_l.png"
+    },
+    {
+        "merged": "com.wobblybottle.game.app-release-4:/mipmap-xxhdpi_ic_launcher_round.png.flat",
+        "source": "com.wobblybottle.game.app-main-5:/mipmap-xxhdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-release-4:\\drawable_app_icon.xml.flat",
+        "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-5:\\drawable\\app_icon.xml"
+    },
+    {
+        "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-release-4:\\drawable-nodpi_upright_0.png.flat",
+        "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-5:\\drawable-nodpi\\upright_0.png"
+    },
+    {
+        "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-release-4:\\drawable-nodpi_bent_4_0.png.flat",
+        "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-5:\\drawable-nodpi\\bent_4_0.png"
+    },
+    {
+        "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-release-4:\\drawable-nodpi_bent_3_0.png.flat",
+        "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-5:\\drawable-nodpi\\bent_3_0.png"
+    },
+    {
+        "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-release-4:\\raw_sound_card.mp3.flat",
+        "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-5:\\raw\\sound_card.mp3"
+    },
+    {
+        "merged": "com.wobblybottle.game.app-release-4:/mipmap-xhdpi_ic_launcher.png.flat",
+        "source": "com.wobblybottle.game.app-main-5:/mipmap-xhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-release-4:\\drawable-nodpi_bent_0_0.png.flat",
+        "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-5:\\drawable-nodpi\\bent_0_0.png"
+    },
+    {
+        "merged": "com.wobblybottle.game.app-release-4:/mipmap-anydpi-v26_ic_launcher_round.xml.flat",
+        "source": "com.wobblybottle.game.app-main-5:/mipmap-anydpi-v26/ic_launcher_round.xml"
+    },
+    {
+        "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-release-4:\\drawable-nodpi_bent_1_0.png.flat",
+        "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-5:\\drawable-nodpi\\bent_1_0.png"
+    },
+    {
+        "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-release-4:\\drawable-nodpi_bent_2_0.png.flat",
+        "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-5:\\drawable-nodpi\\bent_2_0.png"
+    },
+    {
+        "merged": "com.wobblybottle.game.app-release-4:/drawable-xxxhdpi_ic_launcher_foreground.png.flat",
+        "source": "com.wobblybottle.game.app-main-5:/drawable-xxxhdpi/ic_launcher_foreground.png"
+    },
+    {
+        "merged": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-release-4:\\raw_sound_slipper_slap.mp3.flat",
+        "source": "C:\\Users\\PC\\.gradle\\daemon\\8.12\\com.wobblybottle.game.app-main-5:\\raw\\sound_slipper_slap.mp3"
+    },
+    {
+        "merged": "com.wobblybottle.game.app-release-4:/drawable-hdpi_ic_launcher_foreground.png.flat",
+        "source": "com.wobblybottle.game.app-main-5:/drawable-hdpi/ic_launcher_foreground.png"
     }
 ]

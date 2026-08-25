@@ -1,5 +1,6 @@
 R_DEF: Internal format may change without notice
 local
+color ic_launcher_background
 drawable app_icon
 drawable bent_0_0
 drawable bent_0_dl
@@ -37,10 +38,13 @@ drawable bent_4_r
 drawable bent_4_ul
 drawable bent_4_ur
 drawable game_bg
+drawable ic_launcher_foreground
 drawable object_sheet
 drawable object_sheet_alpha
 drawable pack_sheet
 drawable upright_0
+mipmap ic_launcher
+mipmap ic_launcher_round
 raw bgm_party
 raw btn_click
 raw sound_card
