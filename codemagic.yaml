@@ -26,7 +26,7 @@ workflows:
           cp certs/*.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/
       - name: Build ipa for distribution
         script: |
-          flutter build ipa --release
+          flutter build ipa --release --export-options-plist=certs/export_options.plist
     artifacts:
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
