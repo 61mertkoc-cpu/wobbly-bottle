@@ -24,12 +24,9 @@ workflows:
           keychain add-certificates --certificate certs/wobbly_credentials.p12 --certificate-password 1234
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp certs/*.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/
-      - name: Set up code signing settings on Xcode project
-        script: |
-          xcode-project use-profiles
       - name: Build ipa for distribution
         script: |
-          flutter build ipa --release --export-options-plist=/Users/builder/export_options.plist
+          flutter build ipa --release
     artifacts:
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
