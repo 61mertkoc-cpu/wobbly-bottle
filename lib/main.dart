@@ -38,30 +38,69 @@ class Player {
 
 class WobblyBottleAppGame {
   static const List<Color> playerColors = [
-    Color(0xFF00F2FE),
-    Color(0xFFFF0844),
-    Color(0xFFFF9500),
-    Color(0xFFAF52DE),
-    Color(0xFFFFCC00),
-    Color(0xFF34C759),
+    Color(0xFF00F2FE), // Cyan
+    Color(0xFFFF0844), // Pink/Red
+    Color(0xFFFF9500), // Orange
+    Color(0xFFAF52DE), // Purple
+    Color(0xFFFFCC00), // Yellow
+    Color(0xFF34C759), // Green
   ];
 
-  static const List<String> objectNames = [
-    "Funny Soda Bottle",
-    "Squeaky Chicken",
-    "Crunchy Pickle",
-    "Silly Slipper",
-    "Champagne Bottle"
+  static const List<List<String>> langFlags = [
+    ["🇬🇧", "EN", "English"],
+    ["🇹🇷", "TR", "Türkçe"],
+    ["🇩🇪", "DE", "Deutsch"],
+    ["🇪🇸", "ES", "Español"],
   ];
 
-  static const List<String> packNames = [
-    "PARTY AND FUN",
-    "DEEP CONFESSIONS",
-    "BOLD CHALLENGES / DARES",
-    "FLIRT AND COUPLES",
-    "💋 +18 SPICY",
-    "FREE MODE / ASK OURSELVES"
-  ];
+  static String getObjectName(int index, int langIdx) {
+    switch (index) {
+      case 0:
+        return getLoc(langIdx, "Funny Soda Bottle", "Komik Gazoz Şişesi", "Lustige Limo-Flasche", "Botella de Refresco Divertida");
+      case 1:
+        return getLoc(langIdx, "Squeaky Chicken", "Bipleyen Tavuk", "Quietsche-Huhn", "Pollo Chillon");
+      case 2:
+        return getLoc(langIdx, "Wobbly Banana", "Sallanan Muz", "Wackel-Banane", "Platano Tambaleante");
+      case 3:
+        return getLoc(langIdx, "Flying Slipper", "Uçan Terlik", "Fliegender Hausschuh", "Zapatilla Voladora");
+      case 4:
+        return getLoc(langIdx, "Golden Champagne", "Altın Şampanya", "Goldener Champagner", "Champán Dorado");
+      default:
+        return "";
+    }
+  }
+
+  static String getPackName(int index, int langIdx) {
+    switch (index) {
+      case 0:
+        return getLoc(langIdx, "PARTY AND FUN", "PARTİ VE EĞLENCE", "PARTY UND SPASS", "FIESTA Y DIVERSION");
+      case 1:
+        return getLoc(langIdx, "DEEP CONFESSIONS", "DERİN İTİRAFLAR", "TIEFE GESTÄNDNISSE", "CONFESIONES PROFUNDAS");
+      case 2:
+        return getLoc(langIdx, "BOLD CHALLENGES / DARES", "CESUR GÖREVLER / MEYDAN OKUMA", "MUTIGE HERAUSFORDERUNGEN", "DESAFÍOS ATREVIDOS");
+      case 3:
+        return getLoc(langIdx, "FLIRT AND COUPLES", "FLÖRT VE ÇİFTLER", "FLIRT UND PÄRCHEN", "COQUETEO Y PAREJAS");
+      case 4:
+        return getLoc(langIdx, "💋  +18 SPICY", "💋  +18 BAHARATLI", "💋  +18 SCHARF", "💋  +18 PICANTE");
+      case 5:
+        return getLoc(langIdx, "FREE MODE / ASK OURSELVES", "SERBEST MOD / KENDİMİZ SORALIM", "FREIER MODUS", "MODO LIBRE");
+      default:
+        return "";
+    }
+  }
+
+  static String getLoc(int langIdx, String en, String tr, String de, String es) {
+    switch (langIdx) {
+      case 1:
+        return tr;
+      case 2:
+        return de;
+      case 3:
+        return es;
+      default:
+        return en;
+    }
+  }
 
   static const Map<String, List<String>> truthQuestions = {
     'EN': [
@@ -70,7 +109,10 @@ class WobblyBottleAppGame {
       "What is the most embarrassing thing you've ever done?",
       "Have you ever lied to a friend in this room?",
       "What is a guilty pleasure you haven't told anyone?",
-      "What is your worst habit?",
+      "What is a secret dream you rarely tell anyone?",
+      "Which decision changed your life the most?",
+      "Name three qualities you admire in the answerer.",
+      "What makes a kiss unforgettable?",
     ],
     'TR': [
       "En büyük sırrın nedir?",
@@ -78,7 +120,32 @@ class WobblyBottleAppGame {
       "Şimdiye kadar yaptığın en utanç verici şey nedir?",
       "Bu odadaki bir arkadaşına hiç yalan söyledin mi?",
       "Gizli tuttuğun en garip alışkanlığın nedir?",
-      "En kötü huyun nedir?",
+      "Neredeyse kimseye söylemediğin gizli hayalin nedir?",
+      "Hangi karar hayatını en çok değiştirdi?",
+      "Cevaplayan kişide hayran olduğun üç özelliği söyle.",
+      "Bir öpücüğü unutulmaz kılan nedir?",
+    ],
+    'DE': [
+      "Was ist dein größtes Geheimnis?",
+      "Wer war dein erster Schwarm?",
+      "Was ist das Peinlichste, das du je getan hast?",
+      "Hast du jemals einen Freund in diesem Raum angelogen?",
+      "Was ist deine heimliche Leidenschaft?",
+      "Was ist ein geheimer Traum, den du selten erzählst?",
+      "Welche Entscheidung hat dein Leben am meisten verändert?",
+      "Nenne drei Eigenschaften, die du am Antworter bewunderst.",
+      "Was macht einen Kuss unvergesslich?",
+    ],
+    'ES': [
+      "¿Cuál es tu mayor secreto?",
+      "¿Quién fue tu primer amor?",
+      "¿Qué es lo más vergonzoso que has hecho?",
+      "¿Alguna vez le has mentido a un amigo en este grupo?",
+      "¿Cuál es un placer culpable que no le has contado a nadie?",
+      "¿Cuál es un sueño secreto que raras veces cuentas?",
+      "¿Qué decisión cambió más tu vida?",
+      "Menciona tres cualidades que admiras en la persona que responde.",
+      "¿Qué hace que un beso sea inolvidable?",
     ],
   };
 
@@ -88,14 +155,44 @@ class WobblyBottleAppGame {
       "Imitate someone in this room until someone guesses who it is!",
       "Speak in a funny accent for the next 2 rounds!",
       "Sing the chorus of your favorite song out loud!",
-      "Let the group redesign your hair for the next round!",
+      "Do your funniest dance for 10 seconds!",
+      "Speak in a dramatic movie voice until the next spin.",
+      "Let the answerer choose a silly pose for you.",
+      "Tell a joke without smiling.",
+      "Describe your idea of perfect chemistry.",
     ],
     'TR': [
       "15 saniye boyunca en iyi dans figürünü sergile!",
       "Odadaki birini taklit et, bilene kadar devam et!",
       "Gelecek 2 tur boyunca komik bir şiveyle konuş!",
       "En sevdiğin şarkının nakaratını yüksek sesle söyle!",
-      "Grup üyelerinin saçını yeniden şekillendirmesine izin ver!",
+      "10 saniye boyunca en komik dansını yap!",
+      "Sonraki çevirmeye kadar dramatik bir film sesiyle konuş.",
+      "Cevaplayanın senin için komik bir poz seçmesine izin ver.",
+      "Gülümsemeden bir fıkra/şaka anlat.",
+      "Mükemmel kimya fikrini anlat.",
+    ],
+    'DE': [
+      "Zeige 15 Sekunden lang deinen besten Tanzschritt!",
+      "Ahme jemanden in diesem Raum nach, bis jemand es errät!",
+      "Sprich die nächsten 2 Runden mit einem lustigen Akzent!",
+      "Singe den Refrain deines Lieblingssongs laut vor!",
+      "Tanz 10 Sekunden lang deinen lustigsten Tanz!",
+      "Sprich bis zum nächsten Drehen mit dramatischer Filmstimme.",
+      "Lass den Antworter eine alberne Pose für dich aussuchen.",
+      "Erzähle einen Witz ohne zu lächeln.",
+      "Beschreibe deine Vorstellung von perfekter Chemie.",
+    ],
+    'ES': [
+      "¡Haz tu mejor paso de baile durante 15 segundos!",
+      "¡Imita a alguien de este grupo hasta que lo adivinen!",
+      "¡Habla con un acento divertido durante las próximas 2 rondas!",
+      "¡Canta el estribillo de tu canción favorita en voz alta!",
+      "¡Haz tu baile más divertido durante 10 segundos!",
+      "Habla con voz dramática de película hasta el próximo giro.",
+      "Deja que la persona que responde elija una pose divertida para ti.",
+      "Cuenta un chiste sin sonreír.",
+      "Describe tu idea de la química perfecta.",
     ],
   };
 }
@@ -115,10 +212,11 @@ class _MainGameScreenState extends State<MainGameScreen>
   final List<Player> _players = [];
   int _selectedColorIndex = 0;
   int _selectedObjectIndex = 0;
-  final List<bool> _unlockedObjects = [true, true, true, true, true];
   final List<bool> _selectedPacks = [true, false, false, false, false, false];
 
-  String _selectedLang = 'EN';
+  int _currentLangIndex = 0; // 0: EN, 1: TR, 2: DE, 3: ES
+  bool _isMuted = false;
+  bool _langMenuOpen = false;
 
   // Spin & Arena Animation
   late AnimationController _spinController;
@@ -130,7 +228,7 @@ class _MainGameScreenState extends State<MainGameScreen>
   int _questionerIndex = -1;
   int _answererIndex = -1;
 
-  String _currentPrompt = "Tap SPIN to start!";
+  String _currentPrompt = "";
   String? _cardTitle;
   String? _cardBody;
 
@@ -162,6 +260,10 @@ class _MainGameScreenState extends State<MainGameScreen>
     _spinController.dispose();
     _wobbleController.dispose();
     super.dispose();
+  }
+
+  String _loc(String en, String tr, String de, String es) {
+    return WobblyBottleAppGame.getLoc(_currentLangIndex, en, tr, de, es);
   }
 
   void _addPlayer() {
@@ -201,7 +303,7 @@ class _MainGameScreenState extends State<MainGameScreen>
 
     setState(() {
       _isSpinning = true;
-      _currentPrompt = "Spinning...";
+      _currentPrompt = _loc("Spinning...", "Dönüyor...", "Dreht sich...", "Girando...");
       _questionerIndex = targetQuestioner;
       _answererIndex = -1;
       _cardTitle = null;
@@ -221,8 +323,14 @@ class _MainGameScreenState extends State<MainGameScreen>
           _isSpinning = false;
           _currentAngle = targetAngleRad;
           _answererIndex = targetAnswerer;
-          _currentPrompt =
-              "${_players[_questionerIndex].name} asks ${_players[_answererIndex].name}!";
+          final qName = _players[_questionerIndex].name;
+          final aName = _players[_answererIndex].name;
+          _currentPrompt = _loc(
+            "$qName asks $aName!",
+            "$qName, $aName kişisine soruyor!",
+            "$qName fragt $aName!",
+            "¡$qName le pregunta a $aName!",
+          );
         });
       }
     });
@@ -230,17 +338,23 @@ class _MainGameScreenState extends State<MainGameScreen>
 
   void _showCard(String type) {
     if (_questionerIndex < 0 || _answererIndex < 0) return;
+    final langKey = WobblyBottleAppGame.langFlags[_currentLangIndex][1];
     final questions = type == 'TRUTH'
-        ? (WobblyBottleAppGame.truthQuestions[_selectedLang] ??
+        ? (WobblyBottleAppGame.truthQuestions[langKey] ??
             WobblyBottleAppGame.truthQuestions['EN']!)
-        : (WobblyBottleAppGame.dareQuestions[_selectedLang] ??
+        : (WobblyBottleAppGame.dareQuestions[langKey] ??
             WobblyBottleAppGame.dareQuestions['EN']!);
 
     final rand = math.Random();
     final q = questions[rand.nextInt(questions.length)];
 
+    final targetName = _players[_answererIndex].name.toUpperCase();
+    final cardLabel = type == 'TRUTH'
+        ? _loc("TRUTH FOR $targetName", "$targetName İÇİN DOĞRULUK", "WAHRHEIT FÜR $targetName", "VERDAD PARA $targetName")
+        : _loc("DARE FOR $targetName", "$targetName İÇİN CESARET", "PFLICHT FÜR $targetName", "RETO PARA $targetName");
+
     setState(() {
-      _cardTitle = "$type FOR ${_players[_answererIndex].name.toUpperCase()}";
+      _cardTitle = cardLabel;
       _cardBody = q;
     });
 
@@ -270,12 +384,149 @@ class _MainGameScreenState extends State<MainGameScreen>
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text(
-              "NEXT SPIN",
-              style: TextStyle(color: Color(0xFFFFCC00), fontSize: 16),
+            child: Text(
+              _loc("NEXT SPIN", "SONRAKİ ÇEVİRME", "NÄCHSTES DREHEN", "SIGUIENTE GIRO"),
+              style: const TextStyle(color: Color(0xFFFFCC00), fontSize: 16),
             ),
           )
         ],
+      ),
+    );
+  }
+
+  Widget _buildHeaderControls() {
+    final currentFlag = WobblyBottleAppGame.langFlags[_currentLangIndex][0];
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Sound Mute Toggle Button
+        GestureDetector(
+          onTap: () {
+            setState(() {
+              _isMuted = !_isMuted;
+            });
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              color: const Color(0xDC0A1020),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: _isMuted
+                    ? const Color(0xFFFF5064)
+                    : const Color(0xFF00F2FE),
+                width: 2,
+              ),
+            ),
+            child: Text(
+              _isMuted ? "🔇" : "🔊",
+              style: const TextStyle(fontSize: 20),
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        // Language Selector Button
+        GestureDetector(
+          onTap: () {
+            setState(() {
+              _langMenuOpen = !_langMenuOpen;
+            });
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              color: const Color(0xDC0A1020),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: const Color(0xFFFFCC00),
+                width: 2,
+              ),
+            ),
+            child: Row(
+              children: [
+                Text(currentFlag, style: const TextStyle(fontSize: 20)),
+                const SizedBox(width: 4),
+                const Text("▼", style: TextStyle(fontSize: 12, color: Colors.white)),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLanguageMenuModal() {
+    if (!_langMenuOpen) return const SizedBox.shrink();
+    return GestureDetector(
+      onTap: () => setState(() => _langMenuOpen = false),
+      child: Container(
+        color: Colors.black54,
+        child: Center(
+          child: Container(
+            width: 280,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFF0F1426),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: const Color(0xFFFFCC00), width: 2),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  _loc("SELECT LANGUAGE", "DİL SEÇİN", "SPRACHE WÄHLEN", "SELECCIONAR IDIOMA"),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFFFFCC00),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                for (int i = 0; i < WobblyBottleAppGame.langFlags.length; i++) ...[
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _currentLangIndex = i;
+                        _langMenuOpen = false;
+                      });
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(vertical: 4),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: _currentLangIndex == i
+                            ? const Color(0xFF00F2FE).withOpacity(0.2)
+                            : const Color(0xFF051725),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: _currentLangIndex == i
+                              ? const Color(0xFF00F2FE)
+                              : Colors.white12,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Text(WobblyBottleAppGame.langFlags[i][0], style: const TextStyle(fontSize: 22)),
+                          const SizedBox(width: 12),
+                          Text(
+                            WobblyBottleAppGame.langFlags[i][2],
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: _currentLangIndex == i
+                                  ? const Color(0xFF00F2FE)
+                                  : Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                ]
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -284,9 +535,14 @@ class _MainGameScreenState extends State<MainGameScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
-          child: _buildCurrentScreen(),
+        child: Stack(
+          children: [
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              child: _buildCurrentScreen(),
+            ),
+            _buildLanguageMenuModal(),
+          ],
         ),
       ),
     );
@@ -344,7 +600,7 @@ class _MainGameScreenState extends State<MainGameScreen>
                   ),
                   child: Image.asset(
                     'assets/bent_4_l.png',
-                    errorBuilder: (ctx, _, __) => const Icon(
+                    errorBuilder: (ctx, err, stack) => const Icon(
                       Icons.wine_bar,
                       size: 100,
                       color: Color(0xFF00F2FE),
@@ -365,9 +621,9 @@ class _MainGameScreenState extends State<MainGameScreen>
             ),
           ),
           const SizedBox(height: 10),
-          const Text(
-            "FUNNY PARTY GAME",
-            style: TextStyle(
+          Text(
+            _loc("FUNNY PARTY GAME", "EĞLENCELİ PARTİ OYUNU", "LUSTIGES PARTY-SPIEL", "DIVERTIDO JUEGO DE FIESTA"),
+            style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
               color: Color(0xFF00F2FE),
@@ -383,7 +639,7 @@ class _MainGameScreenState extends State<MainGameScreen>
   Widget _buildSetupScreen() {
     return Padding(
       key: const ValueKey(1),
-      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -398,23 +654,13 @@ class _MainGameScreenState extends State<MainGameScreen>
                   color: Color(0xFFFFCC00),
                 ),
               ),
-              DropdownButton<String>(
-                value: _selectedLang,
-                dropdownColor: const Color(0xFF0A1828),
-                items: const [
-                  DropdownMenuItem(value: 'EN', child: Text("🇬🇧 EN")),
-                  DropdownMenuItem(value: 'TR', child: Text("🇹🇷 TR")),
-                ],
-                onChanged: (val) {
-                  if (val != null) setState(() => _selectedLang = val);
-                },
-              )
+              _buildHeaderControls(),
             ],
           ),
           const SizedBox(height: 16),
-          const Text(
-            "ADD PLAYERS (MIN 2)",
-            style: TextStyle(
+          Text(
+            _loc("ADD PLAYERS (MIN 2)", "OYUNCU EKLE (MİN 2)", "SPIELER HINZUFÜGEN (MIN 2)", "AÑADIR JUGADORES (MÍN 2)"),
+            style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
               color: Color(0xFF00F2FE),
@@ -428,7 +674,7 @@ class _MainGameScreenState extends State<MainGameScreen>
                 child: TextField(
                   controller: _nameController,
                   decoration: InputDecoration(
-                    hintText: "Enter player name...",
+                    hintText: _loc("Enter player name...", "Oyuncu adı girin...", "Spielername eingeben...", "Nombre del jugador..."),
                     hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
                     filled: true,
                     fillColor: const Color(0xFF051725),
@@ -455,13 +701,55 @@ class _MainGameScreenState extends State<MainGameScreen>
               ),
             ],
           ),
+          const SizedBox(height: 12),
+          // Pick Color selector
+          Row(
+            children: [
+              Text(
+                _loc("PICK COLOR:", "RENK SEÇ:", "FARBE WÄHLEN:", "COLOR:"),
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white70),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      for (int i = 0; i < WobblyBottleAppGame.playerColors.length; i++)
+                        GestureDetector(
+                          onTap: () => setState(() => _selectedColorIndex = i),
+                          child: Container(
+                            margin: const EdgeInsets.only(right: 10),
+                            width: 32,
+                            height: 32,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: WobblyBottleAppGame.playerColors[i],
+                              border: Border.all(
+                                color: _selectedColorIndex == i ? Colors.white : Colors.transparent,
+                                width: 3,
+                              ),
+                            ),
+                          ),
+                        )
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 16),
           // Player Chips Grid
           Expanded(
             child: _players.isEmpty
                 ? Center(
                     child: Text(
-                      "No players added yet.\nAdd at least 2 players to start!",
+                      _loc(
+                        "No players added yet.\nAdd at least 2 players to start!",
+                        "Henüz oyuncu eklenmedi.\nBaşlamak için en az 2 oyuncu ekleyin!",
+                        "Noch keine Spieler hinzugefügt.\nFüge mindestens 2 Spieler hinzu!",
+                        "Aún no hay jugadores.\n¡Añade al menos 2 jugadores para empezar!",
+                      ),
                       textAlign: TextAlign.center,
                       style: TextStyle(color: Colors.white.withOpacity(0.6)),
                     ),
@@ -523,9 +811,9 @@ class _MainGameScreenState extends State<MainGameScreen>
                 borderRadius: BorderRadius.circular(20),
               ),
             ),
-            child: const Text(
-              "NEXT: CHOOSE OBJECT",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
+            child: Text(
+              _loc("NEXT: CHOOSE OBJECT", "İLERİ: NESNE SEÇ", "WEITER: OBJEKT WÄHLEN", "SIGUIENTE: ELEGIR OBJETO"),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
             ),
           ),
         ],
@@ -537,27 +825,33 @@ class _MainGameScreenState extends State<MainGameScreen>
   Widget _buildObjectsScreen() {
     return Padding(
       key: const ValueKey(2),
-      padding: const EdgeInsets.all(24.0),
+      padding: const EdgeInsets.all(20.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              IconButton(
-                icon: const Icon(Icons.arrow_back, color: Color(0xFF00F2FE)),
-                onPressed: () => setState(() => currentScreen = 1),
+              Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back, color: Color(0xFF00F2FE)),
+                    onPressed: () => setState(() => currentScreen = 1),
+                  ),
+                  Text(
+                    _loc("CHOOSE OBJECT", "NESNE SEÇİN", "OBJEKT WÄHLEN", "ELEGIR OBJETO"),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFFFFCC00),
+                    ),
+                  ),
+                ],
               ),
-              const Text(
-                "CHOOSE YOUR OBJECT",
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFFFFCC00),
-                ),
-              ),
+              _buildHeaderControls(),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
           Expanded(
             child: GridView.builder(
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -566,9 +860,10 @@ class _MainGameScreenState extends State<MainGameScreen>
                 mainAxisSpacing: 16,
                 childAspectRatio: 0.9,
               ),
-              itemCount: WobblyBottleAppGame.objectNames.length,
+              itemCount: 5,
               itemBuilder: (ctx, idx) {
                 final selected = _selectedObjectIndex == idx;
+                final objName = WobblyBottleAppGame.getObjectName(idx, _currentLangIndex);
                 return GestureDetector(
                   onTap: () => setState(() => _selectedObjectIndex = idx),
                   child: Container(
@@ -603,13 +898,16 @@ class _MainGameScreenState extends State<MainGameScreen>
                               : Colors.white70,
                         ),
                         const SizedBox(height: 12),
-                        Text(
-                          WobblyBottleAppGame.objectNames[idx],
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: selected ? Colors.white : Colors.white70,
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: Text(
+                            objName,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                              color: selected ? Colors.white : Colors.white70,
+                            ),
                           ),
                         ),
                       ],
@@ -629,9 +927,9 @@ class _MainGameScreenState extends State<MainGameScreen>
                 borderRadius: BorderRadius.circular(20),
               ),
             ),
-            child: const Text(
-              "NEXT: CHOOSE PACKS",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
+            child: Text(
+              _loc("NEXT: CHOOSE PACKS", "İLERİ: PAKET SEÇ", "WEITER: PAKETE WÄHLEN", "SIGUIENTE: ELEGIR PAQUETES"),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
             ),
           ),
         ],
@@ -643,32 +941,39 @@ class _MainGameScreenState extends State<MainGameScreen>
   Widget _buildPacksScreen() {
     return Padding(
       key: const ValueKey(3),
-      padding: const EdgeInsets.all(24.0),
+      padding: const EdgeInsets.all(20.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              IconButton(
-                icon: const Icon(Icons.arrow_back, color: Color(0xFF00F2FE)),
-                onPressed: () => setState(() => currentScreen = 2),
+              Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back, color: Color(0xFF00F2FE)),
+                    onPressed: () => setState(() => currentScreen = 2),
+                  ),
+                  Text(
+                    _loc("CHOOSE PACKS", "PAKET SEÇİN", "PAKETE WÄHLEN", "ELEGIR PAQUETES"),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFFFFCC00),
+                    ),
+                  ),
+                ],
               ),
-              const Text(
-                "CHOOSE GAME PACKS",
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFFFFCC00),
-                ),
-              ),
+              _buildHeaderControls(),
             ],
           ),
           const SizedBox(height: 16),
           Expanded(
             child: ListView.builder(
-              itemCount: WobblyBottleAppGame.packNames.length,
+              itemCount: 6,
               itemBuilder: (ctx, idx) {
                 final sel = _selectedPacks[idx];
+                final packName = WobblyBottleAppGame.getPackName(idx, _currentLangIndex);
                 return GestureDetector(
                   onTap: () =>
                       setState(() => _selectedPacks[idx] = !_selectedPacks[idx]),
@@ -694,9 +999,9 @@ class _MainGameScreenState extends State<MainGameScreen>
                         const SizedBox(width: 16),
                         Expanded(
                           child: Text(
-                            WobblyBottleAppGame.packNames[idx],
+                            packName,
                             style: const TextStyle(
-                              fontSize: 16,
+                              fontSize: 15,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -718,9 +1023,9 @@ class _MainGameScreenState extends State<MainGameScreen>
                 borderRadius: BorderRadius.circular(20),
               ),
             ),
-            child: const Text(
-              "START GAME ARENA",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
+            child: Text(
+              _loc("START GAME ARENA", "OYUNA BAŞLA", "SPIEL ARENA STARTEN", "EMPEZAR ARENA"),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
             ),
           ),
         ],
@@ -730,6 +1035,10 @@ class _MainGameScreenState extends State<MainGameScreen>
 
   // --- SCREEN 4: GAME ARENA ---
   Widget _buildArenaScreen() {
+    final promptText = _currentPrompt.isEmpty
+        ? _loc("Tap SPIN to start!", "Başlamak için ÇEVİR'e dokunun!", "Tippe DREHEN zum Starten!", "¡Toca GIRAR para empezar!")
+        : _currentPrompt;
+
     return Column(
       key: const ValueKey(4),
       children: [
@@ -743,18 +1052,18 @@ class _MainGameScreenState extends State<MainGameScreen>
                 icon: const Icon(Icons.settings, color: Color(0xFF00F2FE)),
                 onPressed: () => setState(() => currentScreen = 1),
               ),
-              Text(
-                _currentPrompt,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFFFFCC00),
+              Expanded(
+                child: Text(
+                  promptText,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFFFFCC00),
+                  ),
                 ),
               ),
-              IconButton(
-                icon: const Icon(Icons.refresh, color: Color(0xFFFF0844)),
-                onPressed: _startSpin,
-              ),
+              _buildHeaderControls(),
             ],
           ),
         ),
@@ -865,7 +1174,7 @@ class _MainGameScreenState extends State<MainGameScreen>
                               ),
                               child: Image.asset(
                                 'assets/bent_4_l.png',
-                                errorBuilder: (ctx, _, __) => const Icon(
+                                errorBuilder: (ctx, err, stack) => const Icon(
                                   Icons.wine_bar,
                                   size: 110,
                                   color: Color(0xFF00F2FE),
@@ -902,9 +1211,9 @@ class _MainGameScreenState extends State<MainGameScreen>
                             borderRadius: BorderRadius.circular(16),
                           ),
                         ),
-                        child: const Text(
-                          "TRUTH",
-                          style: TextStyle(
+                        child: Text(
+                          _loc("TRUTH", "DOĞRULUK", "WAHRHEIT", "VERDAD"),
+                          style: const TextStyle(
                               fontSize: 18, fontWeight: FontWeight.w900),
                         ),
                       ),
@@ -921,9 +1230,9 @@ class _MainGameScreenState extends State<MainGameScreen>
                             borderRadius: BorderRadius.circular(16),
                           ),
                         ),
-                        child: const Text(
-                          "DARE",
-                          style: TextStyle(
+                        child: Text(
+                          _loc("DARE", "CESARET", "PFLICHT", "RETO"),
+                          style: const TextStyle(
                               fontSize: 18, fontWeight: FontWeight.w900),
                         ),
                       ),
@@ -944,7 +1253,9 @@ class _MainGameScreenState extends State<MainGameScreen>
                   ),
                 ),
                 child: Text(
-                  _isSpinning ? "SPINNING..." : "SPIN BOTTLE!",
+                  _isSpinning
+                      ? _loc("SPINNING...", "DÖNÜYOR...", "DREHT SICH...", "GIRANDO...")
+                      : _loc("SPIN BOTTLE!", "ŞİŞEYİ ÇEVİR!", "FLASCHE DREHEN!", "¡GIRAR BOTELLA!"),
                   style: const TextStyle(
                       fontSize: 20, fontWeight: FontWeight.w900),
                 ),
