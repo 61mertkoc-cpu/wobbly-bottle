@@ -339,19 +339,38 @@ class _MainGameScreenState extends State<MainGameScreen>
   void _showCard(String type) {
     if (_questionerIndex < 0 || _answererIndex < 0) return;
     final langKey = WobblyBottleAppGame.langFlags[_currentLangIndex][1];
-    final questions = type == 'TRUTH'
-        ? (WobblyBottleAppGame.truthQuestions[langKey] ??
-            WobblyBottleAppGame.truthQuestions['EN']!)
-        : (WobblyBottleAppGame.dareQuestions[langKey] ??
-            WobblyBottleAppGame.dareQuestions['EN']!);
-
-    final rand = math.Random();
-    final q = questions[rand.nextInt(questions.length)];
-
+    
     final targetName = _players[_answererIndex].name.toUpperCase();
-    final cardLabel = type == 'TRUTH'
-        ? _loc("TRUTH FOR $targetName", "$targetName İÇİN DOĞRULUK", "WAHRHEIT FÜR $targetName", "VERDAD PARA $targetName")
-        : _loc("DARE FOR $targetName", "$targetName İÇİN CESARET", "PFLICHT FÜR $targetName", "RETO PARA $targetName");
+    final questionerName = _players[_questionerIndex].name;
+
+    String cardLabel;
+    String q;
+    Color accentColor;
+
+    if (type == 'TRUTH') {
+      final questions = WobblyBottleAppGame.truthQuestions[langKey] ??
+          WobblyBottleAppGame.truthQuestions['EN']!;
+      final rand = math.Random();
+      q = questions[rand.nextInt(questions.length)];
+      cardLabel = _loc("TRUTH FOR $targetName", "$targetName İÇİN DOĞRULUK", "WAHRHEIT FÜR $targetName", "VERDAD PARA $targetName");
+      accentColor = const Color(0xFF00F2FE);
+    } else if (type == 'DARE') {
+      final questions = WobblyBottleAppGame.dareQuestions[langKey] ??
+          WobblyBottleAppGame.dareQuestions['EN']!;
+      final rand = math.Random();
+      q = questions[rand.nextInt(questions.length)];
+      cardLabel = _loc("DARE FOR $targetName", "$targetName İÇİN CESARET", "PFLICHT FÜR $targetName", "RETO PARA $targetName");
+      accentColor = const Color(0xFFFF0844);
+    } else {
+      q = _loc(
+        "$questionerName asks any question or challenge they want!",
+        "$questionerName istediği soruyu veya görevi sorar!",
+        "$questionerName stellt eine beliebige Frage oder Aufgabe!",
+        "¡$questionerName hace la pregunta o reto que quiera!",
+      );
+      cardLabel = _loc("ASK OURSELVES", "KENDİMİZ SORALIM", "SELBST FRAGEN", "PREGUNTAR NOSOTROS");
+      accentColor = const Color(0xFFFFCC00);
+    }
 
     setState(() {
       _cardTitle = cardLabel;
@@ -364,15 +383,13 @@ class _MainGameScreenState extends State<MainGameScreen>
         backgroundColor: const Color(0xFF0A1828),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24),
-          side: const BorderSide(color: Color(0xFF00F2FE), width: 2),
+          side: BorderSide(color: accentColor, width: 2),
         ),
         title: Text(
           _cardTitle!,
           textAlign: TextAlign.center,
           style: TextStyle(
-            color: type == 'TRUTH'
-                ? const Color(0xFF00F2FE)
-                : const Color(0xFFFF0844),
+            color: accentColor,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -1206,7 +1223,7 @@ class _MainGameScreenState extends State<MainGameScreen>
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF00F2FE),
                           foregroundColor: Colors.black,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                           ),
@@ -1214,18 +1231,18 @@ class _MainGameScreenState extends State<MainGameScreen>
                         child: Text(
                           _loc("TRUTH", "DOĞRULUK", "WAHRHEIT", "VERDAD"),
                           style: const TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.w900),
+                              fontSize: 14, fontWeight: FontWeight.w900),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 16),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () => _showCard('DARE'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFFFF0844),
                           foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                           ),
@@ -1233,7 +1250,26 @@ class _MainGameScreenState extends State<MainGameScreen>
                         child: Text(
                           _loc("DARE", "CESARET", "PFLICHT", "RETO"),
                           style: const TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.w900),
+                              fontSize: 14, fontWeight: FontWeight.w900),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () => _showCard('FREE'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFFFCC00),
+                          foregroundColor: Colors.black,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        child: Text(
+                          _loc("FREE", "KENDİMİZ", "SELBST", "NOSOTROS"),
+                          style: const TextStyle(
+                              fontSize: 14, fontWeight: FontWeight.w900),
                         ),
                       ),
                     ),
