@@ -550,8 +550,8 @@ class _MainGameScreenState extends State<MainGameScreen>
     final count = _players.length;
     final rand = math.Random();
 
-    // 1. Determine Questioner by nearest player at base of bottle (currentAngle - pi/2)
-    final baseAngle = (_currentAngle + math.pi / 2) % (2 * math.pi);
+    // 1. Determine Questioner by nearest player at base of bottle
+    final baseAngle = (_currentAngle + (math.pi / 2)) % (2 * math.pi);
 
     int nearestPlayer(double targetAngle) {
       double minDiff = double.infinity;
@@ -577,9 +577,9 @@ class _MainGameScreenState extends State<MainGameScreen>
     }
     final answerer = candidates[rand.nextInt(candidates.length)];
 
-    // 3. Align base with Questioner
+    // 3. Align base with Questioner and neck with Answerer
     final basePlayerAngle = -math.pi / 2 + (questioner * 2 * math.pi / count);
-    final oppositeAngle = basePlayerAngle + math.pi; // straight opposite
+    final oppositeAngle = basePlayerAngle + math.pi; // straight across from questioner
     final answererAngle = -math.pi / 2 + (answerer * 2 * math.pi / count);
 
     // 4. Calculate signed delta angle to Answerer
@@ -589,19 +589,22 @@ class _MainGameScreenState extends State<MainGameScreen>
 
     // 5. Select BEND SPRITE based on angle delta!
     String bendVariant = "0";
-    if (delta < -0.20) {
+    if (delta < -0.15) {
       bendVariant = "l"; // Bends Left towards Answerer
-    } else if (delta > 0.20) {
+    } else if (delta > 0.15) {
       bendVariant = "r"; // Bends Right towards Answerer
     } else {
       bendVariant = "0"; // Straight
     }
 
+    // 6. Point neck directly at Answerer and base at Questioner!
+    final finalBottleAngle = oppositeAngle + (math.pi / 2) + (delta * 0.35);
+
     setState(() {
       _isSpinning = false;
       _questionerIndex = questioner;
       _answererIndex = answerer;
-      _currentAngle = oppositeAngle - (math.pi / 2); // points neck towards answerer zone
+      _currentAngle = finalBottleAngle;
       _currentBendVariant = bendVariant;
     });
   }
