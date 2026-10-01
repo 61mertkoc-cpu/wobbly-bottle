@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math' as math;
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -82,28 +83,9 @@ class WobblyBottleAppGame {
       case 3:
         return getLoc(langIdx, "FLIRT AND COUPLES", "FLÖRT VE ÇİFTLER", "FLIRT UND PÄRCHEN", "COQUETEO Y PAREJAS");
       case 4:
-        return getLoc(langIdx, "💋  +18 SPICY", "💋  +18 BAHARATLI", "💋  +18 SCHARF", "💋  +18 PICANTE");
+        return getLoc(langIdx, "+18 SPICY", "+18 BAHARATLI", "+18 SCHARF", "+18 PICANTE");
       case 5:
         return getLoc(langIdx, "FREE MODE / ASK OURSELVES", "SERBEST MOD / KENDİMİZ SORALIM", "FREIER MODUS", "MODO LIBRE");
-      default:
-        return "";
-    }
-  }
-
-  static String getPackDescription(int index, int langIdx) {
-    switch (index) {
-      case 0:
-        return getLoc(langIdx, "Icebreakers & laugh-out-loud party questions", "Buz kırıcı & kahkaha dolu parti soruları", "Eisbrecher & lustige Partyfragen", "Preguntas divertidas para romper el hielo");
-      case 1:
-        return getLoc(langIdx, "Secrets, crush reveals & emotional honesty", "Sırlar, ilk aşklar ve samimi itiraflar", "Geheimnisse & emotionale Offenheit", "Secretos y confesiones sinceras");
-      case 2:
-        return getLoc(langIdx, "Action tasks, funny dares & silly moves", "Aksiyon dolu görevler & komik hareketler", "Mutproben & lustige Aktionen", "Retos audaces y divertidos");
-      case 3:
-        return getLoc(langIdx, "Sparks, chemistry & sweet romantic prompts", "Kıvılcımlar, çekim ve tatlı flört anları", "Funken, Chemie & süße Flirtfragen", "Chispas, química y momentos coquetos");
-      case 4:
-        return getLoc(langIdx, "Adult party questions (+18 VIP Only)", "Yetişkin parti soruları (+18 Sadece VIP)", "Heiße Erwachsenen-Fragen (+18 VIP)", "Preguntas candentes para adultos (+18 VIP)");
-      case 5:
-        return getLoc(langIdx, "Ask anything you want freely", "İstediğiniz soruyu özgürce siz sorun", "Fragt selbst frei nach Belieben", "Preguntad lo que queráis libremente");
       default:
         return "";
     }
@@ -152,6 +134,9 @@ class _MainGameScreenState extends State<MainGameScreen>
   // Packs
   final List<bool> _selectedPacks = [true, false, false, false, false, false];
 
+  // Spritesheet for Packs
+  ui.Image? _packSheetImage;
+
   // Questions Database
   Map<String, dynamic> _questionsDb = {};
   bool _questionsLoaded = false;
@@ -160,11 +145,13 @@ class _MainGameScreenState extends State<MainGameScreen>
   late AnimationController _spinController;
   late Animation<double> _spinAnimation;
   double _currentAngle = 0.0;
+  double _startAngle = 0.0;
   double _targetAngle = 0.0;
   bool _isSpinning = false;
 
   int _questionerIndex = -1;
   int _answererIndex = -1;
+  String _currentBendVariant = "0"; // "0", "l", "r"
 
   // Rewarded Ad state
   int _adRemainingSeconds = 5;
@@ -178,6 +165,7 @@ class _MainGameScreenState extends State<MainGameScreen>
   void initState() {
     super.initState();
     _loadQuestions();
+    _loadPackSheet();
 
     _wobbleController = AnimationController(
       vsync: this,
@@ -186,7 +174,7 @@ class _MainGameScreenState extends State<MainGameScreen>
 
     _spinController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 4000),
+      duration: const Duration(milliseconds: 3800),
     );
 
     _spinAnimation = CurvedAnimation(
@@ -194,8 +182,20 @@ class _MainGameScreenState extends State<MainGameScreen>
       curve: Curves.decelerate,
     )..addListener(() {
         setState(() {
-          _currentAngle = _currentAngle +
-              (_targetAngle - _currentAngle) * _spinController.value;
+          final t = _spinAnimation.value;
+          _currentAngle = _startAngle + (_targetAngle - _startAngle) * t;
+
+          // Wobble bottle while spinning fast
+          if (_isSpinning) {
+            final cycle = math.sin(t * 35.0);
+            if (cycle < -0.3) {
+              _currentBendVariant = "l";
+            } else if (cycle > 0.3) {
+              _currentBendVariant = "r";
+            } else {
+              _currentBendVariant = "0";
+            }
+          }
         });
       })..addStatusListener((status) {
         if (status == AnimationStatus.completed) {
@@ -215,9 +215,20 @@ class _MainGameScreenState extends State<MainGameScreen>
           _questionsLoaded = true;
         });
       }
-    } catch (_) {
-      // Fallback loaded
-    }
+    } catch (_) {}
+  }
+
+  Future<void> _loadPackSheet() async {
+    try {
+      final bytes = await rootBundle.load('assets/pack_sheet.png');
+      final codec = await ui.instantiateImageCodec(bytes.buffer.asUint8List());
+      final frame = await codec.getNextFrame();
+      if (mounted) {
+        setState(() {
+          _packSheetImage = frame.image;
+        });
+      }
+    } catch (_) {}
   }
 
   @override
@@ -246,7 +257,7 @@ class _MainGameScreenState extends State<MainGameScreen>
     }
   }
 
-  // --- REWARDED AD SIMULATION ---
+  // --- REWARDED AD MODAL ---
   void _startRewardedAd(int objectIndex) {
     setState(() {
       _adTargetObject = objectIndex;
@@ -283,8 +294,8 @@ class _MainGameScreenState extends State<MainGameScreen>
                       _loc(
                         "🎉 Unlocked: ${WobblyBottleAppGame.getObjectName(_adTargetObject, _currentLangIndex)}!",
                         "🎉 Açıldı: ${WobblyBottleAppGame.getObjectName(_adTargetObject, _currentLangIndex)}!",
-                        "🎉 Freigeschaltet: ${WobblyBottleAppGame.getObjectName(_adTargetObject, _currentLangIndex)}!",
-                        "🎉 ¡Desbloqueado: ${WobblyBottleAppGame.getObjectName(_adTargetObject, _currentLangIndex)}!",
+                        "🎉 Freigeschaltet!",
+                        "🎉 ¡Desbloqueado!",
                       ),
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
@@ -352,7 +363,7 @@ class _MainGameScreenState extends State<MainGameScreen>
                     ),
                     const SizedBox(height: 24),
                     Text(
-                      _loc("Sponsored Ad Simulation", "Sponsorlu Reklam Simülasyonu", "Gesponserte Anzeige", "Anuncio Patrocinado"),
+                      _loc("Sponsored Break", "Sponsorlu Ara", "Gesponserte Pause", "Pausa Patrocinada"),
                       style: TextStyle(color: Colors.white.withValues(alpha: 0.4), fontSize: 12),
                     ),
                   ],
@@ -432,7 +443,7 @@ class _MainGameScreenState extends State<MainGameScreen>
                         backgroundColor: const Color(0xFFFFCC00),
                         content: Text(
                           _loc(
-                            "👑 Wobbly VIP Activated! Enjoy the full experience!",
+                            "👑 Wobbly VIP Activated! All features unlocked!",
                             "👑 Wobbly VIP Aktif Edildi! Tüm kilitler açıldı!",
                             "👑 Wobbly VIP Aktiviert!",
                             "👑 ¡Wobbly VIP Activado!",
@@ -514,20 +525,21 @@ class _MainGameScreenState extends State<MainGameScreen>
     });
   }
 
-  // --- SPIN LOGIC ---
+  // --- BOTTLE SPIN & BEND ALGORITHM ---
   void _spinBottle() {
     if (_isSpinning || _players.length < 2) return;
 
     final rand = math.Random();
     final rotations = 4 + rand.nextInt(3); // 4-6 full spins
     final randomTarget = rand.nextDouble() * 2 * math.pi;
-    final totalTarget = _currentAngle + (rotations * 2 * math.pi) + randomTarget;
 
     setState(() {
       _isSpinning = true;
-      _targetAngle = totalTarget;
+      _startAngle = _currentAngle;
+      _targetAngle = _currentAngle + (rotations * 2 * math.pi) + randomTarget;
       _questionerIndex = -1;
       _answererIndex = -1;
+      _currentBendVariant = "0";
     });
 
     _spinController.reset();
@@ -535,19 +547,18 @@ class _MainGameScreenState extends State<MainGameScreen>
   }
 
   void _onSpinFinished() {
-    final finalAngle = _currentAngle % (2 * math.pi);
     final count = _players.length;
+    final rand = math.Random();
 
-    // Head lands at finalAngle - pi/2
-    final tipAngle = (finalAngle - (math.pi / 2)) % (2 * math.pi);
-    final baseAngle = (tipAngle + math.pi) % (2 * math.pi);
+    // 1. Determine Questioner by nearest player at base of bottle (currentAngle - pi/2)
+    final baseAngle = (_currentAngle + math.pi / 2) % (2 * math.pi);
 
-    int nearestToAngle(double angle) {
+    int nearestPlayer(double targetAngle) {
       double minDiff = double.infinity;
       int best = 0;
       for (int i = 0; i < count; i++) {
         final pAngle = (-math.pi / 2 + (i * 2 * math.pi / count)) % (2 * math.pi);
-        double diff = (angle - pAngle).abs();
+        double diff = (targetAngle - pAngle).abs();
         if (diff > math.pi) diff = (2 * math.pi) - diff;
         if (diff < minDiff) {
           minDiff = diff;
@@ -557,17 +568,41 @@ class _MainGameScreenState extends State<MainGameScreen>
       return best;
     }
 
-    int answerer = nearestToAngle(tipAngle);
-    int questioner = nearestToAngle(baseAngle);
+    final questioner = nearestPlayer(baseAngle);
 
-    if (questioner == answerer && count > 1) {
-      questioner = (answerer + 1) % count;
+    // 2. Pick Answerer (different from questioner)
+    final List<int> candidates = [];
+    for (int i = 0; i < count; i++) {
+      if (i != questioner) candidates.add(i);
+    }
+    final answerer = candidates[rand.nextInt(candidates.length)];
+
+    // 3. Align base with Questioner
+    final basePlayerAngle = -math.pi / 2 + (questioner * 2 * math.pi / count);
+    final oppositeAngle = basePlayerAngle + math.pi; // straight opposite
+    final answererAngle = -math.pi / 2 + (answerer * 2 * math.pi / count);
+
+    // 4. Calculate signed delta angle to Answerer
+    double delta = (answererAngle - oppositeAngle) % (2 * math.pi);
+    if (delta > math.pi) delta -= 2 * math.pi;
+    if (delta < -math.pi) delta += 2 * math.pi;
+
+    // 5. Select BEND SPRITE based on angle delta!
+    String bendVariant = "0";
+    if (delta < -0.20) {
+      bendVariant = "l"; // Bends Left towards Answerer
+    } else if (delta > 0.20) {
+      bendVariant = "r"; // Bends Right towards Answerer
+    } else {
+      bendVariant = "0"; // Straight
     }
 
     setState(() {
       _isSpinning = false;
-      _answererIndex = answerer;
       _questionerIndex = questioner;
+      _answererIndex = answerer;
+      _currentAngle = oppositeAngle - (math.pi / 2); // points neck towards answerer zone
+      _currentBendVariant = bendVariant;
     });
   }
 
@@ -593,7 +628,6 @@ class _MainGameScreenState extends State<MainGameScreen>
           ? _loc("TRUTH FOR $targetName", "$targetName İÇİN DOĞRULUK", "WAHRHEIT FÜR $targetName", "VERDAD PARA $targetName")
           : _loc("DARE FOR $targetName", "$targetName İÇİN CESARET", "PFLICHT FÜR $targetName", "RETO PARA $targetName");
 
-      // Pick from selected packs in questionsDb
       final List<String> candidateQuestions = [];
       final langKey = _currentLangKey;
 
@@ -686,7 +720,7 @@ class _MainGameScreenState extends State<MainGameScreen>
     );
   }
 
-  // --- HEADER CONTROLS (Sound & Lang) ---
+  // --- HEADER CONTROLS ---
   Widget _buildHeaderControls() {
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -695,7 +729,8 @@ class _MainGameScreenState extends State<MainGameScreen>
         GestureDetector(
           onTap: () => setState(() => isMuted = !isMuted),
           child: Container(
-            padding: const EdgeInsets.all(10),
+            width: 44,
+            height: 44,
             decoration: BoxDecoration(
               color: const Color(0xFF0A1828),
               borderRadius: BorderRadius.circular(14),
@@ -707,7 +742,7 @@ class _MainGameScreenState extends State<MainGameScreen>
             child: Icon(
               isMuted ? Icons.volume_off : Icons.volume_up,
               color: isMuted ? const Color(0xFFFF0844) : const Color(0xFF00F2FE),
-              size: 20,
+              size: 22,
             ),
           ),
         ),
@@ -747,7 +782,7 @@ class _MainGameScreenState extends State<MainGameScreen>
               children: [
                 Text(WobblyBottleAppGame.langFlags[_currentLangIndex][0], style: const TextStyle(fontSize: 18)),
                 const SizedBox(width: 4),
-                const Icon(Icons.arrow_drop_down, color: Color(0xFFFFCC00), size: 18),
+                const Icon(Icons.arrow_drop_down, color: Color(0xFFFFCC00), size: 20),
               ],
             ),
           ),
@@ -774,13 +809,13 @@ class _MainGameScreenState extends State<MainGameScreen>
               return Transform.rotate(
                 angle: wobble,
                 child: Container(
-                  width: 170,
-                  height: 170,
+                  width: 180,
+                  height: 180,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF00F2FE).withValues(alpha: 0.6),
+                        color: const Color(0xFF00F2FE).withValues(alpha: 0.65),
                         blurRadius: 35,
                         spreadRadius: 10,
                       )
@@ -836,7 +871,7 @@ class _MainGameScreenState extends State<MainGameScreen>
     );
   }
 
-  // SCREEN 1: SETUP
+  // SCREEN 1: ADD PLAYERS (2-Column Grid matching Android)
   Widget _buildSetupScreen() {
     return Padding(
       key: const ValueKey(1),
@@ -847,13 +882,34 @@ class _MainGameScreenState extends State<MainGameScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                "WOBBLY BOTTLE",
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w900,
-                  color: Color(0xFFFFCC00),
-                ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "WOBBLY",
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w900,
+                      color: const Color(0xFFFFCC00),
+                      letterSpacing: 1.5,
+                      shadows: [
+                        Shadow(color: const Color(0xFFFFCC00).withValues(alpha: 0.6), blurRadius: 10),
+                      ],
+                    ),
+                  ),
+                  Text(
+                    "BOTTLE",
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w900,
+                      color: const Color(0xFF00F2FE),
+                      letterSpacing: 1.5,
+                      shadows: [
+                        Shadow(color: const Color(0xFF00F2FE).withValues(alpha: 0.6), blurRadius: 10),
+                      ],
+                    ),
+                  ),
+                ],
               ),
               _buildHeaderControls(),
             ],
@@ -862,117 +918,141 @@ class _MainGameScreenState extends State<MainGameScreen>
           Text(
             _loc("ADD PLAYERS (MIN 2)", "OYUNCU EKLE (MİN 2)", "SPIELER HINZUFÜGEN (MIN 2)", "AÑADIR JUGADORES (MÍN 2)"),
             style: const TextStyle(
-              fontSize: 16,
+              fontSize: 15,
               fontWeight: FontWeight.bold,
               color: Color(0xFF00F2FE),
               letterSpacing: 1.2,
             ),
           ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: _nameController,
-                  decoration: InputDecoration(
-                    hintText: _loc("Enter player name...", "Oyuncu adı girin...", "Spielername eingeben...", "Nombre del jugador..."),
-                    hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.5)),
-                    filled: true,
-                    fillColor: const Color(0xFF051725),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: const BorderSide(color: Color(0xFF00F2FE)),
+          const SizedBox(height: 10),
+
+          // Player Input Field with Yellow '+' inside
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+            decoration: BoxDecoration(
+              color: const Color(0xFF051725),
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: const Color(0xFF00F2FE), width: 2),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _nameController,
+                    decoration: InputDecoration(
+                      hintText: _loc("Enter player name...", "Oyuncu adı girin...", "Spielername eingeben...", "Nombre del jugador..."),
+                      hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.5)),
+                      border: InputBorder.none,
                     ),
-                  ),
-                  onSubmitted: (_) => _addPlayer(),
-                ),
-              ),
-              const SizedBox(width: 12),
-              ElevatedButton(
-                onPressed: _addPlayer,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF00F2FE),
-                  foregroundColor: Colors.black,
-                  padding: const EdgeInsets.all(16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+                    onSubmitted: (_) => _addPlayer(),
                   ),
                 ),
-                child: const Icon(Icons.person_add_rounded, size: 28),
-              ),
-            ],
+                GestureDetector(
+                  onTap: _addPlayer,
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFCC00),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(Icons.add, color: Colors.black, size: 24),
+                  ),
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 12),
+
+          // Color Picker row
           Row(
             children: [
               Text(
-                _loc("COLOR:", "RENK:", "FARBE:", "COLOR:"),
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white70),
+                _loc("PICK COLOR:", "RENK SEÇ:", "FARBE WÄHLEN:", "COLOR:"),
+                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white70),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 10),
               Expanded(
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      for (int i = 0; i < WobblyBottleAppGame.playerColors.length; i++)
-                        GestureDetector(
-                          onTap: () => setState(() => _selectedColorIndex = i),
-                          child: Container(
-                            margin: const EdgeInsets.only(right: 10),
-                            width: 32,
-                            height: 32,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: WobblyBottleAppGame.playerColors[i],
-                              border: Border.all(
-                                color: _selectedColorIndex == i ? Colors.white : Colors.transparent,
-                                width: 3,
-                              ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    for (int i = 0; i < WobblyBottleAppGame.playerColors.length; i++)
+                      GestureDetector(
+                        onTap: () => setState(() => _selectedColorIndex = i),
+                        child: Container(
+                          width: 28,
+                          height: 28,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: WobblyBottleAppGame.playerColors[i],
+                            border: Border.all(
+                              color: _selectedColorIndex == i ? Colors.white : Colors.transparent,
+                              width: 3,
                             ),
+                            boxShadow: _selectedColorIndex == i
+                                ? [
+                                    BoxShadow(
+                                      color: WobblyBottleAppGame.playerColors[i].withValues(alpha: 0.8),
+                                      blurRadius: 10,
+                                    )
+                                  ]
+                                : null,
                           ),
                         ),
-                    ],
-                  ),
+                      ),
+                  ],
                 ),
               ),
             ],
           ),
           const SizedBox(height: 16),
+
+          // Players List (2-column Grid matching Android)
           Expanded(
             child: _players.isEmpty
                 ? Center(
                     child: Text(
                       _loc("No players added yet.\nAdd at least 2 players to start!", "Henüz oyuncu eklenmedi.\nBaşlamak için en az 2 oyuncu ekleyin!", "Noch keine Spieler hinzugefügt.", "Aún no hay jugadores añadidos."),
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 15),
+                      style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 14),
                     ),
                   )
-                : ListView.builder(
+                : GridView.builder(
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 10,
+                      childAspectRatio: 2.2,
+                    ),
                     itemCount: _players.length,
                     itemBuilder: (ctx, idx) {
                       final p = _players[idx];
                       return Container(
-                        margin: const EdgeInsets.only(bottom: 8),
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                         decoration: BoxDecoration(
                           color: const Color(0xFF0A1828),
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: p.color.withValues(alpha: 0.7), width: 2),
+                          border: Border.all(color: p.color, width: 2),
+                          boxShadow: [
+                            BoxShadow(
+                              color: p.color.withValues(alpha: 0.25),
+                              blurRadius: 8,
+                            ),
+                          ],
                         ),
                         child: Row(
                           children: [
-                            CircleAvatar(backgroundColor: p.color, radius: 14),
-                            const SizedBox(width: 12),
+                            Icon(Icons.sentiment_satisfied_alt, color: p.color, size: 26),
+                            const SizedBox(width: 8),
                             Expanded(
                               child: Text(
                                 p.name,
-                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
-                            IconButton(
-                              icon: const Icon(Icons.close, color: Colors.white54, size: 20),
-                              onPressed: () => _removePlayer(idx),
+                            GestureDetector(
+                              onTap: () => _removePlayer(idx),
+                              child: const Icon(Icons.close, color: Colors.white54, size: 18),
                             ),
                           ],
                         ),
@@ -980,21 +1060,44 @@ class _MainGameScreenState extends State<MainGameScreen>
                     },
                   ),
           ),
-          ElevatedButton(
-            onPressed: _players.length >= 2
-                ? () => setState(() => currentScreen = 2)
-                : null,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFFFCC00),
-              foregroundColor: Colors.black,
-              padding: const EdgeInsets.symmetric(vertical: 18),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
+
+          // Continue Button
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(22),
+              border: Border.all(color: const Color(0xFFFFCC00), width: 2),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFFFFCC00).withValues(alpha: 0.3),
+                  blurRadius: 15,
+                )
+              ],
             ),
-            child: Text(
-              _loc("NEXT: CHOOSE OBJECT", "İLERİ: NESNE SEÇ", "WEITER: OBJEKT WÄHLEN", "SIGUIENTE: ELEGIR OBJETO"),
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
+            child: ElevatedButton(
+              onPressed: _players.length >= 2
+                  ? () => setState(() => currentScreen = 2)
+                  : null,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF051725),
+                foregroundColor: const Color(0xFFFFCC00),
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+              child: Column(
+                children: [
+                  Text(
+                    _loc("CONTINUE TO OBJECTS", "NESNELERE DEVAM ET", "WEITER ZU OBJEKTEN", "CONTINUAR A OBJETOS"),
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    "${_players.length} ${_loc("PLAYERS", "OYUNCU", "SPIELER", "JUGADORES")}",
+                    style: const TextStyle(fontSize: 11, color: Color(0xFF00F2FE), fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -1002,7 +1105,7 @@ class _MainGameScreenState extends State<MainGameScreen>
     );
   }
 
-  // SCREEN 2: CHOOSE OBJECT
+  // SCREEN 2: CHOOSE OBJECT (5 Horizontal Neon Cards matching Android)
   Widget _buildObjectsScreen() {
     return Padding(
       key: const ValueKey(2),
@@ -1015,15 +1118,25 @@ class _MainGameScreenState extends State<MainGameScreen>
             children: [
               Row(
                 children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back, color: Color(0xFF00F2FE)),
-                    onPressed: () => setState(() => currentScreen = 1),
+                  GestureDetector(
+                    onTap: () => setState(() => currentScreen = 1),
+                    child: Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF0A1828),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: const Color(0xFF00F2FE), width: 2),
+                      ),
+                      child: const Icon(Icons.arrow_back, color: Color(0xFF00F2FE), size: 22),
+                    ),
                   ),
+                  const SizedBox(width: 12),
                   Text(
-                    _loc("CHOOSE OBJECT", "NESNE SEÇİN", "OBJEKT WÄHLEN", "ELEGIR OBJETO"),
+                    _loc("CHOOSE YOUR OBJECT", "NESNENİ SEÇ", "WÄHLE DEIN OBJEKT", "ELIGE TU OBJETO"),
                     style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                      fontSize: 17,
+                      fontWeight: FontWeight.w900,
                       color: Color(0xFFFFCC00),
                     ),
                   ),
@@ -1032,21 +1145,28 @@ class _MainGameScreenState extends State<MainGameScreen>
               _buildHeaderControls(),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
+
+          // 5 Horizontal Cards
           Expanded(
-            child: GridView.builder(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 14,
-                mainAxisSpacing: 14,
-                childAspectRatio: 0.85,
-              ),
+            child: ListView.builder(
               itemCount: 5,
               itemBuilder: (ctx, idx) {
                 final isSelected = _selectedObjectIndex == idx;
                 final isUnlocked = _unlockedObjects[idx] || (idx == 4 && _vip);
                 final isVipItem = idx == 4;
                 final objName = WobblyBottleAppGame.getObjectName(idx, _currentLangIndex);
+
+                Color borderColor;
+                if (isSelected) {
+                  borderColor = const Color(0xFF34C759); // Green when selected
+                } else if (isVipItem) {
+                  borderColor = const Color(0xFFFFCC00); // Gold for VIP
+                } else if (!isUnlocked) {
+                  borderColor = const Color(0xFFBF4FFF); // Purple for Ad-locked
+                } else {
+                  borderColor = const Color(0xFF00F2FE); // Cyan for unlocked
+                }
 
                 return GestureDetector(
                   onTap: () {
@@ -1059,104 +1179,118 @@ class _MainGameScreenState extends State<MainGameScreen>
                     }
                   },
                   child: Container(
-                    padding: const EdgeInsets.all(10),
+                    margin: const EdgeInsets.only(bottom: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                     decoration: BoxDecoration(
-                      color: isSelected
-                          ? const Color(0xFF00F2FE).withValues(alpha: 0.22)
-                          : const Color(0xFF0A1828),
-                      borderRadius: BorderRadius.circular(22),
-                      border: Border.all(
-                        color: isVipItem
-                            ? const Color(0xFFFFCC00)
-                            : (isSelected ? const Color(0xFF00F2FE) : Colors.white24),
-                        width: isSelected ? 3 : (isVipItem ? 2 : 1),
-                      ),
-                      boxShadow: isSelected
-                          ? [
-                              BoxShadow(
-                                color: const Color(0xFF00F2FE).withValues(alpha: 0.35),
-                                blurRadius: 15,
-                                spreadRadius: 2,
-                              )
-                            ]
-                          : null,
+                      color: const Color(0xFF0A1828),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: borderColor, width: isSelected ? 3 : 2),
+                      boxShadow: [
+                        BoxShadow(
+                          color: borderColor.withValues(alpha: isSelected ? 0.4 : 0.15),
+                          blurRadius: isSelected ? 12 : 6,
+                        ),
+                      ],
                     ),
-                    child: Stack(
+                    child: Row(
                       children: [
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Expanded(
-                              child: Center(
-                                child: Image.asset(
-                                  'assets/bent_${idx}_0.png',
-                                  fit: BoxFit.contain,
-                                ),
-                              ),
+                        // Left: Tilted horizontal object preview
+                        SizedBox(
+                          width: 80,
+                          height: 60,
+                          child: Transform.rotate(
+                            angle: -0.3,
+                            child: Image.asset(
+                              'assets/bent_${idx}_0.png',
+                              fit: BoxFit.contain,
                             ),
-                            const SizedBox(height: 6),
-                            Text(
-                              objName,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.bold,
-                                color: isSelected ? Colors.white : Colors.white70,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            if (isSelected)
+                          ),
+                        ),
+                        const SizedBox(width: 14),
+
+                        // Center: Object name & status
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
                               Text(
-                                _loc("SELECTED", "SEÇİLDİ", "AUSGEWÄHLT", "SELECCIONADO"),
+                                objName,
                                 style: const TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w900,
-                                  color: Color(0xFF34C759),
-                                ),
-                              )
-                            else if (!isUnlocked)
-                              Text(
-                                isVipItem
-                                    ? _loc("VIP ONLY", "VIP KİLİTLİ", "NUR VIP", "SÓLO VIP")
-                                    : _loc("WATCH AD", "REKLAMLA AÇ", "WERBUNG", "VER ANUNCIO"),
-                                style: TextStyle(
-                                  fontSize: 11,
+                                  fontSize: 16,
                                   fontWeight: FontWeight.bold,
-                                  color: isVipItem ? const Color(0xFFFFCC00) : const Color(0xFFBF4FFF),
+                                  color: Colors.white,
                                 ),
                               ),
-                          ],
-                        ),
-                        // Badge at top right
-                        Positioned(
-                          top: 4,
-                          right: 4,
-                          child: isVipItem
-                              ? Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFFFCC00),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: const Text(
-                                    "👑 VIP",
-                                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Colors.black),
-                                  ),
+                              const SizedBox(height: 4),
+                              if (isSelected)
+                                Row(
+                                  children: [
+                                    const Icon(Icons.check, color: Color(0xFF34C759), size: 16),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      _loc("SELECTED", "SEÇİLDİ", "AUSGEWÄHLT", "SELECCIONADO"),
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w900,
+                                        color: Color(0xFF34C759),
+                                      ),
+                                    ),
+                                  ],
                                 )
-                              : (!isUnlocked
-                                  ? Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFFBF4FFF),
-                                        borderRadius: BorderRadius.circular(8),
+                              else if (!isUnlocked && isVipItem)
+                                Row(
+                                  children: [
+                                    const Icon(Icons.workspace_premium, color: Color(0xFFFFCC00), size: 16),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      "VIP",
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w900,
+                                        color: Color(0xFFFFCC00),
                                       ),
-                                      child: const Text(
-                                        "🎬 AD",
-                                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white),
+                                    ),
+                                  ],
+                                )
+                              else if (!isUnlocked)
+                                Row(
+                                  children: [
+                                    const Icon(Icons.play_arrow, color: Color(0xFFFF9500), size: 16),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      _loc("WATCH AD", "REKLAM İZLE", "WERBUNG SEHEN", "VER ANUNCIO"),
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xFFFF9500),
                                       ),
-                                    )
-                                  : const SizedBox.shrink()),
+                                    ),
+                                  ],
+                                )
+                              else
+                                Text(
+                                  _loc("UNLOCKED", "AÇILDI", "FREIGESCHALTET", "DESBLOQUEADO"),
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF00F2FE),
+                                  ),
+                                ),
+                            ],
+                          ),
                         ),
+
+                        // Right: Subtitle
+                        if (!isUnlocked && isVipItem)
+                          Text(
+                            _loc("Unlock as VIP", "VIP ile Aç", "Als VIP öffnen", "Desbloquear VIP"),
+                            style: TextStyle(fontSize: 11, color: Colors.white.withValues(alpha: 0.6)),
+                          )
+                        else if (!isUnlocked)
+                          Text(
+                            _loc("Unlock with 1 Video", "1 Reklamla Aç", "Mit 1 Video öffnen", "1 Anuncio"),
+                            style: TextStyle(fontSize: 11, color: Colors.white.withValues(alpha: 0.6)),
+                          ),
                       ],
                     ),
                   ),
@@ -1164,19 +1298,27 @@ class _MainGameScreenState extends State<MainGameScreen>
               },
             ),
           ),
-          ElevatedButton(
-            onPressed: () => setState(() => currentScreen = 3),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFFFCC00),
-              foregroundColor: Colors.black,
-              padding: const EdgeInsets.symmetric(vertical: 18),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
+
+          // Continue Button
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(22),
+              border: Border.all(color: const Color(0xFFFFCC00), width: 2),
             ),
-            child: Text(
-              _loc("NEXT: CHOOSE PACKS", "İLERİ: PAKET SEÇ", "WEITER: PAKETE WÄHLEN", "SIGUIENTE: ELEGIR PAQUETES"),
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
+            child: ElevatedButton(
+              onPressed: () => setState(() => currentScreen = 3),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF051725),
+                foregroundColor: const Color(0xFFFFCC00),
+                padding: const EdgeInsets.symmetric(vertical: 18),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+              child: Text(
+                _loc("CONTINUE TO PACKS", "PAKETLERE DEVAM ET", "WEITER ZU PAKETEN", "CONTINUAR A PAQUETES"),
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+              ),
             ),
           ),
         ],
@@ -1184,7 +1326,7 @@ class _MainGameScreenState extends State<MainGameScreen>
     );
   }
 
-  // SCREEN 3: CHOOSE PACKS
+  // SCREEN 3: CHOOSE PACKS (2x3 Grid with pack_sheet.png illustrations matching Android)
   Widget _buildPacksScreen() {
     return Padding(
       key: const ValueKey(3),
@@ -1197,15 +1339,25 @@ class _MainGameScreenState extends State<MainGameScreen>
             children: [
               Row(
                 children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back, color: Color(0xFF00F2FE)),
-                    onPressed: () => setState(() => currentScreen = 2),
+                  GestureDetector(
+                    onTap: () => setState(() => currentScreen = 2),
+                    child: Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF0A1828),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: const Color(0xFF00F2FE), width: 2),
+                      ),
+                      child: const Icon(Icons.arrow_back, color: Color(0xFF00F2FE), size: 22),
+                    ),
                   ),
+                  const SizedBox(width: 12),
                   Text(
-                    _loc("CHOOSE PACKS", "PAKET SEÇİN", "PAKETE WÄHLEN", "ELEGIR PAQUETES"),
+                    _loc("CHOOSE YOUR PACKS", "PAKETLERİNİ SEÇ", "WÄHLE DEINE PAKETE", "ELIGE TUS PAQUETES"),
                     style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                      fontSize: 17,
+                      fontWeight: FontWeight.w900,
                       color: Color(0xFFFFCC00),
                     ),
                   ),
@@ -1214,15 +1366,24 @@ class _MainGameScreenState extends State<MainGameScreen>
               _buildHeaderControls(),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
+
+          // 2x3 Grid of Packs with pack_sheet.png sliced illustrations
           Expanded(
-            child: ListView.builder(
+            child: GridView.builder(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+                childAspectRatio: 0.85,
+              ),
               itemCount: 6,
               itemBuilder: (ctx, idx) {
                 final isSel = _selectedPacks[idx];
                 final isVipPack = idx == 4;
                 final packName = WobblyBottleAppGame.getPackName(idx, _currentLangIndex);
-                final packDesc = WobblyBottleAppGame.getPackDescription(idx, _currentLangIndex);
+
+                Color borderColor = isSel ? const Color(0xFFFFCC00) : const Color(0xFF1E293B);
 
                 return GestureDetector(
                   onTap: () {
@@ -1238,67 +1399,57 @@ class _MainGameScreenState extends State<MainGameScreen>
                     }
                   },
                   child: Container(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: isSel
-                          ? (isVipPack ? const Color(0xFFFFCC00).withValues(alpha: 0.18) : const Color(0xFFFF0844).withValues(alpha: 0.2))
-                          : const Color(0xFF0A1828),
-                      borderRadius: BorderRadius.circular(18),
-                      border: Border.all(
-                        color: isVipPack
-                            ? const Color(0xFFFFCC00)
-                            : (isSel ? const Color(0xFFFF0844) : Colors.white24),
-                        width: isSel ? 2 : 1,
-                      ),
+                      color: const Color(0xFF0A1828),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: borderColor, width: isSel ? 3 : 1.5),
+                      boxShadow: isSel
+                          ? [
+                              BoxShadow(
+                                color: const Color(0xFFFFCC00).withValues(alpha: 0.35),
+                                blurRadius: 10,
+                              )
+                            ]
+                          : null,
                     ),
-                    child: Row(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Icon(
-                          isSel ? Icons.check_circle : Icons.circle_outlined,
-                          color: isVipPack ? const Color(0xFFFFCC00) : (isSel ? const Color(0xFFFF0844) : Colors.white38),
-                          size: 26,
-                        ),
-                        const SizedBox(width: 14),
+                        // Sliced Pack Illustration
                         Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      packName,
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.bold,
-                                        color: isVipPack ? const Color(0xFFFFCC00) : Colors.white,
-                                      ),
+                          child: ClipRRect(
+                            borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
+                            child: _packSheetImage != null
+                                ? CustomPaint(
+                                    painter: PackSpritePainter(_packSheetImage!, idx),
+                                  )
+                                : Container(
+                                    color: Colors.black26,
+                                    child: const Center(
+                                      child: CircularProgressIndicator(strokeWidth: 2),
                                     ),
                                   ),
-                                  if (isVipPack)
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFFFFCC00),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: const Text(
-                                        "👑 VIP",
-                                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Colors.black),
-                                      ),
-                                    ),
-                                ],
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                packDesc,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.white.withValues(alpha: 0.6),
-                                ),
-                              ),
-                            ],
+                          ),
+                        ),
+                        // Pack Title Banner
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: isSel
+                                ? const Color(0xFFFFCC00).withValues(alpha: 0.15)
+                                : Colors.black.withValues(alpha: 0.4),
+                            borderRadius: const BorderRadius.vertical(bottom: Radius.circular(18)),
+                          ),
+                          child: Text(
+                            packName,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w900,
+                              color: isSel ? const Color(0xFFFFCC00) : Colors.white70,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ],
@@ -1308,19 +1459,27 @@ class _MainGameScreenState extends State<MainGameScreen>
               },
             ),
           ),
-          ElevatedButton(
-            onPressed: () => setState(() => currentScreen = 4),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF00F2FE),
-              foregroundColor: Colors.black,
-              padding: const EdgeInsets.symmetric(vertical: 18),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
+
+          // Start Game Button
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(22),
+              border: Border.all(color: const Color(0xFFFFCC00), width: 2),
             ),
-            child: Text(
-              _loc("START GAME ARENA", "OYUN ALANINA BAŞLA", "SPIELARENA STARTEN", "INICIAR ARENA DE JUEGO"),
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
+            child: ElevatedButton(
+              onPressed: () => setState(() => currentScreen = 4),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF051725),
+                foregroundColor: const Color(0xFFFFCC00),
+                padding: const EdgeInsets.symmetric(vertical: 18),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+              child: Text(
+                _loc("START GAME", "OYUNU BAŞLAT", "SPIEL STARTEN", "INICIAR JUEGO"),
+                style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w900),
+              ),
             ),
           ),
         ],
@@ -1328,7 +1487,7 @@ class _MainGameScreenState extends State<MainGameScreen>
     );
   }
 
-  // SCREEN 4: GAME ARENA
+  // SCREEN 4: GAME ARENA (Connecting Ring, Glowing Players & Wobbly Bending Bottle)
   Widget _buildArenaScreen() {
     final count = _players.length;
 
@@ -1337,54 +1496,61 @@ class _MainGameScreenState extends State<MainGameScreen>
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
       child: Column(
         children: [
+          // Header Bar
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              IconButton(
-                icon: const Icon(Icons.arrow_back, color: Color(0xFF00F2FE)),
-                onPressed: () => setState(() => currentScreen = 3),
-              ),
-              if (_answererIndex >= 0 && _questionerIndex >= 0 && !_isSpinning)
-                Flexible(
-                  child: Text(
-                    "${_players[_questionerIndex].name} ➔ ${_players[_answererIndex].name}",
-                    style: const TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w900,
-                      color: Color(0xFFFFCC00),
-                    ),
-                    overflow: TextOverflow.ellipsis,
+              GestureDetector(
+                onTap: () => setState(() => currentScreen = 3),
+                child: Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF0A1828),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: const Color(0xFF00F2FE), width: 2),
                   ),
-                )
-              else
-                Text(
-                  _loc("ARENA", "ARENA", "ARENA", "ARENA"),
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFFFFCC00),
-                  ),
+                  child: const Icon(Icons.arrow_back, color: Color(0xFF00F2FE), size: 22),
                 ),
+              ),
+              Text(
+                "BOTTLE SAYS...",
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w900,
+                  color: Colors.white,
+                  letterSpacing: 1.5,
+                  shadows: [
+                    Shadow(color: const Color(0xFF00F2FE).withValues(alpha: 0.7), blurRadius: 10),
+                  ],
+                ),
+              ),
               _buildHeaderControls(),
             ],
           ),
 
-          // Central Arena with Circle of Players & Center Animated Object
+          // Central Arena with Players in Circle & Bending Bottle
           Expanded(
             child: LayoutBuilder(
               builder: (ctx, constraints) {
-                final size = math.min(constraints.maxWidth, constraints.maxHeight);
                 final center = Offset(constraints.maxWidth / 2, constraints.maxHeight / 2);
-                final radius = (size / 2) - 50;
+                final ringRadius = (math.min(constraints.maxWidth, constraints.maxHeight) / 2) - 55;
 
                 return Stack(
+                  alignment: Alignment.center,
                   children: [
-                    // Players placed along circle
+                    // Circular connecting line
+                    CustomPaint(
+                      size: Size(constraints.maxWidth, constraints.maxHeight),
+                      painter: RingLinePainter(center, ringRadius),
+                    ),
+
+                    // Players placed along ring
                     for (int i = 0; i < count; i++) ...[
                       () {
                         final pAngle = -math.pi / 2 + (i * 2 * math.pi / count);
-                        final px = center.dx + radius * math.cos(pAngle);
-                        final py = center.dy + radius * math.sin(pAngle);
+                        final px = center.dx + ringRadius * math.cos(pAngle);
+                        final py = center.dy + ringRadius * math.sin(pAngle);
                         final isQ = _questionerIndex == i;
                         final isA = _answererIndex == i;
 
@@ -1394,8 +1560,8 @@ class _MainGameScreenState extends State<MainGameScreen>
                           child: Column(
                             children: [
                               Container(
-                                width: 50,
-                                height: 50,
+                                width: 52,
+                                height: 52,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   color: _players[i].color,
@@ -1409,20 +1575,17 @@ class _MainGameScreenState extends State<MainGameScreen>
                                       ? [
                                           BoxShadow(
                                             color: isA ? const Color(0xFFFF0844) : const Color(0xFF00F2FE),
-                                            blurRadius: 18,
-                                            spreadRadius: 4,
+                                            blurRadius: 20,
+                                            spreadRadius: 6,
                                           )
                                         ]
                                       : null,
                                 ),
                                 child: Center(
-                                  child: Text(
-                                    _players[i].name.isNotEmpty ? _players[i].name[0].toUpperCase() : "?",
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w900,
-                                      fontSize: 20,
-                                      color: Colors.black,
-                                    ),
+                                  child: Icon(
+                                    Icons.sentiment_satisfied_alt,
+                                    color: Colors.black.withValues(alpha: 0.85),
+                                    size: 32,
                                   ),
                                 ),
                               ),
@@ -1430,11 +1593,11 @@ class _MainGameScreenState extends State<MainGameScreen>
                               Text(
                                 _players[i].name,
                                 style: TextStyle(
-                                  fontSize: 12,
+                                  fontSize: 13,
                                   fontWeight: FontWeight.bold,
                                   color: isA
                                       ? const Color(0xFFFF0844)
-                                      : (isQ ? const Color(0xFF00F2FE) : Colors.white70),
+                                      : (isQ ? const Color(0xFF00F2FE) : Colors.white),
                                 ),
                               ),
                             ],
@@ -1443,49 +1606,39 @@ class _MainGameScreenState extends State<MainGameScreen>
                       }(),
                     ],
 
-                    // Prominent Center Bottle / Object
+                    // CENTER WOBBLY BOTTLE
                     Positioned(
-                      left: center.dx - 100,
-                      top: center.dy - 100,
+                      left: center.dx - 110,
+                      top: center.dy - 110,
                       child: GestureDetector(
                         onTap: _isSpinning ? null : _spinBottle,
-                        child: AnimatedBuilder(
-                          animation: _spinAnimation,
-                          builder: (context, child) {
-                            final wobble = _isSpinning
-                                ? math.sin(_spinController.value * 35) * 0.18
-                                : 0.0;
-                            final angle = _currentAngle + wobble;
-
-                            return Transform.rotate(
-                              angle: angle,
-                              child: Container(
-                                width: 200,
-                                height: 200,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: (_selectedObjectIndex == 4
-                                              ? const Color(0xFFFFCC00)
-                                              : const Color(0xFF00F2FE))
-                                          .withValues(alpha: _isSpinning ? 0.6 : 0.25),
-                                      blurRadius: _isSpinning ? 35 : 15,
-                                      spreadRadius: _isSpinning ? 8 : 2,
-                                    ),
-                                  ],
+                        child: Transform.rotate(
+                          angle: _currentAngle,
+                          child: Container(
+                            width: 220,
+                            height: 220,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: (_selectedObjectIndex == 4
+                                          ? const Color(0xFFFFCC00)
+                                          : const Color(0xFF00F2FE))
+                                      .withValues(alpha: _isSpinning ? 0.65 : 0.3),
+                                  blurRadius: _isSpinning ? 40 : 20,
+                                  spreadRadius: _isSpinning ? 10 : 4,
                                 ),
-                                child: Center(
-                                  child: Image.asset(
-                                    'assets/bent_${_selectedObjectIndex}_0.png',
-                                    width: 170,
-                                    height: 170,
-                                    fit: BoxFit.contain,
-                                  ),
-                                ),
+                              ],
+                            ),
+                            child: Center(
+                              child: Image.asset(
+                                'assets/bent_${_selectedObjectIndex}_$_currentBendVariant.png',
+                                width: 190,
+                                height: 190,
+                                fit: BoxFit.contain,
                               ),
-                            );
-                          },
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -1495,12 +1648,52 @@ class _MainGameScreenState extends State<MainGameScreen>
             ),
           ),
 
-          // Action Buttons: SPIN, TRUTH, DARE, FREE
-          Padding(
-            padding: const EdgeInsets.only(bottom: 16.0),
+          // Bottom Control Panel: QUESTIONER, ANSWERER, TRUTH, DARE, CUSTOM
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: const Color(0xFF0A1828),
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: const Color(0xFF00F2FE).withValues(alpha: 0.6), width: 2),
+            ),
             child: Column(
               children: [
-                if (_answererIndex >= 0 && !_isSpinning) ...[
+                if (_answererIndex >= 0 && _questionerIndex >= 0 && !_isSpinning) ...[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "QUESTIONER: ${_players[_questionerIndex].name.toUpperCase()}",
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w900,
+                          color: Color(0xFF00F2FE),
+                        ),
+                      ),
+                      Text(
+                        "ANSWERER: ${_players[_answererIndex].name.toUpperCase()}",
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w900,
+                          color: Color(0xFFFF0844),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    _loc("? MAKE YOUR CHOICE", "? SEÇİMİNİ YAP", "? WÄHLE DEINE AKTION", "? HAZ TU ELECCIÓN"),
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w900,
+                      color: Color(0xFFFFCC00),
+                    ),
+                  ),
+                  Text(
+                    _loc("Truth, Dare, or Ask Yourselves?", "Doğruluk, Cesaret veya Kendiniz Sorun?", "Wahrheit, Pflicht oder Frage?", "¿Verdad, Reto o Pregunta?"),
+                    style: TextStyle(fontSize: 11, color: Colors.white.withValues(alpha: 0.6)),
+                  ),
+                  const SizedBox(height: 10),
                   Row(
                     children: [
                       Expanded(
@@ -1509,74 +1702,99 @@ class _MainGameScreenState extends State<MainGameScreen>
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF00F2FE),
                             foregroundColor: Colors.black,
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                           ),
                           child: Text(
                             _loc("TRUTH", "DOĞRULUK", "WAHRHEIT", "VERDAD"),
-                            style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
+                            style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14),
                           ),
                         ),
                       ),
-                      const SizedBox(width: 10),
+                      const SizedBox(width: 8),
                       Expanded(
                         child: ElevatedButton(
                           onPressed: () => _showCard('DARE'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFFFF0844),
                             foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                           ),
                           child: Text(
                             _loc("DARE", "CESARET", "PFLICHT", "RETO"),
-                            style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
+                            style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14),
                           ),
                         ),
                       ),
-                      const SizedBox(width: 10),
+                      const SizedBox(width: 8),
                       ElevatedButton(
                         onPressed: () => _showCard('FREE'),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFFFCC00),
-                          foregroundColor: Colors.black,
-                          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          backgroundColor: Colors.transparent,
+                          foregroundColor: const Color(0xFFFFCC00),
+                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                            side: const BorderSide(color: Color(0xFFFFCC00), width: 1.5),
+                          ),
                         ),
                         child: Text(
-                          _loc("FREE", "SERBEST", "FREI", "LIBRE"),
-                          style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14),
+                          _loc("CUSTOM", "ÖZEL", "EIGENE", "PROPIO"),
+                          style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 10),
                 ],
-                ElevatedButton(
-                  onPressed: _isSpinning ? null : _spinBottle,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFFCC00),
-                    foregroundColor: Colors.black,
-                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 18),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                    elevation: 10,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.refresh, size: 26),
-                      const SizedBox(width: 8),
-                      Text(
-                        _isSpinning
-                            ? _loc("WOBBLING...", "DÖNÜYOR...", "DREHT SICH...", "GIRANDO...")
-                            : _loc("SPIN BOTTLE!", "ŞİŞEYİ ÇEVİR!", "FLASCHE DREHEN!", "¡GIRAR BOTELLA!"),
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
-                      ),
+
+                // Big Spin Bottle Button
+                Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFFFFCC00).withValues(alpha: 0.35),
+                        blurRadius: 15,
+                      )
                     ],
+                  ),
+                  child: ElevatedButton(
+                    onPressed: _isSpinning ? null : _spinBottle,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFFFCC00),
+                      foregroundColor: Colors.black,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                    ),
+                    child: Text(
+                      _isSpinning
+                          ? _loc("WOBBLING...", "DÖNÜYOR...", "DREHT SICH...", "GIRANDO...")
+                          : _loc("SPIN BOTTLE!", "ŞİŞEYİ ÇEVİR!", "FLASCHE DREHEN!", "¡GIRAR BOTELLA!"),
+                      style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w900),
+                    ),
                   ),
                 ),
               ],
             ),
+          ),
+          const SizedBox(height: 8),
+
+          // Bottom Bar (Home & Profile)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.home, color: Color(0xFF00F2FE), size: 28),
+                onPressed: () => setState(() => currentScreen = 1),
+              ),
+              IconButton(
+                icon: const Icon(Icons.workspace_premium, color: Color(0xFFFFCC00), size: 28),
+                onPressed: _openVipModal,
+              ),
+            ],
           ),
         ],
       ),
@@ -1598,7 +1816,7 @@ class _MainGameScreenState extends State<MainGameScreen>
           // Dark ambient overlay for crisp readability
           Positioned.fill(
             child: Container(
-              color: Colors.black.withValues(alpha: 0.62),
+              color: Colors.black.withValues(alpha: 0.60),
             ),
           ),
           // Screen Content
@@ -1627,4 +1845,47 @@ class _MainGameScreenState extends State<MainGameScreen>
       ),
     );
   }
+}
+
+// Custom Painter for Slicing pack_sheet.png (2 columns, 3 rows)
+class PackSpritePainter extends CustomPainter {
+  final ui.Image image;
+  final int index; // 0 to 5
+  PackSpritePainter(this.image, this.index);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final cellW = image.width / 2.0;
+    final cellH = image.height / 3.0;
+    final col = index % 2;
+    final row = index ~/ 2;
+
+    final src = Rect.fromLTWH(col * cellW, row * cellH, cellW, cellH);
+    final dst = Rect.fromLTWH(0, 0, size.width, size.height);
+    canvas.drawImageRect(image, src, dst, Paint()..filterQuality = FilterQuality.high);
+  }
+
+  @override
+  bool shouldRepaint(covariant PackSpritePainter oldDelegate) =>
+      oldDelegate.image != image || oldDelegate.index != index;
+}
+
+// Custom Painter for Arena Connecting Ring Line
+class RingLinePainter extends CustomPainter {
+  final Offset center;
+  final double radius;
+  RingLinePainter(this.center, this.radius);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = const Color(0xFF00F2FE).withValues(alpha: 0.35)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.0;
+    canvas.drawCircle(center, radius, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant RingLinePainter oldDelegate) =>
+      oldDelegate.center != center || oldDelegate.radius != radius;
 }
