@@ -1,13 +1,19 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  try {
+    await MobileAds.instance.initialize();
+  } catch (_) {}
   runApp(const WobblyBottleApp());
 }
 
@@ -153,19 +159,34 @@ class _MainGameScreenState extends State<MainGameScreen>
   int _answererIndex = -1;
   String _currentBendVariant = "0"; // "0", "l", "r"
 
-  // Rewarded Ad state
-  int _adRemainingSeconds = 5;
+  // AdMob Rewarded Ad
+  RewardedAd? _rewardedAd;
+  bool _isAdLoading = false;
   int _adTargetObject = -1;
-  Timer? _adTimer;
+
+  // In-App Purchase
+  final InAppPurchase _iap = InAppPurchase.instance;
+  StreamSubscription<List<PurchaseDetails>>? _iapSubscription;
+  List<ProductDetails> _products = [];
+  bool _isPurchasing = false;
 
   // Splash wobble
   late AnimationController _wobbleController;
+
+  static const String _iosRewardedAdUnitId = 'ca-app-pub-7561629034641721/3183849849';
+  static const String _androidRewardedAdUnitId = 'ca-app-pub-7561629034641721/2336738850';
+  static const String _vipProductId = 'wobbly_vip';
+
+  String get _rewardedAdUnitId =>
+      Platform.isIOS ? _iosRewardedAdUnitId : _androidRewardedAdUnitId;
 
   @override
   void initState() {
     super.initState();
     _loadQuestions();
     _loadPackSheet();
+    _loadRewardedAd();
+    _initInAppPurchase();
 
     _wobbleController = AnimationController(
       vsync: this,
@@ -236,7 +257,8 @@ class _MainGameScreenState extends State<MainGameScreen>
     _wobbleController.dispose();
     _spinController.dispose();
     _nameController.dispose();
-    _adTimer?.cancel();
+    _rewardedAd?.dispose();
+    _iapSubscription?.cancel();
     super.dispose();
   }
 
@@ -257,127 +279,218 @@ class _MainGameScreenState extends State<MainGameScreen>
     }
   }
 
-  // --- REWARDED AD MODAL ---
+  // --- ADMOB REWARDED AD ---
+  void _loadRewardedAd() {
+    if (_isAdLoading) return;
+    _isAdLoading = true;
+    RewardedAd.load(
+      adUnitId: _rewardedAdUnitId,
+      request: const AdRequest(),
+      rewardedAdLoadCallback: RewardedAdLoadCallback(
+        onAdLoaded: (ad) {
+          _rewardedAd = ad;
+          _isAdLoading = false;
+        },
+        onAdFailedToLoad: (error) {
+          _rewardedAd = null;
+          _isAdLoading = false;
+        },
+      ),
+    );
+  }
+
   void _startRewardedAd(int objectIndex) {
-    setState(() {
-      _adTargetObject = objectIndex;
-      _adRemainingSeconds = 5;
-    });
+    _adTargetObject = objectIndex;
 
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) {
-        return StatefulBuilder(
-          builder: (dialogCtx, setDialogState) {
-            _adTimer?.cancel();
-            _adTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-              if (_adRemainingSeconds > 1) {
-                if (dialogCtx.mounted) {
-                  setDialogState(() {
-                    _adRemainingSeconds--;
-                  });
-                }
-              } else {
-                timer.cancel();
-                if (dialogCtx.mounted) {
-                  Navigator.of(dialogCtx).pop();
-                }
-                setState(() {
-                  _unlockedObjects[_adTargetObject] = true;
-                  _selectedObjectIndex = _adTargetObject;
-                });
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    backgroundColor: const Color(0xFF34C759),
-                    content: Text(
-                      _loc(
-                        "🎉 Unlocked: ${WobblyBottleAppGame.getObjectName(_adTargetObject, _currentLangIndex)}!",
-                        "🎉 Açıldı: ${WobblyBottleAppGame.getObjectName(_adTargetObject, _currentLangIndex)}!",
-                        "🎉 Freigeschaltet!",
-                        "🎉 ¡Desbloqueado!",
-                      ),
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                );
-              }
-            });
+    if (_rewardedAd != null) {
+      _rewardedAd!.fullScreenContentCallback = FullScreenContentCallback(
+        onAdDismissedFullScreenContent: (ad) {
+          ad.dispose();
+          _rewardedAd = null;
+          _loadRewardedAd();
+        },
+        onAdFailedToShowFullScreenContent: (ad, error) {
+          ad.dispose();
+          _rewardedAd = null;
+          _loadRewardedAd();
+        },
+      );
 
-            return Dialog(
-              backgroundColor: const Color(0xFF0F0B1E),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(28),
-                side: const BorderSide(color: Color(0xFFBF4FFF), width: 3),
+      _rewardedAd!.show(
+        onUserEarnedReward: (adWithoutView, reward) {
+          setState(() {
+            _unlockedObjects[_adTargetObject] = true;
+            _selectedObjectIndex = _adTargetObject;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: const Color(0xFF34C759),
+              content: Text(
+                _loc(
+                  "🎉 Unlocked: ${WobblyBottleAppGame.getObjectName(_adTargetObject, _currentLangIndex)}!",
+                  "🎉 Açıldı: ${WobblyBottleAppGame.getObjectName(_adTargetObject, _currentLangIndex)}!",
+                  "🎉 Freigeschaltet!",
+                  "🎉 ¡Desbloqueado!",
+                ),
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 30.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.play_circle_fill, size: 64, color: Color(0xFFBF4FFF)),
-                    const SizedBox(height: 12),
-                    Text(
-                      _loc("REWARDED VIDEO", "ÖDÜLLÜ VİDEO", "BELOHNUNGSVIDEO", "VIDEO CON RECOMPENSA"),
-                      style: const TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w900,
-                        color: Color(0xFFBF4FFF),
-                        letterSpacing: 1.2,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      _loc(
-                        "Unlocking ${WobblyBottleAppGame.getObjectName(_adTargetObject, _currentLangIndex)}...",
-                        "${WobblyBottleAppGame.getObjectName(_adTargetObject, _currentLangIndex)} açılıyor...",
-                        "Wird freigeschaltet...",
-                        "Desbloqueando...",
-                      ),
-                      style: const TextStyle(color: Colors.white70, fontSize: 14),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 24),
-                    Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        SizedBox(
-                          width: 80,
-                          height: 80,
-                          child: CircularProgressIndicator(
-                            value: (5 - _adRemainingSeconds + 1) / 5.0,
-                            strokeWidth: 6,
-                            color: const Color(0xFF00F2FE),
-                            backgroundColor: Colors.white10,
-                          ),
-                        ),
-                        Text(
-                          "$_adRemainingSeconds s",
-                          style: const TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFFFFCC00),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-                    Text(
-                      _loc("Sponsored Break", "Sponsorlu Ara", "Gesponserte Pause", "Pausa Patrocinada"),
-                      style: TextStyle(color: Colors.white.withValues(alpha: 0.4), fontSize: 12),
-                    ),
-                  ],
+            ),
+          );
+        },
+      );
+    } else {
+      // Ad is still loading, try loading again and inform user
+      _loadRewardedAd();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: const Color(0xFFBF4FFF),
+          content: Text(
+            _loc(
+              "Loading video ad, please try again in a moment...",
+              "Video reklam yükleniyor, lütfen birkaç saniye sonra tekrar deneyin...",
+              "Video-Werbung lädt, bitte gleich noch einmal versuchen...",
+              "Cargando anuncio, inténtalo de nuevo en unos segundos...",
+            ),
+          ),
+        ),
+      );
+    }
+  }
+
+  // --- APPLE / GOOGLE IN-APP PURCHASE ---
+  Future<void> _initInAppPurchase() async {
+    final bool available = await _iap.isAvailable();
+    if (!available) return;
+
+    _iapSubscription = _iap.purchaseStream.listen(
+      (List<PurchaseDetails> purchaseDetailsList) {
+        _handlePurchases(purchaseDetailsList);
+      },
+      onDone: () {
+        _iapSubscription?.cancel();
+      },
+      onError: (error) {},
+    );
+
+    const Set<String> kIds = {_vipProductId};
+    final ProductDetailsResponse response =
+        await _iap.queryProductDetails(kIds);
+    if (response.notFoundIDs.isEmpty) {
+      setState(() {
+        _products = response.productDetails;
+      });
+    }
+
+    // Restore prior purchases if user already purchased
+    await _iap.restorePurchases();
+  }
+
+  void _handlePurchases(List<PurchaseDetails> purchaseDetailsList) {
+    for (var purchase in purchaseDetailsList) {
+      if (purchase.productID == _vipProductId) {
+        if (purchase.status == PurchaseStatus.purchased ||
+            purchase.status == PurchaseStatus.restored) {
+          setState(() {
+            _vip = true;
+            _unlockedObjects[4] = true;
+            _selectedPacks[4] = true;
+            _isPurchasing = false;
+          });
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                backgroundColor: const Color(0xFFFFCC00),
+                content: Text(
+                  _loc(
+                    "👑 Wobbly VIP Activated! All features unlocked!",
+                    "👑 Wobbly VIP Aktif Edildi! Tüm kilitler açıldı!",
+                    "👑 Wobbly VIP Aktiviert!",
+                    "👑 ¡Wobbly VIP Activado!",
+                  ),
+                  style: const TextStyle(
+                      color: Colors.black, fontWeight: FontWeight.bold),
                 ),
               ),
             );
-          },
-        );
-      },
-    );
+          }
+        } else if (purchase.status == PurchaseStatus.error) {
+          setState(() => _isPurchasing = false);
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  _loc(
+                    "Purchase failed or canceled.",
+                    "Satın alma başarısız oldu veya iptal edildi.",
+                    "Kauf fehlgeschlagen.",
+                    "La compra falló.",
+                  ),
+                ),
+              ),
+            );
+          }
+        }
+        if (purchase.pendingCompletePurchase) {
+          _iap.completePurchase(purchase);
+        }
+      }
+    }
+  }
+
+  void _buyVip() {
+    ProductDetails? vipProduct;
+    for (var p in _products) {
+      if (p.id == _vipProductId) {
+        vipProduct = p;
+        break;
+      }
+    }
+
+    if (vipProduct != null) {
+      setState(() => _isPurchasing = true);
+      final PurchaseParam purchaseParam =
+          PurchaseParam(productDetails: vipProduct);
+      _iap.buyNonConsumable(purchaseParam: purchaseParam);
+    } else {
+      // If products query isn't returned yet, query again & notify
+      _iap.queryProductDetails({_vipProductId}).then((response) {
+        if (response.productDetails.isNotEmpty) {
+          setState(() {
+            _products = response.productDetails;
+            _isPurchasing = true;
+          });
+          _iap.buyNonConsumable(
+            purchaseParam:
+                PurchaseParam(productDetails: response.productDetails.first),
+          );
+        } else {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  _loc(
+                    "Connecting to App Store... Please try again.",
+                    "App Store'a bağlanılıyor... Lütfen tekrar deneyin.",
+                    "Verbindung zum App Store wird hergestellt...",
+                    "Conectando a App Store...",
+                  ),
+                ),
+              ),
+            );
+          }
+        }
+      });
+    }
   }
 
   // --- VIP OFFER MODAL ---
   void _openVipModal() {
+    ProductDetails? vipProd;
+    for (var p in _products) {
+      if (p.id == _vipProductId) vipProd = p;
+    }
+    final priceLabel = vipProd?.price ?? "";
+
     showDialog(
       context: context,
       builder: (ctx) {
@@ -431,28 +544,12 @@ class _MainGameScreenState extends State<MainGameScreen>
                 ),
                 const SizedBox(height: 24),
                 ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(ctx).pop();
-                    setState(() {
-                      _vip = true;
-                      _unlockedObjects[4] = true;
-                      _selectedPacks[4] = true;
-                    });
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        backgroundColor: const Color(0xFFFFCC00),
-                        content: Text(
-                          _loc(
-                            "👑 Wobbly VIP Activated! All features unlocked!",
-                            "👑 Wobbly VIP Aktif Edildi! Tüm kilitler açıldı!",
-                            "👑 Wobbly VIP Aktiviert!",
-                            "👑 ¡Wobbly VIP Activado!",
-                          ),
-                          style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    );
-                  },
+                  onPressed: _isPurchasing
+                      ? null
+                      : () {
+                          Navigator.of(ctx).pop();
+                          _buyVip();
+                        },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFFFCC00),
                     foregroundColor: Colors.black,
@@ -461,11 +558,23 @@ class _MainGameScreenState extends State<MainGameScreen>
                     elevation: 10,
                   ),
                   child: Text(
-                    _loc("ACTIVATE VIP", "VIP ETKİNLEŞTİR", "VIP AKTIVIEREN", "ACTIVAR VIP"),
+                    priceLabel.isNotEmpty
+                        ? "${_loc("ACTIVATE VIP", "VIP ETKİNLEŞTİR", "VIP AKTIVIEREN", "ACTIVAR VIP")} ($priceLabel)"
+                        : _loc("ACTIVATE VIP", "VIP ETKİNLEŞTİR", "VIP AKTIVIEREN", "ACTIVAR VIP"),
                     style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
                   ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 8),
+                TextButton(
+                  onPressed: () {
+                    _iap.restorePurchases();
+                    Navigator.of(ctx).pop();
+                  },
+                  child: Text(
+                    _loc("Restore Purchase", "Satın Alımı Geri Yükle", "Käufe wiederherstellen", "Restaurar compra"),
+                    style: const TextStyle(color: Color(0xFF00F2FE), fontSize: 13),
+                  ),
+                ),
                 TextButton(
                   onPressed: () => Navigator.of(ctx).pop(),
                   child: Text(
@@ -635,13 +744,20 @@ class _MainGameScreenState extends State<MainGameScreen>
       final langKey = _currentLangKey;
 
       if (_questionsLoaded && _questionsDb.isNotEmpty) {
-        final packKeys = ["pack0_party", "pack1_deep", "pack2_bold", "pack3_flirt", "pack4_spicy"];
+        final packKeys = ["pack0_party", "pack1_deep", "pack2_challenge", "pack3_flirt", "pack4_spicy"];
         for (int p = 0; p < packKeys.length; p++) {
           if (_selectedPacks[p] && _questionsDb.containsKey(packKeys[p])) {
             final list = _questionsDb[packKeys[p]] as List<dynamic>;
             for (var item in list) {
-              if (item is Map && item.containsKey(langKey)) {
-                candidateQuestions.add(item[langKey].toString());
+              if (item is Map) {
+                final itemType = item['type']?.toString().toUpperCase();
+                // Strictly filter: TRUTH items only for TRUTH mode, DARE items only for DARE mode!
+                if (itemType != null && itemType != mode) {
+                  continue;
+                }
+                if (item.containsKey(langKey)) {
+                  candidateQuestions.add(item[langKey].toString());
+                }
               }
             }
           }
