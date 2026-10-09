@@ -24,6 +24,11 @@ workflows:
           keychain add-certificates --certificate certs/wobbly_credentials.p12 --certificate-password 1234
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp certs/*.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/
+      - name: Install CocoaPods dependencies
+        script: |
+          cd ios
+          pod install --repo-update
+          cd ..
       - name: Build ipa for distribution
         script: |
           flutter build ipa --release --export-options-plist=certs/export_options.plist
