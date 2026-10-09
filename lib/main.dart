@@ -164,6 +164,11 @@ class _MainGameScreenState extends State<MainGameScreen>
   bool _isAdLoading = false;
   int _adTargetObject = -1;
 
+  // AdMob Interstitial Ad (Every 5 spins)
+  InterstitialAd? _interstitialAd;
+  bool _isInterstitialLoading = false;
+  int _spinCounter = 0;
+
   // In-App Purchase
   final InAppPurchase _iap = InAppPurchase.instance;
   StreamSubscription<List<PurchaseDetails>>? _iapSubscription;
@@ -175,10 +180,17 @@ class _MainGameScreenState extends State<MainGameScreen>
 
   static const String _iosRewardedAdUnitId = 'ca-app-pub-7561629034641721/3183849849';
   static const String _androidRewardedAdUnitId = 'ca-app-pub-7561629034641721/2336738850';
+
+  static const String _iosInterstitialAdUnitId = 'ca-app-pub-7561629034641721/1266289633';
+  static const String _androidInterstitialAdUnitId = 'ca-app-pub-7561629034641721/1266289633';
+
   static const String _vipProductId = 'wobbly_vip';
 
   String get _rewardedAdUnitId =>
       Platform.isIOS ? _iosRewardedAdUnitId : _androidRewardedAdUnitId;
+
+  String get _interstitialAdUnitId =>
+      Platform.isIOS ? _iosInterstitialAdUnitId : _androidInterstitialAdUnitId;
 
   @override
   void initState() {
@@ -186,6 +198,7 @@ class _MainGameScreenState extends State<MainGameScreen>
     _loadQuestions();
     _loadPackSheet();
     _loadRewardedAd();
+    _loadInterstitialAd();
     _initInAppPurchase();
 
     _wobbleController = AnimationController(
@@ -258,6 +271,7 @@ class _MainGameScreenState extends State<MainGameScreen>
     _spinController.dispose();
     _nameController.dispose();
     _rewardedAd?.dispose();
+    _interstitialAd?.dispose();
     _iapSubscription?.cancel();
     super.dispose();
   }
@@ -354,6 +368,52 @@ class _MainGameScreenState extends State<MainGameScreen>
           ),
         ),
       );
+    }
+  }
+
+  // --- ADMOB INTERSTITIAL AD (EVERY 5 SPINS) ---
+  void _loadInterstitialAd() {
+    if (_isInterstitialLoading || _vip) return;
+    _isInterstitialLoading = true;
+    InterstitialAd.load(
+      adUnitId: _interstitialAdUnitId,
+      request: const AdRequest(),
+      adLoadCallback: InterstitialAdLoadCallback(
+        onAdLoaded: (ad) {
+          _interstitialAd = ad;
+          _isInterstitialLoading = false;
+        },
+        onAdFailedToLoad: (error) {
+          _interstitialAd = null;
+          _isInterstitialLoading = false;
+        },
+      ),
+    );
+  }
+
+  void _showInterstitialAdIfNeeded() {
+    if (_vip) return; // VIP users never see ads!
+
+    _spinCounter++;
+    if (_spinCounter >= 5) {
+      _spinCounter = 0; // Reset counter
+      if (_interstitialAd != null) {
+        _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
+          onAdDismissedFullScreenContent: (ad) {
+            ad.dispose();
+            _interstitialAd = null;
+            _loadInterstitialAd();
+          },
+          onAdFailedToShowFullScreenContent: (ad, error) {
+            ad.dispose();
+            _interstitialAd = null;
+            _loadInterstitialAd();
+          },
+        );
+        _interstitialAd!.show();
+      } else {
+        _loadInterstitialAd();
+      }
     }
   }
 
@@ -819,7 +879,10 @@ class _MainGameScreenState extends State<MainGameScreen>
                 ),
                 const SizedBox(height: 24),
                 ElevatedButton(
-                  onPressed: () => Navigator.of(ctx).pop(),
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                    _showInterstitialAdIfNeeded();
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF00F2FE),
                     foregroundColor: Colors.black,
