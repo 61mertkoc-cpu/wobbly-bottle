@@ -422,6 +422,7 @@ class _MainGameScreenState extends State<MainGameScreen>
     final bool available = await _iap.isAvailable();
     if (!available) return;
 
+    _iapSubscription?.cancel();
     _iapSubscription = _iap.purchaseStream.listen(
       (List<PurchaseDetails> purchaseDetailsList) {
         _handlePurchases(purchaseDetailsList);
@@ -429,20 +430,32 @@ class _MainGameScreenState extends State<MainGameScreen>
       onDone: () {
         _iapSubscription?.cancel();
       },
-      onError: (error) {},
+      onError: (error) {
+        if (mounted) setState(() => _isPurchasing = false);
+      },
     );
 
-    const Set<String> kIds = {_vipProductId};
-    final ProductDetailsResponse response =
-        await _iap.queryProductDetails(kIds);
-    if (response.notFoundIDs.isEmpty) {
-      setState(() {
-        _products = response.productDetails;
-      });
-    }
+    await _fetchProducts();
 
     // Restore prior purchases if user already purchased
-    await _iap.restorePurchases();
+    try {
+      await _iap.restorePurchases();
+    } catch (_) {}
+  }
+
+  Future<void> _fetchProducts() async {
+    try {
+      const Set<String> kIds = {_vipProductId};
+      final ProductDetailsResponse response =
+          await _iap.queryProductDetails(kIds);
+      if (response.productDetails.isNotEmpty) {
+        if (mounted) {
+          setState(() {
+            _products = response.productDetails;
+          });
+        }
+      }
+    } catch (_) {}
   }
 
   void _handlePurchases(List<PurchaseDetails> purchaseDetailsList) {
@@ -473,9 +486,10 @@ class _MainGameScreenState extends State<MainGameScreen>
               ),
             );
           }
-        } else if (purchase.status == PurchaseStatus.error) {
+        } else if (purchase.status == PurchaseStatus.error ||
+            purchase.status == PurchaseStatus.canceled) {
           setState(() => _isPurchasing = false);
-          if (mounted) {
+          if (mounted && purchase.status == PurchaseStatus.error) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
@@ -497,7 +511,7 @@ class _MainGameScreenState extends State<MainGameScreen>
     }
   }
 
-  void _buyVip() {
+  Future<void> _buyVip({void Function(void Function())? setModalState}) async {
     ProductDetails? vipProduct;
     for (var p in _products) {
       if (p.id == _vipProductId) {
@@ -506,145 +520,175 @@ class _MainGameScreenState extends State<MainGameScreen>
       }
     }
 
+    if (vipProduct == null) {
+      if (setModalState != null) {
+        setModalState(() => _isPurchasing = true);
+      } else {
+        setState(() => _isPurchasing = true);
+      }
+
+      try {
+        final response = await _iap.queryProductDetails({_vipProductId});
+        if (response.productDetails.isNotEmpty) {
+          vipProduct = response.productDetails.first;
+          if (mounted) {
+            setState(() {
+              _products = response.productDetails;
+            });
+          }
+        }
+      } catch (_) {}
+    }
+
     if (vipProduct != null) {
-      setState(() => _isPurchasing = true);
+      if (setModalState != null) {
+        setModalState(() => _isPurchasing = true);
+      } else {
+        setState(() => _isPurchasing = true);
+      }
+
       final PurchaseParam purchaseParam =
           PurchaseParam(productDetails: vipProduct);
       _iap.buyNonConsumable(purchaseParam: purchaseParam);
     } else {
-      // If products query isn't returned yet, query again & notify
-      _iap.queryProductDetails({_vipProductId}).then((response) {
-        if (response.productDetails.isNotEmpty) {
-          setState(() {
-            _products = response.productDetails;
-            _isPurchasing = true;
-          });
-          _iap.buyNonConsumable(
-            purchaseParam:
-                PurchaseParam(productDetails: response.productDetails.first),
-          );
-        } else {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  _loc(
-                    "Connecting to App Store... Please try again.",
-                    "App Store'a bağlanılıyor... Lütfen tekrar deneyin.",
-                    "Verbindung zum App Store wird hergestellt...",
-                    "Conectando a App Store...",
-                  ),
-                ),
+      if (setModalState != null) {
+        setModalState(() => _isPurchasing = false);
+      } else {
+        setState(() => _isPurchasing = false);
+      }
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              _loc(
+                "Connecting to App Store... Please try again in a moment.",
+                "App Store'a bağlanılıyor... Lütfen birazdan tekrar deneyin.",
+                "Verbindung zum App Store wird hergestellt...",
+                "Conectando a App Store...",
               ),
-            );
-          }
-        }
-      });
+            ),
+          ),
+        );
+      }
     }
   }
 
   // --- VIP OFFER MODAL ---
   void _openVipModal() {
-    ProductDetails? vipProd;
-    for (var p in _products) {
-      if (p.id == _vipProductId) vipProd = p;
-    }
-    final priceLabel = vipProd?.price ?? "";
+    _fetchProducts(); // Pre-fetch if not ready
 
     showDialog(
       context: context,
       builder: (ctx) {
-        return Dialog(
-          backgroundColor: const Color(0xFF131019),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30),
-            side: const BorderSide(color: Color(0xFFFFCC00), width: 3),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 28.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: const Color(0xFFFFCC00).withValues(alpha: 0.15),
-                  ),
-                  child: const Icon(Icons.workspace_premium, size: 60, color: Color(0xFFFFCC00)),
+        return StatefulBuilder(
+          builder: (dialogCtx, setDialogState) {
+            ProductDetails? vipProd;
+            for (var p in _products) {
+              if (p.id == _vipProductId) vipProd = p;
+            }
+            final priceLabel = vipProd?.price ?? "";
+
+            return Dialog(
+              backgroundColor: const Color(0xFF131019),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
+                side: const BorderSide(color: Color(0xFFFFCC00), width: 3),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 28.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: const Color(0xFFFFCC00).withValues(alpha: 0.15),
+                      ),
+                      child: const Icon(Icons.workspace_premium, size: 60, color: Color(0xFFFFCC00)),
+                    ),
+                    const SizedBox(height: 14),
+                    const Text(
+                      "WOBBLY VIP",
+                      style: TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.w900,
+                        color: Color(0xFFFFCC00),
+                        letterSpacing: 2,
+                      ),
+                    ),
+                    Text(
+                      _loc("Premium Party Upgrade", "Premium Parti Yükseltmesi", "Premium Party-Upgrade", "Mejora de Fiesta Premium"),
+                      style: const TextStyle(color: Colors.white70, fontSize: 14),
+                    ),
+                    const SizedBox(height: 20),
+                    _buildVipFeature(
+                      Icons.wine_bar,
+                      _loc("Golden Champagne Bottle", "Altın Şampanya Şişesi", "Goldener Champagner", "Champán Dorado"),
+                    ),
+                    const SizedBox(height: 10),
+                    _buildVipFeature(
+                      Icons.favorite,
+                      _loc("💋 +18 Spicy Secret Pack", "💋 +18 Baharatlı Gizli Paket", "💋 +18 Scharf-Paket", "💋 +18 Paquete Picante"),
+                    ),
+                    const SizedBox(height: 10),
+                    _buildVipFeature(
+                      Icons.bolt,
+                      _loc("Instant In-Game Switching", "Anında Oyun İçi Değiştirme", "Sofortiges Wechseln", "Cambio Instantáneo"),
+                    ),
+                    const SizedBox(height: 24),
+                    ElevatedButton(
+                      onPressed: _isPurchasing
+                          ? null
+                          : () async {
+                              await _buyVip(setModalState: setDialogState);
+                            },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFFFCC00),
+                        foregroundColor: Colors.black,
+                        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                        elevation: 10,
+                      ),
+                      child: _isPurchasing
+                          ? const SizedBox(
+                              width: 22,
+                              height: 22,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2.5,
+                                color: Colors.black,
+                              ),
+                            )
+                          : Text(
+                              priceLabel.isNotEmpty
+                                  ? "${_loc("ACTIVATE VIP", "VIP ETKİNLEŞTİR", "VIP AKTIVIEREN", "ACTIVAR VIP")} ($priceLabel)"
+                                  : _loc("ACTIVATE VIP", "VIP ETKİNLEŞTİR", "VIP AKTIVIEREN", "ACTIVAR VIP"),
+                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+                            ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextButton(
+                      onPressed: () {
+                        _iap.restorePurchases();
+                        Navigator.of(ctx).pop();
+                      },
+                      child: Text(
+                        _loc("Restore Purchase", "Satın Alımı Geri Yükle", "Käufe wiederherstellen", "Restaurar compra"),
+                        style: const TextStyle(color: Color(0xFF00F2FE), fontSize: 13),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.of(ctx).pop(),
+                      child: Text(
+                        _loc("Cancel", "Vazgeç", "Abbrechen", "Cancelar"),
+                        style: TextStyle(color: Colors.white.withValues(alpha: 0.5)),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 14),
-                const Text(
-                  "WOBBLY VIP",
-                  style: TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.w900,
-                    color: Color(0xFFFFCC00),
-                    letterSpacing: 2,
-                  ),
-                ),
-                Text(
-                  _loc("Premium Party Upgrade", "Premium Parti Yükseltmesi", "Premium Party-Upgrade", "Mejora de Fiesta Premium"),
-                  style: const TextStyle(color: Colors.white70, fontSize: 14),
-                ),
-                const SizedBox(height: 20),
-                _buildVipFeature(
-                  Icons.wine_bar,
-                  _loc("Golden Champagne Bottle", "Altın Şampanya Şişesi", "Goldener Champagner", "Champán Dorado"),
-                ),
-                const SizedBox(height: 10),
-                _buildVipFeature(
-                  Icons.favorite,
-                  _loc("💋 +18 Spicy Secret Pack", "💋 +18 Baharatlı Gizli Paket", "💋 +18 Scharf-Paket", "💋 +18 Paquete Picante"),
-                ),
-                const SizedBox(height: 10),
-                _buildVipFeature(
-                  Icons.bolt,
-                  _loc("Instant In-Game Switching", "Anında Oyun İçi Değiştirme", "Sofortiges Wechseln", "Cambio Instantáneo"),
-                ),
-                const SizedBox(height: 24),
-                ElevatedButton(
-                  onPressed: _isPurchasing
-                      ? null
-                      : () {
-                          Navigator.of(ctx).pop();
-                          _buyVip();
-                        },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFFCC00),
-                    foregroundColor: Colors.black,
-                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-                    elevation: 10,
-                  ),
-                  child: Text(
-                    priceLabel.isNotEmpty
-                        ? "${_loc("ACTIVATE VIP", "VIP ETKİNLEŞTİR", "VIP AKTIVIEREN", "ACTIVAR VIP")} ($priceLabel)"
-                        : _loc("ACTIVATE VIP", "VIP ETKİNLEŞTİR", "VIP AKTIVIEREN", "ACTIVAR VIP"),
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                TextButton(
-                  onPressed: () {
-                    _iap.restorePurchases();
-                    Navigator.of(ctx).pop();
-                  },
-                  child: Text(
-                    _loc("Restore Purchase", "Satın Alımı Geri Yükle", "Käufe wiederherstellen", "Restaurar compra"),
-                    style: const TextStyle(color: Color(0xFF00F2FE), fontSize: 13),
-                  ),
-                ),
-                TextButton(
-                  onPressed: () => Navigator.of(ctx).pop(),
-                  child: Text(
-                    _loc("Cancel", "Vazgeç", "Abbrechen", "Cancelar"),
-                    style: TextStyle(color: Colors.white.withValues(alpha: 0.5)),
-                  ),
-                ),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         );
       },
     );
