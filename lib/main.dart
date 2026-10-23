@@ -119,13 +119,18 @@ class MainGameScreen extends StatefulWidget {
 }
 
 class _MainGameScreenState extends State<MainGameScreen>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin, WidgetsBindingObserver {
   // Navigation: 0 = Splash, 1 = Setup, 2 = Objects, 3 = Packs, 4 = Arena
   int currentScreen = 0;
 
   // Settings
   bool isMuted = false;
   int _currentLangIndex = 0; // 0: EN, 1: TR, 2: DE, 3: ES
+
+  // Mandatory Online Connectivity State
+  bool _isOnline = true;
+  bool _isCheckingNet = false;
+  Timer? _netTimer;
 
   // Players
   final List<Player> _players = [];
@@ -159,13 +164,15 @@ class _MainGameScreenState extends State<MainGameScreen>
   int _answererIndex = -1;
   String _currentBendVariant = "0"; // "0", "l", "r"
 
-  // AdMob Rewarded Ad
+  // AdMob Multi-Format Ads (RewardedInterstitialAd + RewardedAd + InterstitialAd)
+  RewardedInterstitialAd? _rewardedInterstitialAd;
   RewardedAd? _rewardedAd;
   bool _isAdLoading = false;
   int _adTargetObject = -1;
 
   // AdMob Interstitial Ad (Every 5 spins)
   InterstitialAd? _interstitialAd;
+  RewardedInterstitialAd? _spinRewardedInterstitialAd;
   bool _isInterstitialLoading = false;
   int _spinCounter = 0;
 
@@ -195,6 +202,12 @@ class _MainGameScreenState extends State<MainGameScreen>
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _checkInternetConnectivity();
+    _netTimer = Timer.periodic(const Duration(seconds: 2), (_) {
+      _checkInternetConnectivity();
+    });
+
     _loadQuestions();
     _loadPackSheet();
     _loadRewardedAd();
@@ -238,6 +251,48 @@ class _MainGameScreenState extends State<MainGameScreen>
       });
   }
 
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _checkInternetConnectivity();
+      if (_rewardedInterstitialAd == null && _rewardedAd == null) {
+        _loadRewardedAd();
+      }
+      if (_interstitialAd == null && _spinRewardedInterstitialAd == null) {
+        _loadInterstitialAd();
+      }
+    }
+  }
+
+  Future<bool> _checkInternetConnectivity() async {
+    if (_isCheckingNet) return _isOnline;
+    _isCheckingNet = true;
+    bool connected = false;
+    final hosts = ['google.com', 'apple.com', 'cloudflare.com'];
+    for (final host in hosts) {
+      try {
+        final result = await InternetAddress.lookup(host)
+            .timeout(const Duration(seconds: 2));
+        if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+          connected = true;
+          break;
+        }
+      } catch (_) {}
+    }
+    _isCheckingNet = false;
+    if (mounted && _isOnline != connected) {
+      setState(() {
+        _isOnline = connected;
+      });
+      if (connected) {
+        // Reload ads right when connection is restored
+        _loadRewardedAd();
+        _loadInterstitialAd();
+      }
+    }
+    return connected;
+  }
+
   Future<void> _loadQuestions() async {
     try {
       final jsonString =
@@ -267,11 +322,15 @@ class _MainGameScreenState extends State<MainGameScreen>
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _netTimer?.cancel();
     _wobbleController.dispose();
     _spinController.dispose();
     _nameController.dispose();
+    _rewardedInterstitialAd?.dispose();
     _rewardedAd?.dispose();
     _interstitialAd?.dispose();
+    _spinRewardedInterstitialAd?.dispose();
     _iapSubscription?.cancel();
     super.dispose();
   }
@@ -293,82 +352,167 @@ class _MainGameScreenState extends State<MainGameScreen>
     }
   }
 
-  // --- ADMOB REWARDED AD ---
+  void _unlockTargetObject(int objIdx) {
+    if (objIdx < 0 || objIdx >= _unlockedObjects.length) return;
+    if (!mounted) return;
+    setState(() {
+      _unlockedObjects[objIdx] = true;
+      _selectedObjectIndex = objIdx;
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: const Color(0xFF34C759),
+        content: Text(
+          _loc(
+            "🎉 Unlocked: ${WobblyBottleAppGame.getObjectName(objIdx, _currentLangIndex)}!",
+            "🎉 Açıldı: ${WobblyBottleAppGame.getObjectName(objIdx, _currentLangIndex)}!",
+            "🎉 Freigeschaltet!",
+            "🎉 ¡Desbloqueado!",
+          ),
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+      ),
+    );
+  }
+
+  // --- ADMOB REWARDED AD (Multi-format: RewardedInterstitialAd -> RewardedAd -> Fallback) ---
   void _loadRewardedAd() {
     if (_isAdLoading) return;
     _isAdLoading = true;
-    RewardedAd.load(
+
+    // 1. Try RewardedInterstitialAd first (matches original MainActivity.java setup)
+    RewardedInterstitialAd.load(
       adUnitId: _rewardedAdUnitId,
       request: const AdRequest(),
-      rewardedAdLoadCallback: RewardedAdLoadCallback(
+      rewardedInterstitialAdLoadCallback: RewardedInterstitialAdLoadCallback(
         onAdLoaded: (ad) {
-          _rewardedAd = ad;
+          _rewardedInterstitialAd = ad;
           _isAdLoading = false;
         },
         onAdFailedToLoad: (error) {
-          _rewardedAd = null;
-          _isAdLoading = false;
+          _rewardedInterstitialAd = null;
+          // 2. Fallback to standard RewardedAd
+          RewardedAd.load(
+            adUnitId: _rewardedAdUnitId,
+            request: const AdRequest(),
+            rewardedAdLoadCallback: RewardedAdLoadCallback(
+              onAdLoaded: (ad) {
+                _rewardedAd = ad;
+                _isAdLoading = false;
+              },
+              onAdFailedToLoad: (err2) {
+                _rewardedAd = null;
+                // 3. Also try secondary ad unit ID as RewardedAd / RewardedInterstitialAd
+                RewardedAd.load(
+                  adUnitId: _interstitialAdUnitId,
+                  request: const AdRequest(),
+                  rewardedAdLoadCallback: RewardedAdLoadCallback(
+                    onAdLoaded: (ad) {
+                      _rewardedAd = ad;
+                      _isAdLoading = false;
+                    },
+                    onAdFailedToLoad: (_) {
+                      _isAdLoading = false;
+                    },
+                  ),
+                );
+              },
+            ),
+          );
         },
       ),
     );
   }
 
-  void _startRewardedAd(int objectIndex) {
+  Future<void> _startRewardedAd(int objectIndex) async {
+    final online = await _checkInternetConnectivity();
+    if (!online) return;
+
     _adTargetObject = objectIndex;
 
+    if (_rewardedInterstitialAd != null) {
+      bool rewarded = false;
+      _rewardedInterstitialAd!.fullScreenContentCallback =
+          FullScreenContentCallback(
+        onAdDismissedFullScreenContent: (ad) {
+          ad.dispose();
+          _rewardedInterstitialAd = null;
+          _loadRewardedAd();
+          if (rewarded) {
+            _unlockTargetObject(_adTargetObject);
+          }
+        },
+        onAdFailedToShowFullScreenContent: (ad, error) {
+          ad.dispose();
+          _rewardedInterstitialAd = null;
+          _loadRewardedAd();
+          _showSponsoredVideoAdDialog(
+              isRewarded: true, targetObject: _adTargetObject);
+        },
+      );
+      _rewardedInterstitialAd!.show(
+        onUserEarnedReward: (adWithoutView, reward) {
+          rewarded = true;
+          _unlockTargetObject(_adTargetObject);
+        },
+      );
+      return;
+    }
+
     if (_rewardedAd != null) {
+      bool rewarded = false;
       _rewardedAd!.fullScreenContentCallback = FullScreenContentCallback(
         onAdDismissedFullScreenContent: (ad) {
           ad.dispose();
           _rewardedAd = null;
           _loadRewardedAd();
+          if (rewarded) {
+            _unlockTargetObject(_adTargetObject);
+          }
         },
         onAdFailedToShowFullScreenContent: (ad, error) {
           ad.dispose();
           _rewardedAd = null;
           _loadRewardedAd();
+          _showSponsoredVideoAdDialog(
+              isRewarded: true, targetObject: _adTargetObject);
         },
       );
-
       _rewardedAd!.show(
         onUserEarnedReward: (adWithoutView, reward) {
-          setState(() {
-            _unlockedObjects[_adTargetObject] = true;
-            _selectedObjectIndex = _adTargetObject;
-          });
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              backgroundColor: const Color(0xFF34C759),
-              content: Text(
-                _loc(
-                  "🎉 Unlocked: ${WobblyBottleAppGame.getObjectName(_adTargetObject, _currentLangIndex)}!",
-                  "🎉 Açıldı: ${WobblyBottleAppGame.getObjectName(_adTargetObject, _currentLangIndex)}!",
-                  "🎉 Freigeschaltet!",
-                  "🎉 ¡Desbloqueado!",
-                ),
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ),
-          );
+          rewarded = true;
+          _unlockTargetObject(_adTargetObject);
         },
       );
-    } else {
-      // Ad is still loading, try loading again and inform user
-      _loadRewardedAd();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: const Color(0xFFBF4FFF),
-          content: Text(
-            _loc(
-              "Loading video ad, please try again in a moment...",
-              "Video reklam yükleniyor, lütfen birkaç saniye sonra tekrar deneyin...",
-              "Video-Werbung lädt, bitte gleich noch einmal versuchen...",
-              "Cargando anuncio, inténtalo de nuevo en unos segundos...",
-            ),
-          ),
-        ),
-      );
+      return;
     }
+
+    if (_interstitialAd != null) {
+      _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
+        onAdDismissedFullScreenContent: (ad) {
+          ad.dispose();
+          _interstitialAd = null;
+          _loadInterstitialAd();
+          _unlockTargetObject(_adTargetObject);
+        },
+        onAdFailedToShowFullScreenContent: (ad, error) {
+          ad.dispose();
+          _interstitialAd = null;
+          _loadInterstitialAd();
+          _showSponsoredVideoAdDialog(
+              isRewarded: true, targetObject: _adTargetObject);
+        },
+      );
+      _interstitialAd!.show();
+      return;
+    }
+
+    // If AdMob has no fill yet (e.g. newly approved iOS app warming up),
+    // show the 5-second Sponsored Video Ad modal so the user is NEVER stuck!
+    _loadRewardedAd();
+    _loadInterstitialAd();
+    _showSponsoredVideoAdDialog(
+        isRewarded: true, targetObject: _adTargetObject);
   }
 
   // --- ADMOB INTERSTITIAL AD (EVERY 5 SPINS) ---
@@ -385,7 +529,22 @@ class _MainGameScreenState extends State<MainGameScreen>
         },
         onAdFailedToLoad: (error) {
           _interstitialAd = null;
-          _isInterstitialLoading = false;
+          // Try RewardedInterstitialAd on the same or primary unit as backup
+          RewardedInterstitialAd.load(
+            adUnitId: _rewardedAdUnitId,
+            request: const AdRequest(),
+            rewardedInterstitialAdLoadCallback:
+                RewardedInterstitialAdLoadCallback(
+              onAdLoaded: (ad) {
+                _spinRewardedInterstitialAd = ad;
+                _isInterstitialLoading = false;
+              },
+              onAdFailedToLoad: (_) {
+                _spinRewardedInterstitialAd = null;
+                _isInterstitialLoading = false;
+              },
+            ),
+          );
         },
       ),
     );
@@ -396,7 +555,7 @@ class _MainGameScreenState extends State<MainGameScreen>
 
     _spinCounter++;
     if (_spinCounter >= 5) {
-      _spinCounter = 0; // Reset counter
+      _spinCounter = 0; // Reset counter every 5 spins
       if (_interstitialAd != null) {
         _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
           onAdDismissedFullScreenContent: (ad) {
@@ -408,13 +567,262 @@ class _MainGameScreenState extends State<MainGameScreen>
             ad.dispose();
             _interstitialAd = null;
             _loadInterstitialAd();
+            _showSponsoredVideoAdDialog(isRewarded: false, targetObject: -1);
           },
         );
         _interstitialAd!.show();
+      } else if (_spinRewardedInterstitialAd != null) {
+        _spinRewardedInterstitialAd!.fullScreenContentCallback =
+            FullScreenContentCallback(
+          onAdDismissedFullScreenContent: (ad) {
+            ad.dispose();
+            _spinRewardedInterstitialAd = null;
+            _loadInterstitialAd();
+          },
+          onAdFailedToShowFullScreenContent: (ad, error) {
+            ad.dispose();
+            _spinRewardedInterstitialAd = null;
+            _loadInterstitialAd();
+            _showSponsoredVideoAdDialog(isRewarded: false, targetObject: -1);
+          },
+        );
+        _spinRewardedInterstitialAd!.show(
+          onUserEarnedReward: (_, __) {},
+        );
+      } else if (_rewardedInterstitialAd != null) {
+        _rewardedInterstitialAd!.fullScreenContentCallback =
+            FullScreenContentCallback(
+          onAdDismissedFullScreenContent: (ad) {
+            ad.dispose();
+            _rewardedInterstitialAd = null;
+            _loadRewardedAd();
+          },
+          onAdFailedToShowFullScreenContent: (ad, error) {
+            ad.dispose();
+            _rewardedInterstitialAd = null;
+            _loadRewardedAd();
+            _showSponsoredVideoAdDialog(isRewarded: false, targetObject: -1);
+          },
+        );
+        _rewardedInterstitialAd!.show(
+          onUserEarnedReward: (_, __) {},
+        );
       } else {
         _loadInterstitialAd();
+        _showSponsoredVideoAdDialog(isRewarded: false, targetObject: -1);
       }
     }
+  }
+
+  // --- INTERNAL 5-SECOND SPONSORED VIDEO AD FALLBACK (Matches GameView.java drawRewardedAd) ---
+  void _showSponsoredVideoAdDialog({
+    required bool isRewarded,
+    required int targetObject,
+  }) {
+    int secondsLeft = 5;
+    Timer? countdownTimer;
+    bool timerStarted = false;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (dialogCtx, setDialogState) {
+            if (!timerStarted) {
+              timerStarted = true;
+              countdownTimer =
+                  Timer.periodic(const Duration(seconds: 1), (timer) {
+                if (!dialogCtx.mounted) {
+                  timer.cancel();
+                  return;
+                }
+                if (secondsLeft > 1) {
+                  setDialogState(() {
+                    secondsLeft--;
+                  });
+                } else {
+                  timer.cancel();
+                  if (Navigator.of(dialogCtx).canPop()) {
+                    Navigator.of(dialogCtx).pop();
+                  }
+                  if (isRewarded && targetObject >= 0) {
+                    _unlockTargetObject(targetObject);
+                  }
+                }
+              });
+            }
+
+            final progress = (5 - secondsLeft) / 5.0;
+            final objPreviewIdx = targetObject >= 0 ? targetObject : 4;
+
+            return PopScope(
+              canPop: false,
+              child: Dialog(
+                backgroundColor: const Color(0xFF0A0F1D),
+                insetPadding: const EdgeInsets.symmetric(
+                    horizontal: 20.0, vertical: 24.0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(28),
+                  side: const BorderSide(color: Color(0xFFBF4FFF), width: 3),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 24.0, vertical: 28.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Top Ad Badge + Countdown
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFBF4FFF)
+                                  .withValues(alpha: 0.2),
+                              borderRadius: BorderRadius.circular(8),
+                              border:
+                                  Border.all(color: const Color(0xFFBF4FFF)),
+                            ),
+                            child: Text(
+                              _loc("SPONSORED VIDEO", "SPONSORLU VİDEO",
+                                  "GESPONSERTES VIDEO", "VIDEO PATROCINADO"),
+                              style: const TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w900,
+                                color: Color(0xFFBF4FFF),
+                              ),
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 5),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            child: Text(
+                              "${secondsLeft}s",
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w900,
+                                color: Color(0xFFFFCC00),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 22),
+
+                      // Animated Bottle/VIP Preview inside Video Frame
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 24, horizontal: 16),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF150A2A), Color(0xFF061A2E)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(22),
+                          border: Border.all(
+                            color:
+                                const Color(0xFF00F2FE).withValues(alpha: 0.4),
+                            width: 1.5,
+                          ),
+                        ),
+                        child: Column(
+                          children: [
+                            SizedBox(
+                              height: 110,
+                              child: Image.asset(
+                                'assets/bent_${objPreviewIdx}_0.png',
+                                fit: BoxFit.contain,
+                              ),
+                            ),
+                            const SizedBox(height: 14),
+                            const Text(
+                              "WOBBLY VIP PARTY",
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w900,
+                                color: Color(0xFFFFCC00),
+                                letterSpacing: 1.5,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              isRewarded
+                                  ? _loc(
+                                      "Unlocking ${WobblyBottleAppGame.getObjectName(targetObject, _currentLangIndex)}...",
+                                      "${WobblyBottleAppGame.getObjectName(targetObject, _currentLangIndex)} kilidi açılıyor...",
+                                      "Wird freigeschaltet...",
+                                      "Desbloqueando...",
+                                    )
+                                  : _loc(
+                                      "Remove all ads & unlock Golden Champagne + 18+ Spicy Pack with VIP!",
+                                      "VIP ile tüm reklamları kaldır, Altın Şampanya ve +18 Paketi aç!",
+                                      "Alle Werbung entfernen mit VIP!",
+                                      "¡Elimina todos los anuncios con VIP!",
+                                    ),
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: Colors.white70,
+                                height: 1.3,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Progress Bar
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: LinearProgressIndicator(
+                          value: progress,
+                          minHeight: 10,
+                          backgroundColor: Colors.white12,
+                          valueColor: const AlwaysStoppedAnimation<Color>(
+                              Color(0xFF00F2FE)),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        isRewarded
+                            ? _loc(
+                                "Reward granted in $secondsLeft seconds...",
+                                "Ödül $secondsLeft saniye içinde veriliyor...",
+                                "Belohnung in $secondsLeft Sekunden...",
+                                "Recompensa en $secondsLeft segundos...",
+                              )
+                            : _loc(
+                                "Game resumes in $secondsLeft seconds...",
+                                "Oyun $secondsLeft saniye içinde devam ediyor...",
+                                "Weiter in $secondsLeft Sekunden...",
+                                "El juego continúa en $secondsLeft segundos...",
+                              ),
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF00F2FE),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    ).then((_) {
+      countdownTimer?.cancel();
+    });
   }
 
   // --- APPLE / GOOGLE IN-APP PURCHASE ---
@@ -740,6 +1148,10 @@ class _MainGameScreenState extends State<MainGameScreen>
 
   // --- BOTTLE SPIN & BEND ALGORITHM ---
   void _spinBottle() {
+    if (!_isOnline) {
+      _checkInternetConnectivity();
+      return;
+    }
     if (_isSpinning || _players.length < 2) return;
 
     final rand = math.Random();
@@ -820,6 +1232,9 @@ class _MainGameScreenState extends State<MainGameScreen>
       _currentAngle = finalBottleAngle;
       _currentBendVariant = bendVariant;
     });
+
+    // Show interstitial ad every 5 bottle spins!
+    _showInterstitialAdIfNeeded();
   }
 
   // --- CARD & QUESTION PICKING ---
@@ -925,7 +1340,6 @@ class _MainGameScreenState extends State<MainGameScreen>
                 ElevatedButton(
                   onPressed: () {
                     Navigator.of(ctx).pop();
-                    _showInterstitialAdIfNeeded();
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF00F2FE),
@@ -2027,6 +2441,135 @@ class _MainGameScreenState extends State<MainGameScreen>
     );
   }
 
+  // MANDATORY ONLINE CHECK OVERLAY (Matches GameView.java drawOffline)
+  Widget _buildOfflineOverlay() {
+    return Positioned.fill(
+      child: AbsorbPointer(
+        absorbing: true,
+        child: Container(
+          color: const Color(0xF50A0A14),
+          padding: const EdgeInsets.symmetric(horizontal: 28.0),
+          child: SafeArea(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 110,
+                  height: 110,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: const Color(0xFFFF0055).withValues(alpha: 0.15),
+                    border:
+                        Border.all(color: const Color(0xFFFF0055), width: 3),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFFFF0055).withValues(alpha: 0.45),
+                        blurRadius: 25,
+                        spreadRadius: 4,
+                      ),
+                    ],
+                  ),
+                  child: const Center(
+                    child: Icon(
+                      Icons.wifi_off_rounded,
+                      size: 56,
+                      color: Color(0xFFFF0055),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 28),
+                Text(
+                  _loc("NO CONNECTION", "BAĞLANTI YOK", "KEINE VERBINDUNG",
+                      "SIN CONEXIÓN"),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w900,
+                    color: const Color(0xFFFF0055),
+                    letterSpacing: 2.0,
+                    shadows: [
+                      Shadow(
+                        color: const Color(0xFFFF0055).withValues(alpha: 0.6),
+                        blurRadius: 15,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  _loc(
+                    "Wobbly Bottle requires an active internet connection.",
+                    "Wobbly Bottle aktif bir internet bağlantısı gerektirir.",
+                    "Wobbly Bottle erfordert eine aktive Internetverbindung.",
+                    "Wobbly Bottle requiere una conexión activa a Internet.",
+                  ),
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    height: 1.4,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  _loc(
+                    "Connect to Wi-Fi or mobile data to continue.",
+                    "Devam etmek için Wi-Fi veya mobil veriye bağlanın.",
+                    "Mit WLAN oder mobilen Daten verbinden, um fortzufahren.",
+                    "Conéctate a Wi-Fi o datos móviles para continuar.",
+                  ),
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFFAAAAAA),
+                    height: 1.4,
+                  ),
+                ),
+                const SizedBox(height: 32),
+                Container(
+                  width: double.infinity,
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1A1A2E),
+                    borderRadius: BorderRadius.circular(22),
+                    border:
+                        Border.all(color: const Color(0xFFFF0055), width: 2),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.5,
+                          color: Color(0xFFFF0055),
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      Text(
+                        _loc("WAITING FOR NETWORK...", "AĞ BEKLENİYOR...",
+                            "WARTE AUF NETZWERK...", "ESPERANDO RED..."),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -2067,6 +2610,8 @@ class _MainGameScreenState extends State<MainGameScreen>
               }(),
             ),
           ),
+          // Mandatory Online Connection Blocker Overlay
+          if (!_isOnline) _buildOfflineOverlay(),
         ],
       ),
     );
