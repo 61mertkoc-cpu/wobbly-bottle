@@ -46,12 +46,16 @@ class Player {
 
 class WobblyBottleAppGame {
   static const List<Color> playerColors = [
-    Color(0xFF00F2FE), // Cyan
-    Color(0xFFFF0844), // Pink/Red
-    Color(0xFFFF9500), // Orange
-    Color(0xFFAF52DE), // Purple
-    Color(0xFFFFCC00), // Yellow
-    Color(0xFF34C759), // Green
+    Color(0xFF00F2FE), // 1. Cyan
+    Color(0xFFFF0844), // 2. Pink/Red
+    Color(0xFFFF9500), // 3. Orange
+    Color(0xFFAF52DE), // 4. Purple
+    Color(0xFFFFCC00), // 5. Yellow
+    Color(0xFF34C759), // 6. Green
+    Color(0xFF3B82F6), // 7. Electric Blue
+    Color(0xFFFF2E93), // 8. Hot Magenta
+    Color(0xFFA8FF00), // 9. Neon Lime
+    Color(0xFFFF6B4A), // 10. Neon Coral
   ];
 
   static const List<List<String>> langFlags = [
@@ -121,11 +125,14 @@ class MainGameScreen extends StatefulWidget {
 class _MainGameScreenState extends State<MainGameScreen>
     with TickerProviderStateMixin, WidgetsBindingObserver {
   // Navigation: 0 = Splash, 1 = Setup, 2 = Objects, 3 = Packs, 4 = Arena
-  int currentScreen = 0;
+  int currentScreen = 1; // Auto-start directly on Setup screen (no mandatory Tap to Start button)
 
   // Settings
   bool isMuted = false;
   int _currentLangIndex = 0; // 0: EN, 1: TR, 2: DE, 3: ES
+
+  // Right-Side Slide-Over Profile / Quick Switch Drawer
+  bool _profileDrawerOpen = false;
 
   // Mandatory Online Connectivity State
   bool _isOnline = true;
@@ -135,6 +142,7 @@ class _MainGameScreenState extends State<MainGameScreen>
   // Players
   final List<Player> _players = [];
   final TextEditingController _nameController = TextEditingController();
+  final ScrollController _colorScrollController = ScrollController();
   int _selectedColorIndex = 0;
 
   // Objects & Unlocks
@@ -199,10 +207,29 @@ class _MainGameScreenState extends State<MainGameScreen>
   String get _interstitialAdUnitId =>
       Platform.isIOS ? _iosInterstitialAdUnitId : _androidInterstitialAdUnitId;
 
+  void _initDeviceLanguage() {
+    try {
+      final localeCode =
+          ui.PlatformDispatcher.instance.locale.languageCode.toLowerCase();
+      if (localeCode.startsWith('tr')) {
+        _currentLangIndex = 1; // TR - Türkçe
+      } else if (localeCode.startsWith('de')) {
+        _currentLangIndex = 2; // DE - Deutsch
+      } else if (localeCode.startsWith('es')) {
+        _currentLangIndex = 3; // ES - Español
+      } else {
+        _currentLangIndex = 0; // EN - English (default for EN & other regions)
+      }
+    } catch (_) {
+      _currentLangIndex = 0;
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _initDeviceLanguage();
     _checkInternetConnectivity();
     _netTimer = Timer.periodic(const Duration(seconds: 2), (_) {
       _checkInternetConnectivity();
@@ -219,9 +246,10 @@ class _MainGameScreenState extends State<MainGameScreen>
       duration: const Duration(milliseconds: 1400),
     )..repeat(reverse: true);
 
+    // 20% faster bottle spin duration (3800ms -> 3040ms)
     _spinController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 3800),
+      duration: const Duration(milliseconds: 3040),
     );
 
     _spinAnimation = CurvedAnimation(
@@ -327,6 +355,7 @@ class _MainGameScreenState extends State<MainGameScreen>
     _wobbleController.dispose();
     _spinController.dispose();
     _nameController.dispose();
+    _colorScrollController.dispose();
     _rewardedInterstitialAd?.dispose();
     _rewardedAd?.dispose();
     _interstitialAd?.dispose();
@@ -1119,25 +1148,236 @@ class _MainGameScreenState extends State<MainGameScreen>
   }
 
   // --- PLAYERS MANAGEMENT ---
+  void _scrollColorPaletteToIndex(int index) {
+    if (!_colorScrollController.hasClients) return;
+    final maxScroll = _colorScrollController.position.maxScrollExtent;
+    final targetOffset = (index * 40.0 - 80.0).clamp(0.0, maxScroll);
+    _colorScrollController.animateTo(
+      targetOffset,
+      duration: const Duration(milliseconds: 220),
+      curve: Curves.easeOut,
+    );
+  }
+
   void _addPlayer() {
-    final name = _nameController.text.trim();
-    if (name.isEmpty) return;
-    if (_players.length >= 8) {
+    if (_players.length >= 10) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(_loc("Maximum 8 players!", "Maksimum 8 oyuncu!", "Maximal 8 Spieler!", "¡Máximo 8 jugadores!")),
+          content: Text(_loc(
+            "Maximum 10 players!",
+            "Maksimum 10 oyuncu!",
+            "Maximal 10 Spieler!",
+            "¡Máximo 10 jugadores!",
+          )),
         ),
       );
       return;
     }
+
+    String name = _nameController.text.trim();
+    if (name.isEmpty) {
+      int num = _players.length + 1;
+      final prefix = _loc("Player", "Oyuncu", "Spieler", "Jugador");
+      while (_players.any(
+          (p) => p.name.toLowerCase() == "$prefix $num".toLowerCase())) {
+        num++;
+      }
+      name = "$prefix $num";
+    }
+
     setState(() {
       _players.add(Player(
         name: name,
         color: WobblyBottleAppGame.playerColors[_selectedColorIndex],
       ));
       _nameController.clear();
-      _selectedColorIndex = (_selectedColorIndex + 1) % WobblyBottleAppGame.playerColors.length;
+      _selectedColorIndex =
+          (_selectedColorIndex + 1) % WobblyBottleAppGame.playerColors.length;
     });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollColorPaletteToIndex(_selectedColorIndex);
+    });
+  }
+
+  void _editPlayerDialog(int index) {
+    if (index < 0 || index >= _players.length) return;
+    final editController = TextEditingController(text: _players[index].name);
+    editController.selection = TextSelection(
+      baseOffset: 0,
+      extentOffset: editController.text.length,
+    );
+    Color tempColor = _players[index].color;
+
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (dialogCtx, setDialogState) {
+            void saveChanges() {
+              String updatedName = editController.text.trim();
+              if (updatedName.isEmpty) {
+                updatedName = _players[index].name;
+              }
+              setState(() {
+                _players[index] = Player(name: updatedName, color: tempColor);
+              });
+              Navigator.of(dialogCtx).pop();
+            }
+
+            return Dialog(
+              backgroundColor: const Color(0xFF0A1828),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+                side: BorderSide(color: tempColor, width: 2.5),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 22.0, vertical: 24.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.edit, color: tempColor, size: 22),
+                        const SizedBox(width: 8),
+                        Text(
+                          _loc("EDIT PLAYER", "OYUNCUYU DÜZENLE",
+                              "SPIELER BEARBEITEN", "EDITAR JUGADOR"),
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w900,
+                            color: tempColor,
+                            letterSpacing: 1.2,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 18),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF051725),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: tempColor, width: 2),
+                      ),
+                      child: TextField(
+                        controller: editController,
+                        autofocus: true,
+                        style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white),
+                        decoration: InputDecoration(
+                          hintText: _loc(
+                              "Enter player name...",
+                              "Oyuncu adı girin...",
+                              "Spielername eingeben...",
+                              "Nombre del jugador..."),
+                          hintStyle: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.45)),
+                          border: InputBorder.none,
+                        ),
+                        onSubmitted: (_) => saveChanges(),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          for (int i = 0;
+                              i < WobblyBottleAppGame.playerColors.length;
+                              i++)
+                            Padding(
+                              padding: const EdgeInsets.only(right: 10.0),
+                              child: GestureDetector(
+                                onTap: () => setDialogState(() => tempColor =
+                                    WobblyBottleAppGame.playerColors[i]),
+                                child: Container(
+                                  width: 32,
+                                  height: 32,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: WobblyBottleAppGame.playerColors[i],
+                                    border: Border.all(
+                                      color: tempColor ==
+                                              WobblyBottleAppGame
+                                                  .playerColors[i]
+                                          ? Colors.white
+                                          : Colors.transparent,
+                                      width: 3,
+                                    ),
+                                    boxShadow: tempColor ==
+                                            WobblyBottleAppGame.playerColors[i]
+                                        ? [
+                                            BoxShadow(
+                                              color: WobblyBottleAppGame
+                                                  .playerColors[i]
+                                                  .withValues(alpha: 0.8),
+                                              blurRadius: 10,
+                                            )
+                                          ]
+                                        : null,
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 22),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextButton(
+                            onPressed: () => Navigator.of(dialogCtx).pop(),
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                            ),
+                            child: Text(
+                              _loc("CANCEL", "İPTAL", "ABBRECHEN", "CANCELAR"),
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: saveChanges,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: tempColor,
+                              foregroundColor: Colors.black,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                            ),
+                            child: Text(
+                              _loc("SAVE", "KAYDET", "SPEICHERN", "GUARDAR"),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w900,
+                                fontSize: 15,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
   void _removePlayer(int index) {
@@ -1435,75 +1675,32 @@ class _MainGameScreenState extends State<MainGameScreen>
   // SCREENS
   // =========================================================
 
-  // SCREEN 0: SPLASH SCREEN
+  // SCREEN 0: SPLASH SCREEN (Auto-transitions without Tap to Start)
   Widget _buildSplashScreen() {
     return Center(
       key: const ValueKey(0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          AnimatedBuilder(
-            animation: _wobbleController,
-            builder: (context, child) {
-              final wobble = math.sin(_wobbleController.value * 2 * math.pi) * 0.15;
-              return Transform.rotate(
-                angle: wobble,
-                child: Container(
-                  width: 180,
-                  height: 180,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF00F2FE).withValues(alpha: 0.65),
-                        blurRadius: 35,
-                        spreadRadius: 10,
-                      )
-                    ],
-                  ),
-                  child: Image.asset(
-                    'assets/bent_0_0.png',
-                    fit: BoxFit.contain,
-                  ),
-                ),
-              );
-            },
-          ),
-          const SizedBox(height: 30),
-          const Text(
-            "WOBBLY BOTTLE",
-            style: TextStyle(
-              fontSize: 34,
-              fontWeight: FontWeight.w900,
-              color: Color(0xFFFFCC00),
-              letterSpacing: 2.0,
+          Container(
+            width: 190,
+            height: 190,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(38),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF00F2FE).withValues(alpha: 0.55),
+                  blurRadius: 35,
+                  spreadRadius: 6,
+                )
+              ],
             ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            _loc("FUNNY PARTY GAME", "EĞLENCELİ PARTİ OYUNU", "LUSTIGES PARTY-SPIEL", "DIVERTIDO JUEGO DE FIESTA"),
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF00F2FE),
-              letterSpacing: 1.5,
-            ),
-          ),
-          const SizedBox(height: 48),
-          ElevatedButton(
-            onPressed: () => setState(() => currentScreen = 1),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFFF0844),
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 18),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(38),
+              child: Image.asset(
+                'assets/app_icon.png',
+                fit: BoxFit.cover,
               ),
-              elevation: 12,
-            ),
-            child: Text(
-              _loc("TAP TO START", "BAŞLAMAK İÇİN DOKUN", "TIPPEN ZUM STARTEN", "TOCA PARA EMPEZAR"),
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
             ),
           ),
         ],
@@ -1511,7 +1708,7 @@ class _MainGameScreenState extends State<MainGameScreen>
     );
   }
 
-  // SCREEN 1: ADD PLAYERS (2-Column Grid matching Android)
+  // SCREEN 1: ADD PLAYERS (2-Column Grid matching Android, up to 10 Players)
   Widget _buildSetupScreen() {
     return Padding(
       key: const ValueKey(1),
@@ -1556,7 +1753,7 @@ class _MainGameScreenState extends State<MainGameScreen>
           ),
           const SizedBox(height: 16),
           Text(
-            _loc("ADD PLAYERS (MIN 2)", "OYUNCU EKLE (MİN 2)", "SPIELER HINZUFÜGEN (MIN 2)", "AÑADIR JUGADORES (MÍN 2)"),
+            _loc("ADD PLAYERS (MIN 2 - MAX 10)", "OYUNCU EKLE (MİN 2 - MAKS 10)", "SPIELER HINZUFÜGEN (2 - 10)", "AÑADIR JUGADORES (2 - 10)"),
             style: const TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.bold,
@@ -1566,7 +1763,7 @@ class _MainGameScreenState extends State<MainGameScreen>
           ),
           const SizedBox(height: 10),
 
-          // Player Input Field with Yellow '+' inside
+          // Player Input Field with Yellow '+' inside (works with or without typing a name)
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
             decoration: BoxDecoration(
@@ -1580,8 +1777,8 @@ class _MainGameScreenState extends State<MainGameScreen>
                   child: TextField(
                     controller: _nameController,
                     decoration: InputDecoration(
-                      hintText: _loc("Enter player name...", "Oyuncu adı girin...", "Spielername eingeben...", "Nombre del jugador..."),
-                      hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.5)),
+                      hintText: _loc("Enter name or tap + to quick add...", "İsim yazın veya hızlı eklemek için + basın...", "Name eingeben oder + tippen...", "Escribe nombre o toca +..."),
+                      hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 14),
                       border: InputBorder.none,
                     ),
                     onSubmitted: (_) => _addPlayer(),
@@ -1603,7 +1800,7 @@ class _MainGameScreenState extends State<MainGameScreen>
           ),
           const SizedBox(height: 12),
 
-          // Color Picker row
+          // Single-Row Horizontal Scrollable 10-Color Picker
           Row(
             children: [
               Text(
@@ -1612,41 +1809,50 @@ class _MainGameScreenState extends State<MainGameScreen>
               ),
               const SizedBox(width: 10),
               Expanded(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    for (int i = 0; i < WobblyBottleAppGame.playerColors.length; i++)
-                      GestureDetector(
-                        onTap: () => setState(() => _selectedColorIndex = i),
-                        child: Container(
-                          width: 28,
-                          height: 28,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: WobblyBottleAppGame.playerColors[i],
-                            border: Border.all(
-                              color: _selectedColorIndex == i ? Colors.white : Colors.transparent,
-                              width: 3,
+                child: SingleChildScrollView(
+                  controller: _colorScrollController,
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
+                  child: Row(
+                    children: [
+                      for (int i = 0; i < WobblyBottleAppGame.playerColors.length; i++)
+                        Padding(
+                          padding: const EdgeInsets.only(right: 10.0),
+                          child: GestureDetector(
+                            onTap: () => setState(() => _selectedColorIndex = i),
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 160),
+                              width: _selectedColorIndex == i ? 32 : 28,
+                              height: _selectedColorIndex == i ? 32 : 28,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: WobblyBottleAppGame.playerColors[i],
+                                border: Border.all(
+                                  color: _selectedColorIndex == i ? Colors.white : Colors.transparent,
+                                  width: 3,
+                                ),
+                                boxShadow: _selectedColorIndex == i
+                                    ? [
+                                        BoxShadow(
+                                          color: WobblyBottleAppGame.playerColors[i].withValues(alpha: 0.85),
+                                          blurRadius: 10,
+                                          spreadRadius: 1,
+                                        )
+                                      ]
+                                    : null,
+                              ),
                             ),
-                            boxShadow: _selectedColorIndex == i
-                                ? [
-                                    BoxShadow(
-                                      color: WobblyBottleAppGame.playerColors[i].withValues(alpha: 0.8),
-                                      blurRadius: 10,
-                                    )
-                                  ]
-                                : null,
                           ),
                         ),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 14),
 
-          // Players List (2-column Grid matching Android)
+          // Players List (2-column Grid matching Android, with Pencil Edit + Remove icons)
           Expanded(
             child: _players.isEmpty
                 ? Center(
@@ -1661,40 +1867,54 @@ class _MainGameScreenState extends State<MainGameScreen>
                       crossAxisCount: 2,
                       crossAxisSpacing: 12,
                       mainAxisSpacing: 10,
-                      childAspectRatio: 2.2,
+                      childAspectRatio: 2.35,
                     ),
                     itemCount: _players.length,
                     itemBuilder: (ctx, idx) {
                       final p = _players[idx];
-                      return Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF0A1828),
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: p.color, width: 2),
-                          boxShadow: [
-                            BoxShadow(
-                              color: p.color.withValues(alpha: 0.25),
-                              blurRadius: 8,
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(Icons.sentiment_satisfied_alt, color: p.color, size: 26),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                p.name,
-                                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                                overflow: TextOverflow.ellipsis,
+                      return GestureDetector(
+                        onTap: () => _editPlayerDialog(idx),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF0A1828),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: p.color, width: 2),
+                            boxShadow: [
+                              BoxShadow(
+                                color: p.color.withValues(alpha: 0.25),
+                                blurRadius: 8,
                               ),
-                            ),
-                            GestureDetector(
-                              onTap: () => _removePlayer(idx),
-                              child: const Icon(Icons.close, color: Colors.white54, size: 18),
-                            ),
-                          ],
+                            ],
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(Icons.sentiment_satisfied_alt, color: p.color, size: 24),
+                              const SizedBox(width: 6),
+                              Expanded(
+                                child: Text(
+                                  p.name,
+                                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: () => _editPlayerDialog(idx),
+                                child: Container(
+                                  padding: const EdgeInsets.all(4),
+                                  child: Icon(Icons.edit, color: p.color.withValues(alpha: 0.9), size: 17),
+                                ),
+                              ),
+                              const SizedBox(width: 2),
+                              GestureDetector(
+                                onTap: () => _removePlayer(idx),
+                                child: Container(
+                                  padding: const EdgeInsets.all(4),
+                                  child: const Icon(Icons.close, color: Colors.white54, size: 18),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       );
                     },
@@ -2193,15 +2413,19 @@ class _MainGameScreenState extends State<MainGameScreen>
                         final py = center.dy + ringRadius * math.sin(pAngle);
                         final isQ = _questionerIndex == i;
                         final isA = _answererIndex == i;
+                        final double avatarSize = count > 8 ? 44.0 : 52.0;
+                        final double iconSize = count > 8 ? 26.0 : 32.0;
 
                         return Positioned(
-                          left: px - 35,
-                          top: py - 35,
+                          left: px - 38,
+                          top: py - (avatarSize / 2 + 6),
+                          width: 76,
                           child: Column(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
                               Container(
-                                width: 52,
-                                height: 52,
+                                width: avatarSize,
+                                height: avatarSize,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   color: _players[i].color,
@@ -2225,15 +2449,18 @@ class _MainGameScreenState extends State<MainGameScreen>
                                   child: Icon(
                                     Icons.sentiment_satisfied_alt,
                                     color: Colors.black.withValues(alpha: 0.85),
-                                    size: 32,
+                                    size: iconSize,
                                   ),
                                 ),
                               ),
-                              const SizedBox(height: 4),
+                              const SizedBox(height: 3),
                               Text(
                                 _players[i].name,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                textAlign: TextAlign.center,
                                 style: TextStyle(
-                                  fontSize: 13,
+                                  fontSize: count > 8 ? 11.5 : 13,
                                   fontWeight: FontWeight.bold,
                                   color: isA
                                       ? const Color(0xFFFF0844)
@@ -2422,19 +2649,422 @@ class _MainGameScreenState extends State<MainGameScreen>
           ),
           const SizedBox(height: 8),
 
-          // Bottom Bar (Home & Profile)
+          // Bottom Bar (Home & Profile / VIP Quick Switch Drawer)
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              IconButton(
-                icon: const Icon(Icons.home, color: Color(0xFF00F2FE), size: 28),
-                onPressed: () => setState(() => currentScreen = 1),
+              GestureDetector(
+                onTap: () => setState(() => currentScreen = 1),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF0A1828),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: const Color(0xFF00F2FE).withValues(alpha: 0.5),
+                      width: 1.5,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.home, color: Color(0xFF00F2FE), size: 24),
+                      const SizedBox(width: 6),
+                      Text(
+                        _loc("HOME", "ANA SAYFA", "START", "INICIO"),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-              IconButton(
-                icon: const Icon(Icons.workspace_premium, color: Color(0xFFFFCC00), size: 28),
-                onPressed: _openVipModal,
+              GestureDetector(
+                onTap: () => setState(() => _profileDrawerOpen = true),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF0A1828),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: const Color(0xFFFFCC00).withValues(alpha: 0.75),
+                      width: 1.8,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFFFFCC00).withValues(alpha: 0.2),
+                        blurRadius: 8,
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.workspace_premium, color: Color(0xFFFFCC00), size: 24),
+                      const SizedBox(width: 6),
+                      Text(
+                        _loc("PROFILE", "PROFİL", "PROFIL", "PERFIL"),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w900,
+                          color: Color(0xFFFFCC00),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // RIGHT-SIDE SLIDE-OVER PROFILE / VIP QUICK DRAWER (Matches GameView.java drawProfile)
+  Widget _buildProfileDrawer() {
+    return Positioned.fill(
+      child: Row(
+        children: [
+          // Left translucent backdrop (tapping closes the panel)
+          Expanded(
+            flex: 22,
+            child: GestureDetector(
+              onTap: () => setState(() => _profileDrawerOpen = false),
+              child: Container(
+                color: Colors.black.withValues(alpha: 0.75),
+              ),
+            ),
+          ),
+
+          // Right Slide-Over Panel (VIP Card + Instant Bottle Switcher + Active Packs)
+          Expanded(
+            flex: 78,
+            child: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFF0A0B20), Color(0xFF041522)],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                ),
+                border: Border(
+                  left: BorderSide(color: Color(0xFF00F2FE), width: 2),
+                ),
+              ),
+              child: SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 10.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Drawer Header: Close Button + PROFILE Title
+                      Row(
+                        children: [
+                          GestureDetector(
+                            onTap: () => setState(() => _profileDrawerOpen = false),
+                            child: Container(
+                              width: 38,
+                              height: 38,
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.08),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: Colors.white38, width: 1.5),
+                              ),
+                              child: const Icon(Icons.close, color: Colors.white, size: 22),
+                            ),
+                          ),
+                          Expanded(
+                            child: Text(
+                              _loc("PROFILE", "PROFİL", "PROFIL", "PERFIL"),
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w900,
+                                color: const Color(0xFF00F2FE),
+                                letterSpacing: 1.5,
+                                shadows: [
+                                  Shadow(
+                                    color: const Color(0xFF00F2FE).withValues(alpha: 0.65),
+                                    blurRadius: 12,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 38),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+
+                      // 1. TOP: VIP Activation Card
+                      GestureDetector(
+                        onTap: _openVipModal,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                          decoration: BoxDecoration(
+                            color: const Color(0xE62D1E05),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: const Color(0xFFFFCC00), width: 2.5),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFFFFCC00).withValues(alpha: 0.35),
+                                blurRadius: 14,
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            children: [
+                              Text(
+                                _vip
+                                    ? _loc("♛ VIP MEMBER", "♛ VIP ÜYE", "♛ VIP MITGLIED", "♛ MIEMBRO VIP")
+                                    : _loc("♛ GO VIP", "♛ VIP OL", "♛ VIP WERDEN", "♛ SER VIP"),
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w900,
+                                  color: Color(0xFFFFDC46),
+                                  letterSpacing: 1.2,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                _vip
+                                    ? _loc(
+                                        "All premium content is unlocked",
+                                        "Tüm premium içerikler açık",
+                                        "Alle Premium-Inhalte freigeschaltet",
+                                        "Todo el contenido premium desbloqueado",
+                                      )
+                                    : _loc(
+                                        "Unlock Golden Champagne + Spicy pack",
+                                        "Altın Şampanya + +18 Baharatlı paketi aç",
+                                        "Goldener Champagner + Spicy-Paket freischalten",
+                                        "Desbloquea Champán Dorado + Paquete Picante",
+                                      ),
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  fontSize: 11.5,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFFFCC00).withValues(alpha: 0.2),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Text(
+                                  _vip
+                                      ? _loc("ACTIVE", "AKTİF", "AKTIV", "ACTIVO")
+                                      : _loc("VIEW OFFER", "TEKLİFİ GÖR", "ANGEBOT SEHEN", "VER OFERTA"),
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w900,
+                                    color: Color(0xFFFFDC46),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+
+                      // 2. MIDDLE: Instant Bottle / Object Switching
+                      Text(
+                        _loc("CHANGE OBJECT NOW", "ŞİMDİ NESNE DEĞİŞTİR", "OBJEKT JETZT ÄNDERN", "CAMBIAR OBJETO AHORA"),
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white,
+                          letterSpacing: 1.0,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+
+                      Expanded(
+                        flex: 56,
+                        child: ListView.builder(
+                          physics: const BouncingScrollPhysics(),
+                          itemCount: 5,
+                          itemBuilder: (ctx, i) {
+                            final available = _unlockedObjects[i] || (i == 4 && _vip);
+                            final isSelected = _selectedObjectIndex == i;
+                            final Color borderColor = isSelected
+                                ? const Color(0xFF50FF8C)
+                                : (i == 4 ? const Color(0xFFFFCC00) : const Color(0xFF824EBE));
+
+                            final String statusLabel = available
+                                ? (isSelected
+                                    ? _loc("SELECTED", "SEÇİLDİ", "AUSGEWÄHLT", "SELECCIONADO")
+                                    : _loc("CHOOSE", "SEÇ", "WÄHLEN", "ELEGIR"))
+                                : (i == 4 ? "VIP" : _loc("AD", "REKLAM", "WERBUNG", "ANUNCIO"));
+
+                            return GestureDetector(
+                              onTap: () {
+                                if (i == 4 && !_vip) {
+                                  _openVipModal();
+                                } else if (!_unlockedObjects[i]) {
+                                  _startRewardedAd(i);
+                                } else {
+                                  setState(() {
+                                    _selectedObjectIndex = i;
+                                  });
+                                }
+                              },
+                              child: Container(
+                                margin: const EdgeInsets.only(bottom: 7),
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xBE0C1222),
+                                  borderRadius: BorderRadius.circular(14),
+                                  border: Border.all(
+                                    color: borderColor,
+                                    width: isSelected ? 2.5 : 1.5,
+                                  ),
+                                  boxShadow: isSelected
+                                      ? [
+                                          BoxShadow(
+                                            color: borderColor.withValues(alpha: 0.3),
+                                            blurRadius: 8,
+                                          )
+                                        ]
+                                      : null,
+                                ),
+                                child: Row(
+                                  children: [
+                                    SizedBox(
+                                      width: 44,
+                                      height: 36,
+                                      child: Transform.rotate(
+                                        angle: -0.25,
+                                        child: Image.asset(
+                                          'assets/bent_${i}_0.png',
+                                          fit: BoxFit.contain,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Expanded(
+                                      child: Text(
+                                        WobblyBottleAppGame.getObjectName(i, _currentLangIndex),
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      statusLabel,
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w900,
+                                        color: borderColor,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+
+                      // 3. BOTTOM: Active Packs 2x3 Quick Toggle Grid
+                      Text(
+                        _loc("ACTIVE PACKS", "AKTİF PAKETLER", "AKTIVE PAKETE", "PAQUETES ACTIVOS"),
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white,
+                          letterSpacing: 1.0,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+
+                      Expanded(
+                        flex: 36,
+                        child: GridView.builder(
+                          physics: const NeverScrollableScrollPhysics(),
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 8,
+                            mainAxisSpacing: 8,
+                            childAspectRatio: 2.55,
+                          ),
+                          itemCount: 6,
+                          itemBuilder: (ctx, i) {
+                            final isSel = _selectedPacks[i];
+                            final isVipPack = i == 4 && !_vip;
+                            final borderColor = isSel
+                                ? const Color(0xFFFFCC00)
+                                : const Color(0xFF37465F);
+
+                            return GestureDetector(
+                              onTap: () {
+                                if (isVipPack) {
+                                  _openVipModal();
+                                } else {
+                                  setState(() {
+                                    _selectedPacks[i] = !_selectedPacks[i];
+                                    if (!_selectedPacks.contains(true)) {
+                                      _selectedPacks[i] = true;
+                                    }
+                                  });
+                                }
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xD20B101E),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: borderColor,
+                                    width: isSel ? 2.2 : 1.2,
+                                  ),
+                                  boxShadow: isSel
+                                      ? [
+                                          BoxShadow(
+                                            color: const Color(0xFFFFCC00).withValues(alpha: 0.25),
+                                            blurRadius: 6,
+                                          )
+                                        ]
+                                      : null,
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    isVipPack
+                                        ? "♛ ${WobblyBottleAppGame.getPackName(i, _currentLangIndex)}"
+                                        : WobblyBottleAppGame.getPackName(i, _currentLangIndex),
+                                    textAlign: TextAlign.center,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontSize: 10.5,
+                                      fontWeight: FontWeight.w900,
+                                      color: isSel ? const Color(0xFFFFCC00) : Colors.white70,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
           ),
         ],
       ),
@@ -2610,6 +3240,8 @@ class _MainGameScreenState extends State<MainGameScreen>
               }(),
             ),
           ),
+          // Right-Side Slide-Over Profile / Quick Switch Drawer
+          if (_profileDrawerOpen) _buildProfileDrawer(),
           // Mandatory Online Connection Blocker Overlay
           if (!_isOnline) _buildOfflineOverlay(),
         ],
