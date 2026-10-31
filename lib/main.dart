@@ -63,20 +63,21 @@ class WobblyBottleAppGame {
     ["🇹🇷", "TR", "Türkçe"],
     ["🇩🇪", "DE", "Deutsch"],
     ["🇪🇸", "ES", "Español"],
+    ["🇫🇷", "FR", "Français"],
   ];
 
   static String getObjectName(int index, int langIdx) {
     switch (index) {
       case 0:
-        return getLoc(langIdx, "Funny Soda Bottle", "Komik Gazoz Şişesi", "Lustige Limo-Flasche", "Botella de Refresco Divertida");
+        return getLoc(langIdx, "Funny Soda Bottle", "Komik Gazoz Şişesi", "Lustige Limo-Flasche", "Botella de Refresco Divertida", "Bouteille de Soda Drôle");
       case 1:
-        return getLoc(langIdx, "Squeaky Chicken", "Bipleyen Tavuk", "Quietsche-Huhn", "Pollo Chillón");
+        return getLoc(langIdx, "Squeaky Chicken", "Bipleyen Tavuk", "Quietsche-Huhn", "Pollo Chillón", "Poulet Qui Couine");
       case 2:
-        return getLoc(langIdx, "Wobbly Banana", "Sallanan Muz", "Wackel-Banane", "Plátano Tambaleante");
+        return getLoc(langIdx, "Wobbly Banana", "Sallanan Muz", "Wackel-Banane", "Plátano Tambaleante", "Banane Vacillante");
       case 3:
-        return getLoc(langIdx, "Flying Slipper", "Uçan Terlik", "Fliegender Hausschuh", "Zapatilla Voladora");
+        return getLoc(langIdx, "Flying Slipper", "Uçan Terlik", "Fliegender Hausschuh", "Zapatilla Voladora", "Pantoufle Volante");
       case 4:
-        return getLoc(langIdx, "Golden Champagne", "Altın Şampanya", "Goldener Champagner", "Champán Dorado");
+        return getLoc(langIdx, "Golden Champagne", "Altın Şampanya", "Goldener Champagner", "Champán Dorado", "Champagne Doré");
       default:
         return "";
     }
@@ -85,23 +86,86 @@ class WobblyBottleAppGame {
   static String getPackName(int index, int langIdx) {
     switch (index) {
       case 0:
-        return getLoc(langIdx, "PARTY AND FUN", "PARTİ VE EĞLENCE", "PARTY UND SPASS", "FIESTA Y DIVERSIÓN");
+        return getLoc(langIdx, "PARTY AND FUN", "PARTİ VE EĞLENCE", "PARTY UND SPASS", "FIESTA Y DIVERSIÓN", "SOIRÉE ET FUN");
       case 1:
-        return getLoc(langIdx, "DEEP CONFESSIONS", "DERİN İTİRAFLAR", "TIEFE GESTÄNDNISSE", "CONFESIONES PROFUNDAS");
+        return getLoc(langIdx, "DEEP CONFESSIONS", "DERİN İTİRAFLAR", "TIEFE GESTÄNDNISSE", "CONFESIONES PROFUNDAS", "CONFESSIONS PROFONDES");
       case 2:
-        return getLoc(langIdx, "BOLD CHALLENGES / DARES", "CESUR GÖREVLER / MEYDAN OKUMA", "MUTIGE HERAUSFORDERUNGEN", "DESAFÍOS ATREVIDOS");
+        return getLoc(langIdx, "BOLD CHALLENGES / DARES", "CESUR GÖREVLER / MEYDAN OKUMA", "MUTIGE HERAUSFORDERUNGEN", "DESAFÍOS ATREVIDOS", "DÉFIS AUDACIEUX");
       case 3:
-        return getLoc(langIdx, "FLIRT AND COUPLES", "FLÖRT VE ÇİFTLER", "FLIRT UND PÄRCHEN", "COQUETEO Y PAREJAS");
+        return getLoc(langIdx, "FLIRT AND COUPLES", "FLÖRT VE ÇİFTLER", "FLIRT UND PÄRCHEN", "COQUETEO Y PAREJAS", "FLIRT ET COUPLES");
       case 4:
-        return getLoc(langIdx, "+18 SPICY", "+18 BAHARATLI", "+18 SCHARF", "+18 PICANTE");
+        return getLoc(langIdx, "+18 SPICY", "+18 BAHARATLI", "+18 SCHARF", "+18 PICANTE", "+18 ÉPICÉ");
       case 5:
-        return getLoc(langIdx, "FREE MODE / ASK OURSELVES", "SERBEST MOD / KENDİMİZ SORALIM", "FREIER MODUS", "MODO LIBRE");
+        return getLoc(langIdx, "FREE MODE / ASK OURSELVES", "SERBEST MOD / KENDİMİZ SORALIM", "FREIER MODUS", "MODO LIBRE", "MODE LIBRE");
       default:
         return "";
     }
   }
 
-  static String getLoc(int langIdx, String en, String tr, String de, String es) {
+  static const Map<String, String> _frUiMap = {
+    "SPONSORED VIDEO": "VIDÉO SPONSORISÉE",
+    "Remove all ads & unlock Golden Champagne + 18+ Spicy Pack with VIP!": "Supprimez les pubs et débloquez le Champagne Doré + Pack +18 avec VIP !",
+    "👑 Wobbly VIP Activated! All features unlocked!": "👑 Wobbly VIP Activé ! Tout est débloqué !",
+    "Purchase failed or canceled.": "Achat échoué ou annulé.",
+    "Connecting to App Store... Please try again in a moment.": "Connexion à la boutique... Réessayez dans un instant.",
+    "Premium Party Upgrade": "Mise à Niveau Soirée Premium",
+    "Golden Champagne Bottle": "Bouteille de Champagne Doré",
+    "🔥 +18 Spicy Secret Pack": "🔥 Pack Secret +18 Épicé",
+    "Instant In-Game Switching": "Changement Instantané en Jeu",
+    "ACTIVATE VIP": "ACTIVER VIP",
+    "Restore Purchase": "Restaurer les achats",
+    "Cancel": "Annuler",
+    "Maximum 10 players!": "Maximum 10 joueurs !",
+    "Player": "Joueur",
+    "EDIT PLAYER": "MODIFIER LE JOUEUR",
+    "Enter player name...": "Entrez le nom du joueur...",
+    "CANCEL": "ANNULER",
+    "SAVE": "ENREGISTRER",
+    "FREE QUESTION": "QUESTION LIBRE",
+    "What is the most memorable party moment in your life?": "Quel est le moment de fête le plus mémorable de ta vie ?",
+    "Do your best 10-second funny dance right now!": "Fais ta danse la plus drôle pendant 10 secondes maintenant !",
+    "DONE / NEXT ROUND": "TERMINÉ / TOUR SUIVANT",
+    "ADD PLAYERS (MIN 2 - MAX 10)": "AJOUTER JOUEURS (2 - 10)",
+    "Enter name or tap + to quick add...": "Entrez un nom ou appuyez sur +...",
+    "PICK COLOR:": "COULEUR :",
+    "No players added yet.\nAdd at least 2 players to start!": "Aucun joueur ajouté.\nAjoutez au moins 2 joueurs pour commencer !",
+    "CONTINUE TO OBJECTS": "CONTINUER AUX OBJETS",
+    "PLAYERS": "JOUEURS",
+    "CHOOSE YOUR OBJECT": "CHOISIS TON OBJET",
+    "SELECTED": "SÉLECTIONNÉ",
+    "WATCH AD": "VOIR PUB",
+    "UNLOCKED": "DÉBLOQUÉ",
+    "Unlock as VIP": "Débloquer en VIP",
+    "Unlock with 1 Video": "Débloquer avec 1 Vidéo",
+    "CONTINUE TO PACKS": "CONTINUER AUX PACKS",
+    "CHOOSE YOUR PACKS": "CHOISIS TES PACKS",
+    "START GAME": "LANCER LA PARTIE",
+    "⚡ MAKE YOUR CHOICE": "⚡ FAIS TON CHOIX",
+    "Truth, Dare, or Ask Yourselves?": "Action, Vérité ou Question Libre ?",
+    "TRUTH": "VÉRITÉ",
+    "DARE": "ACTION",
+    "CUSTOM": "LIBRE",
+    "WOBBLING...": "ÇA TOURNE...",
+    "SPIN BOTTLE!": "TOURNER LA BOUTEILLE !",
+    "HOME": "ACCUEIL",
+    "PROFILE": "PROFIL",
+    "👑 VIP MEMBER": "👑 MEMBRE VIP",
+    "👑 GO VIP": "👑 PASSER VIP",
+    "All premium content is unlocked": "Tout le contenu premium est débloqué",
+    "Unlock Golden Champagne + Spicy pack": "Débloquez Champagne Doré + Pack +18 Épicé",
+    "ACTIVE": "ACTIF",
+    "VIEW OFFER": "VOIR L'OFFRE",
+    "CHANGE OBJECT NOW": "CHANGER D'OBJET",
+    "CHOOSE": "CHOISIR",
+    "AD": "PUB",
+    "ACTIVE PACKS": "PACKS ACTIFS",
+    "NO CONNECTION": "PAS DE CONNEXION",
+    "Wobbly Bottle requires an active internet connection.": "Wobbly Bottle nécessite une connexion Internet active.",
+    "Connect to Wi-Fi or mobile data to continue.": "Connectez-vous au Wi-Fi ou aux données mobiles pour continuer.",
+    "WAITING FOR NETWORK...": "EN ATTENTE DU RÉSEAU...",
+  };
+
+  static String getLoc(int langIdx, String en, String tr, String de, String es, [String? fr]) {
     switch (langIdx) {
       case 1:
         return tr;
@@ -109,6 +173,36 @@ class WobblyBottleAppGame {
         return de;
       case 3:
         return es;
+      case 4:
+        if (fr != null) return fr;
+        if (_frUiMap.containsKey(en)) return _frUiMap[en]!;
+        if (en.startsWith("TRUTH FOR ")) {
+          return "VÉRITÉ POUR ${en.substring("TRUTH FOR ".length)}";
+        }
+        if (en.startsWith("DARE FOR ")) {
+          return "ACTION POUR ${en.substring("DARE FOR ".length)}";
+        }
+        if (en.startsWith("🎉 Unlocked: ")) {
+          return "🎉 Débloqué : ${en.substring("🎉 Unlocked: ".length)}";
+        }
+        if (en.startsWith("Unlocking ")) {
+          return "Déblocage en cours...";
+        }
+        if (en.startsWith("Reward granted in ")) {
+          final secs = en.replaceAll(RegExp(r'[^0-9]'), '');
+          return "Récompense dans $secs secondes...";
+        }
+        if (en.startsWith("Game resumes in ")) {
+          final secs = en.replaceAll(RegExp(r'[^0-9]'), '');
+          return "Reprise dans $secs secondes...";
+        }
+        if (en.contains(" asks any question or gives any challenge to ")) {
+          final parts = en.split(" asks any question or gives any challenge to ");
+          final asker = parts[0];
+          final target = parts[1].replaceAll("!", "");
+          return "$asker pose n'importe quelle question ou lance un défi à $target !";
+        }
+        return en;
       default:
         return en;
     }
@@ -129,7 +223,7 @@ class _MainGameScreenState extends State<MainGameScreen>
 
   // Settings
   bool isMuted = false;
-  int _currentLangIndex = 0; // 0: EN, 1: TR, 2: DE, 3: ES
+  int _currentLangIndex = 0; // 0: EN, 1: TR, 2: DE, 3: ES, 4: FR
 
   // Right-Side Slide-Over Profile / Quick Switch Drawer
   bool _profileDrawerOpen = false;
@@ -217,6 +311,8 @@ class _MainGameScreenState extends State<MainGameScreen>
         _currentLangIndex = 2; // DE - Deutsch
       } else if (localeCode.startsWith('es')) {
         _currentLangIndex = 3; // ES - Español
+      } else if (localeCode.startsWith('fr')) {
+        _currentLangIndex = 4; // FR - Français
       } else {
         _currentLangIndex = 0; // EN - English (default for EN & other regions)
       }
@@ -364,8 +460,8 @@ class _MainGameScreenState extends State<MainGameScreen>
     super.dispose();
   }
 
-  String _loc(String en, String tr, String de, String es) {
-    return WobblyBottleAppGame.getLoc(_currentLangIndex, en, tr, de, es);
+  String _loc(String en, String tr, String de, String es, [String? fr]) {
+    return WobblyBottleAppGame.getLoc(_currentLangIndex, en, tr, de, es, fr);
   }
 
   String get _currentLangKey {
@@ -376,6 +472,8 @@ class _MainGameScreenState extends State<MainGameScreen>
         return 'DE';
       case 3:
         return 'ES';
+      case 4:
+        return 'FR';
       default:
         return 'EN';
     }
@@ -616,7 +714,7 @@ class _MainGameScreenState extends State<MainGameScreen>
           },
         );
         _spinRewardedInterstitialAd!.show(
-          onUserEarnedReward: (_, __) {},
+          onUserEarnedReward: (_, reward) {},
         );
       } else if (_rewardedInterstitialAd != null) {
         _rewardedInterstitialAd!.fullScreenContentCallback =
@@ -634,7 +732,7 @@ class _MainGameScreenState extends State<MainGameScreen>
           },
         );
         _rewardedInterstitialAd!.show(
-          onUserEarnedReward: (_, __) {},
+          onUserEarnedReward: (_, reward) {},
         );
       } else {
         _loadInterstitialAd();
