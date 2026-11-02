@@ -1838,34 +1838,10 @@ class _MainGameScreenState extends State<MainGameScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "WOBBLY",
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w900,
-                      color: const Color(0xFFFFCC00),
-                      letterSpacing: 1.5,
-                      shadows: [
-                        Shadow(color: const Color(0xFFFFCC00).withValues(alpha: 0.6), blurRadius: 10),
-                      ],
-                    ),
-                  ),
-                  Text(
-                    "BOTTLE",
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w900,
-                      color: const Color(0xFF00F2FE),
-                      letterSpacing: 1.5,
-                      shadows: [
-                        Shadow(color: const Color(0xFF00F2FE).withValues(alpha: 0.6), blurRadius: 10),
-                      ],
-                    ),
-                  ),
-                ],
+              Image.asset(
+                'assets/wobbly_logo.png',
+                height: 64,
+                fit: BoxFit.contain,
               ),
               _buildHeaderControls(),
             ],
@@ -2040,45 +2016,19 @@ class _MainGameScreenState extends State<MainGameScreen>
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF00F2FE), size: 22),
-                    onPressed: () => setState(() => currentScreen = 0),
+              IconButton(
+                icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF00F2FE), size: 22),
+                onPressed: () => setState(() => currentScreen = 0),
+              ),
+              Expanded(
+                child: Center(
+                  child: Image.asset(
+                    'assets/wobbly_logo.png',
+                    height: 54,
+                    fit: BoxFit.contain,
                   ),
-                  const SizedBox(width: 4),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "WOBBLY",
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w900,
-                          color: const Color(0xFFFFCC00),
-                          letterSpacing: 1.5,
-                          shadows: [
-                            Shadow(color: const Color(0xFFFFCC00).withValues(alpha: 0.6), blurRadius: 10),
-                          ],
-                        ),
-                      ),
-                      Text(
-                        "BOTTLE",
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w900,
-                          color: const Color(0xFF00F2FE),
-                          letterSpacing: 1.5,
-                          shadows: [
-                            Shadow(color: const Color(0xFF00F2FE).withValues(alpha: 0.6), blurRadius: 10),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                ),
               ),
               _buildHeaderControls(),
             ],
@@ -2311,7 +2261,16 @@ class _MainGameScreenState extends State<MainGameScreen>
               Row(
                 children: [
                   GestureDetector(
-                    onTap: () => setState(() => currentScreen = 1),
+                    onTap: () {
+                      if (RoomService().isInRoom) {
+                        if (RoomService().isHost) {
+                          RoomService().setStatus(RoomStatus.lobby);
+                        }
+                        setState(() => currentScreen = 6);
+                      } else {
+                        setState(() => currentScreen = 1);
+                      }
+                    },
                     child: Container(
                       width: 44,
                       height: 44,
@@ -2362,12 +2321,18 @@ class _MainGameScreenState extends State<MainGameScreen>
 
                 return GestureDetector(
                   onTap: () {
+                    if (RoomService().isInRoom && !RoomService().isHost) {
+                      return; // Guest only watches host
+                    }
                     if (isVipItem && !_vip) {
                       _openVipModal();
                     } else if (!isUnlocked) {
                       _startRewardedAd(idx);
                     } else {
                       setState(() => _selectedObjectIndex = idx);
+                      if (RoomService().isInRoom && RoomService().isHost) {
+                        RoomService().updateBottleObject(idx);
+                      }
                     }
                   },
                   child: Container(
@@ -2491,28 +2456,59 @@ class _MainGameScreenState extends State<MainGameScreen>
             ),
           ),
 
-          // Continue Button
-          Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(22),
-              border: Border.all(color: const Color(0xFFFFCC00), width: 2),
-            ),
-            child: ElevatedButton(
-              onPressed: () => setState(() => currentScreen = 3),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF051725),
-                foregroundColor: const Color(0xFFFFCC00),
-                padding: const EdgeInsets.symmetric(vertical: 18),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
+          // Continue Button / Guest Waiting Banner
+          if (RoomService().isInRoom && !RoomService().isHost)
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              decoration: BoxDecoration(
+                color: const Color(0xFF0A1828),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: const Color(0xFF00F2FE).withValues(alpha: 0.5)),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(color: Color(0xFF00F2FE), strokeWidth: 2.5),
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    _loc("Host is choosing the bottle... ⏳", "Oda kurucusu şişeyi seçiyor... ⏳", "Host wählt die Flasche... ⏳", "El anfitrión elige el objeto... ⏳", "L'hôte choisit l'objet... ⏳"),
+                    style: const TextStyle(color: Color(0xFF00F2FE), fontWeight: FontWeight.bold, fontSize: 13.5),
+                  ),
+                ],
+              ),
+            )
+          else
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(22),
+                border: Border.all(color: const Color(0xFFFFCC00), width: 2),
+              ),
+              child: ElevatedButton(
+                onPressed: () {
+                  if (RoomService().isInRoom) {
+                    RoomService().updateBottleObject(_selectedObjectIndex);
+                    RoomService().setStatus(RoomStatus.packs);
+                  }
+                  setState(() => currentScreen = 3);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF051725),
+                  foregroundColor: const Color(0xFFFFCC00),
+                  padding: const EdgeInsets.symmetric(vertical: 18),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+                child: Text(
+                  _loc("CONTINUE TO PACKS", "PAKETLERE DEVAM ET", "WEITER ZU PAKETEN", "CONTINUAR A PAQUETES"),
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
                 ),
               ),
-              child: Text(
-                _loc("CONTINUE TO PACKS", "PAKETLERE DEVAM ET", "WEITER ZU PAKETEN", "CONTINUAR A PAQUETES"),
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
-              ),
             ),
-          ),
         ],
       ),
     );
@@ -2532,7 +2528,16 @@ class _MainGameScreenState extends State<MainGameScreen>
               Row(
                 children: [
                   GestureDetector(
-                    onTap: () => setState(() => currentScreen = 2),
+                    onTap: () {
+                      if (RoomService().isInRoom) {
+                        if (RoomService().isHost) {
+                          RoomService().setStatus(RoomStatus.objects);
+                        }
+                        setState(() => currentScreen = 2);
+                      } else {
+                        setState(() => currentScreen = 2);
+                      }
+                    },
                     child: Container(
                       width: 44,
                       height: 44,
@@ -2579,6 +2584,9 @@ class _MainGameScreenState extends State<MainGameScreen>
 
                 return GestureDetector(
                   onTap: () {
+                    if (RoomService().isInRoom && !RoomService().isHost) {
+                      return; // Guest only watches host
+                    }
                     if (isVipPack && !_vip) {
                       _openVipModal();
                     } else {
@@ -2588,6 +2596,9 @@ class _MainGameScreenState extends State<MainGameScreen>
                           _selectedPacks[idx] = true;
                         }
                       });
+                      if (RoomService().isInRoom && RoomService().isHost) {
+                        RoomService().updatePacks(_selectedPacks);
+                      }
                     }
                   },
                   child: Container(
@@ -2652,28 +2663,61 @@ class _MainGameScreenState extends State<MainGameScreen>
             ),
           ),
 
-          // Start Game Button
-          Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(22),
-              border: Border.all(color: const Color(0xFFFFCC00), width: 2),
-            ),
-            child: ElevatedButton(
-              onPressed: () => setState(() => currentScreen = 4),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF051725),
-                foregroundColor: const Color(0xFFFFCC00),
-                padding: const EdgeInsets.symmetric(vertical: 18),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
+          // Start Game Button / Guest Waiting Banner
+          if (RoomService().isInRoom && !RoomService().isHost)
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              decoration: BoxDecoration(
+                color: const Color(0xFF0A1828),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: const Color(0xFF00F2FE).withValues(alpha: 0.5)),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(color: Color(0xFF00F2FE), strokeWidth: 2.5),
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    _loc("Host is choosing packs... ⏳", "Oda kurucusu paketleri seçiyor... ⏳", "Host wählt die Pakete... ⏳", "El anfitrión elige los paquetes... ⏳", "L'hôte choisit les packs... ⏳"),
+                    style: const TextStyle(color: Color(0xFF00F2FE), fontWeight: FontWeight.bold, fontSize: 13.5),
+                  ),
+                ],
+              ),
+            )
+          else
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(22),
+                border: Border.all(color: const Color(0xFFFFCC00), width: 2),
+              ),
+              child: ElevatedButton(
+                onPressed: () {
+                  if (RoomService().isInRoom) {
+                    RoomService().updatePacks(_selectedPacks);
+                    RoomService().setStatus(RoomStatus.decisionPending);
+                    _startMultiplayerGame();
+                  } else {
+                    setState(() => currentScreen = 4);
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF051725),
+                  foregroundColor: const Color(0xFFFFCC00),
+                  padding: const EdgeInsets.symmetric(vertical: 18),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+                child: Text(
+                  _loc("START GAME", "OYUNU BAŞLAT", "SPIEL STARTEN", "INICIAR JUEGO"),
+                  style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w900),
                 ),
               ),
-              child: Text(
-                _loc("START GAME", "OYUNU BAŞLAT", "SPIEL STARTEN", "INICIAR JUEGO"),
-                style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w900),
-              ),
             ),
-          ),
         ],
       ),
     );
@@ -2688,9 +2732,8 @@ class _MainGameScreenState extends State<MainGameScreen>
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
       child: Column(
         children: [
-          // Header Bar
+          // Header Bar: Back Button + Enlarged Logo near back button + Spacer + Controls
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               GestureDetector(
                 onTap: () {
@@ -2711,18 +2754,13 @@ class _MainGameScreenState extends State<MainGameScreen>
                   child: const Icon(Icons.arrow_back, color: Color(0xFF00F2FE), size: 22),
                 ),
               ),
-              Text(
-                "BOTTLE SAYS...",
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w900,
-                  color: Colors.white,
-                  letterSpacing: 1.5,
-                  shadows: [
-                    Shadow(color: const Color(0xFF00F2FE).withValues(alpha: 0.7), blurRadius: 10),
-                  ],
-                ),
+              const SizedBox(width: 10),
+              Image.asset(
+                'assets/wobbly_logo.png',
+                height: 52,
+                fit: BoxFit.contain,
               ),
+              const Spacer(),
               _buildHeaderControls(),
             ],
           ),
@@ -2795,21 +2833,16 @@ class _MainGameScreenState extends State<MainGameScreen>
                                       ),
                                     ),
                                   ),
-                                  // Floating Golden Crown for VIP or Host
-                                  if ((RoomService().isInRoom &&
-                                          i < (RoomService().currentRoom?.players.length ?? 0) &&
-                                          (RoomService().currentRoom!.players[i].isVip ||
-                                              RoomService().currentRoom!.players[i].isHost)) ||
-                                      (_vip && i == 0))
-                                    Positioned(
+                                  // Floating Golden Crown: STRICTLY FOR VIP ONLY
+                                  if (RoomService().isInRoom
+                                      ? (i < (RoomService().currentRoom?.players.length ?? 0) &&
+                                          RoomService().currentRoom!.players[i].isVip)
+                                      : (_vip && i == 0))
+                                    const Positioned(
                                       top: -13,
                                       child: Text(
-                                        (RoomService().isInRoom &&
-                                                i < (RoomService().currentRoom?.players.length ?? 0) &&
-                                                RoomService().currentRoom!.players[i].isHost)
-                                            ? "👑"
-                                            : "✨",
-                                        style: const TextStyle(fontSize: 15),
+                                        "👑",
+                                        style: TextStyle(fontSize: 15),
                                       ),
                                     ),
                                 ],
@@ -2828,6 +2861,42 @@ class _MainGameScreenState extends State<MainGameScreen>
                                       : (isQ ? const Color(0xFF00F2FE) : Colors.white),
                                 ),
                               ),
+                              if (RoomService().isInRoom &&
+                                  i < (RoomService().currentRoom?.players.length ?? 0)) ...[
+                                () {
+                                  final p = RoomService().currentRoom!.players[i];
+                                  String? badge;
+                                  Color badgeColor = const Color(0xFF00F2FE);
+                                  if (p.isHost && p.isVip) {
+                                    badge = "VIP HOST";
+                                    badgeColor = const Color(0xFFFFCC00);
+                                  } else if (p.isHost) {
+                                    badge = "HOST";
+                                    badgeColor = const Color(0xFF00F2FE);
+                                  } else if (p.isVip) {
+                                    badge = "VIP";
+                                    badgeColor = const Color(0xFFFFCC00);
+                                  }
+                                  if (badge == null) return const SizedBox.shrink();
+                                  return Container(
+                                    margin: const EdgeInsets.only(top: 2),
+                                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                                    decoration: BoxDecoration(
+                                      color: badgeColor.withValues(alpha: 0.2),
+                                      borderRadius: BorderRadius.circular(4),
+                                      border: Border.all(color: badgeColor, width: 0.8),
+                                    ),
+                                    child: Text(
+                                      badge,
+                                      style: TextStyle(
+                                        fontSize: 8,
+                                        fontWeight: FontWeight.w900,
+                                        color: badgeColor,
+                                      ),
+                                    ),
+                                  );
+                                }(),
+                              ],
                             ],
                           ),
                         );
@@ -3037,80 +3106,90 @@ class _MainGameScreenState extends State<MainGameScreen>
           ),
           const SizedBox(height: 8),
 
-          // Bottom Bar (Home & Profile / VIP Quick Switch Drawer)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              GestureDetector(
-                onTap: () async {
-                  if (RoomService().isInRoom) {
-                    await RoomService().leaveRoom();
-                  }
-                  setState(() => currentScreen = 0);
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF0A1828),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: const Color(0xFF00F2FE).withValues(alpha: 0.5),
-                      width: 1.5,
+          // Unified Wide Bottom Navigation Bar (Home & Profile/VIP)
+          Container(
+            height: 52,
+            decoration: BoxDecoration(
+              color: const Color(0xFF0A1828),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: const Color(0xFF00F2FE).withValues(alpha: 0.6),
+                width: 1.8,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF00F2FE).withValues(alpha: 0.2),
+                  blurRadius: 10,
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                // HOME Section
+                Expanded(
+                  child: InkWell(
+                    borderRadius: const BorderRadius.horizontal(left: Radius.circular(18)),
+                    onTap: () async {
+                      if (RoomService().isInRoom) {
+                        await RoomService().leaveRoom();
+                      }
+                      setState(() => currentScreen = 0);
+                    },
+                    child: Center(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.home_rounded, color: Color(0xFF00F2FE), size: 24),
+                          const SizedBox(width: 8),
+                          Text(
+                            _loc("HOME", "ANA SAYFA", "START", "INICIO", "ACCUEIL"),
+                            style: const TextStyle(
+                              fontSize: 13.5,
+                              fontWeight: FontWeight.w900,
+                              color: Colors.white,
+                              letterSpacing: 1.1,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.home, color: Color(0xFF00F2FE), size: 24),
-                      const SizedBox(width: 6),
-                      Text(
-                        _loc("HOME", "ANA SAYFA", "START", "INICIO"),
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w900,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
                 ),
-              ),
-              GestureDetector(
-                onTap: () => setState(() => _profileDrawerOpen = true),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF0A1828),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: const Color(0xFFFFCC00).withValues(alpha: 0.75),
-                      width: 1.8,
+
+                // Sleek Vertical Divider
+                Container(
+                  width: 1.5,
+                  height: 28,
+                  color: Colors.white.withValues(alpha: 0.2),
+                ),
+
+                // PROFILE / VIP Section
+                Expanded(
+                  child: InkWell(
+                    borderRadius: const BorderRadius.horizontal(right: Radius.circular(18)),
+                    onTap: () => setState(() => _profileDrawerOpen = true),
+                    child: Center(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.workspace_premium_rounded, color: Color(0xFFFFCC00), size: 24),
+                          const SizedBox(width: 8),
+                          Text(
+                            _loc("PROFILE", "PROFİL", "PROFIL", "PERFIL", "PROFIL"),
+                            style: const TextStyle(
+                              fontSize: 13.5,
+                              fontWeight: FontWeight.w900,
+                              color: Color(0xFFFFCC00),
+                              letterSpacing: 1.1,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFFFFCC00).withValues(alpha: 0.2),
-                        blurRadius: 8,
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.workspace_premium, color: Color(0xFFFFCC00), size: 24),
-                      const SizedBox(width: 6),
-                      Text(
-                        _loc("PROFILE", "PROFİL", "PROFIL", "PERFIL"),
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w900,
-                          color: Color(0xFFFFCC00),
-                        ),
-                      ),
-                    ],
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),
@@ -3307,6 +3386,9 @@ class _MainGameScreenState extends State<MainGameScreen>
                                   setState(() {
                                     _selectedObjectIndex = i;
                                   });
+                                  if (RoomService().isInRoom && RoomService().isHost) {
+                                    RoomService().updateBottleObject(i);
+                                  }
                                 }
                               },
                               child: Container(
@@ -3413,6 +3495,9 @@ class _MainGameScreenState extends State<MainGameScreen>
                                       _selectedPacks[i] = true;
                                     }
                                   });
+                                  if (RoomService().isInRoom && RoomService().isHost) {
+                                    RoomService().updatePacks(_selectedPacks);
+                                  }
                                 }
                               },
                               child: Container(
@@ -3627,8 +3712,45 @@ class _MainGameScreenState extends State<MainGameScreen>
 
     _multiplayerSub = rs.roomStateStream.listen((room) {
       if (!mounted) return;
-      if (currentScreen == 6 && room.status != RoomStatus.lobby) {
-        _startMultiplayerGame();
+
+      // Sync settings to client
+      if (rs.isInRoom && !rs.isHost) {
+        if (_selectedObjectIndex != room.selectedObjectIndex) {
+          setState(() => _selectedObjectIndex = room.selectedObjectIndex);
+        }
+        bool packsDiff = false;
+        if (_selectedPacks.length == room.selectedPacks.length) {
+          for (int i = 0; i < _selectedPacks.length; i++) {
+            if (_selectedPacks[i] != room.selectedPacks[i]) {
+              packsDiff = true;
+              break;
+            }
+          }
+        } else {
+          packsDiff = true;
+        }
+        if (packsDiff) {
+          setState(() {
+            _selectedPacks.clear();
+            _selectedPacks.addAll(room.selectedPacks);
+          });
+        }
+      }
+
+      // Synchronized Screen Transitions
+      if (rs.isInRoom) {
+        if (room.status == RoomStatus.lobby && currentScreen != 6 && currentScreen != 5) {
+          setState(() => currentScreen = 6);
+        } else if (room.status == RoomStatus.objects && currentScreen != 2) {
+          setState(() => currentScreen = 2);
+        } else if (room.status == RoomStatus.packs && currentScreen != 3) {
+          setState(() => currentScreen = 3);
+        } else if (room.status != RoomStatus.lobby &&
+                   room.status != RoomStatus.objects &&
+                   room.status != RoomStatus.packs &&
+                   currentScreen != 4) {
+          _startMultiplayerGame();
+        }
       }
 
       if (currentScreen == 4 && rs.isInRoom) {
@@ -3904,7 +4026,10 @@ class _MainGameScreenState extends State<MainGameScreen>
                       isVip: _vip,
                       currentLangIndex: _currentLangIndex,
                       loc: (en, tr, de, es, fr) => _loc(en, tr, de, es, fr),
-                      onStartGame: () => _startMultiplayerGame(),
+                      onStartGame: () => setState(() {
+                        RoomService().setStatus(RoomStatus.objects);
+                        currentScreen = 2; // Move to Objects selection step
+                      }),
                       onLeaveRoom: () async {
                         await RoomService().leaveRoom();
                         setState(() => currentScreen = 0);

@@ -288,6 +288,29 @@ class RoomService {
     _broadcastSync();
   }
 
+  /// Host transfers admin role to another player
+  void transferHost(String targetPlayerId) {
+    if (!isHost || _currentRoom == null) return;
+    if (targetPlayerId == _myPlayerId) return;
+
+    for (var p in _currentRoom!.players) {
+      if (p.id == _myPlayerId) {
+        p.isHost = false;
+      } else if (p.id == targetPlayerId) {
+        p.isHost = true;
+      }
+    }
+    _currentRoom!.hostId = targetPlayerId;
+    _broadcastSync();
+  }
+
+  /// Change room status (Host only: lobby, objects, packs, etc.)
+  void setStatus(RoomStatus newStatus) {
+    if (!isHost || _currentRoom == null) return;
+    _currentRoom!.status = newStatus;
+    _broadcastSync();
+  }
+
   // =========================================================================
   // APP LIFECYCLE: BACKGROUND / AFK MANAGEMENT
   // =========================================================================

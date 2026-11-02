@@ -13,6 +13,8 @@ enum WobblyGameMode {
 /// Status of the active multiplayer room
 enum RoomStatus {
   lobby,
+  objects,
+  packs,
   spinning,
   decisionPending,
   cardOpen,

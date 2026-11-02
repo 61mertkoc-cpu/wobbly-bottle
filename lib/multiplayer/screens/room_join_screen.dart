@@ -162,61 +162,84 @@ class _RoomJoinScreenState extends State<RoomJoinScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF030712),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 22.0, vertical: 12.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Header
-              Row(
+      body: Stack(
+        children: [
+          // Background matching game theme
+          Positioned.fill(
+            child: Image.asset(
+              'assets/game_bg.png',
+              fit: BoxFit.cover,
+            ),
+          ),
+          Positioned.fill(
+            child: Container(
+              color: Colors.black.withValues(alpha: 0.82),
+            ),
+          ),
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 22.0, vertical: 12.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF00F2FE)),
-                    onPressed: widget.onBackToMenu,
+                  // Header
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF00F2FE)),
+                        onPressed: widget.onBackToMenu,
+                      ),
+                      const Spacer(),
+                      Text(
+                        _selectedMode == WobblyGameMode.party
+                            ? _t("HOUSE PARTY ROOM", "EV PARTİSİ ODASI", "HAUSPARTY-RAUM", "SALA DE FIESTA", "SALLE DE SOIRÉE")
+                            : _t("REMOTE PARTY ROOM", "UZAKTAN PARTİ ODASI", "ONLINE-PARTY-RAUM", "SALA A DISTANCIA", "SALLE À DISTANCE"),
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w900,
+                          color: Color(0xFFFFCC00),
+                          letterSpacing: 1.5,
+                        ),
+                      ),
+                      const Spacer(),
+                      const SizedBox(width: 48),
+                    ],
                   ),
-                  const Spacer(),
-                  Text(
-                    _selectedMode == WobblyGameMode.party
-                        ? _t("HOUSE PARTY ROOM", "EV PARTİSİ ODASI", "HAUSPARTY-RAUM", "SALA DE FIESTA", "SALLE DE SOIRÉE")
-                        : _t("REMOTE PARTY ROOM", "UZAKTAN PARTİ ODASI", "ONLINE-PARTY-RAUM", "SALA A DISTANCIA", "SALLE À DISTANCE"),
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w900,
-                      color: Color(0xFFFFCC00),
-                      letterSpacing: 1.5,
-                    ),
-                  ),
-                  const Spacer(),
-                  const SizedBox(width: 48),
-                ],
-              ),
-              const SizedBox(height: 12),
+                  const SizedBox(height: 12),
 
-              // Tab Selector: ODA KUR vs ODAYA KATIL
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.05),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.white12),
-                ),
-                child: TabBar(
-                  controller: _tabController,
-                  indicator: BoxDecoration(
-                    borderRadius: BorderRadius.circular(14),
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF00F2FE), Color(0xFF3B82F6)],
+                  // Tab Selector: Full-Width 50% / 50% Glowing Switch
+                  Container(
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.45),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: const Color(0xFF00F2FE).withValues(alpha: 0.3), width: 1.5),
+                    ),
+                    child: TabBar(
+                      controller: _tabController,
+                      indicatorSize: TabBarIndicatorSize.tab,
+                      dividerColor: Colors.transparent,
+                      indicator: BoxDecoration(
+                        borderRadius: BorderRadius.circular(14),
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF00F2FE), Color(0xFF0090FF)],
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF00F2FE).withValues(alpha: 0.4),
+                            blurRadius: 10,
+                          ),
+                        ],
+                      ),
+                      labelColor: Colors.black,
+                      unselectedLabelColor: Colors.white70,
+                      labelStyle: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 0.5),
+                      tabs: [
+                        Tab(text: _t("CREATE ROOM (HOST)", "ODA KUR (HOST)", "RAUM ERSTELLEN", "CREAR SALA", "CRÉER SALLE")),
+                        Tab(text: _t("JOIN ROOM", "ODAYA KATIL", "BEITRETEN", "UNIRSE", "REJOINDRE")),
+                      ],
                     ),
                   ),
-                  labelColor: Colors.black,
-                  unselectedLabelColor: Colors.white70,
-                  labelStyle: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14),
-                  tabs: [
-                    Tab(text: _t("CREATE ROOM (HOST)", "ODA KUR (HOST)", "RAUM ERSTELLEN", "CREAR SALA", "CRÉER SALLE")),
-                    Tab(text: _t("JOIN ROOM", "ODAYA KATIL", "BEITRETEN", "UNIRSE", "REJOINDRE")),
-                  ],
-                ),
-              ),
               const SizedBox(height: 16),
 
               Expanded(
@@ -231,6 +254,8 @@ class _RoomJoinScreenState extends State<RoomJoinScreen>
             ],
           ),
         ),
+      ),
+        ],
       ),
     );
   }
