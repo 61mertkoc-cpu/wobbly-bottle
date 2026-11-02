@@ -77,7 +77,7 @@ class WobblyBottleAppGame {
       case 1:
         return getLoc(langIdx, "Squeaky Chicken", "Bipleyen Tavuk", "Quietsche-Huhn", "Pollo Chillón", "Poulet Qui Couine");
       case 2:
-        return getLoc(langIdx, "Wobbly Banana", "Sallanan Muz", "Wackel-Banane", "Plátano Tambaleante", "Banane Vacillante");
+        return getLoc(langIdx, "Wobbly Pickle", "Sallanan Turşu", "Wackel-Gurke", "Pepinillo Tambaleante", "Cornichon Vacillant");
       case 3:
         return getLoc(langIdx, "Flying Slipper", "Uçan Terlik", "Fliegender Hausschuh", "Zapatilla Voladora", "Pantoufle Volante");
       case 4:
@@ -3995,7 +3995,7 @@ class _WobblyBottleShowcaseState extends State<WobblyBottleShowcase>
   static const List<Color> _bottleColors = [
     Color(0xFF00F2FE), // 0: Cyan Soda Bottle
     Color(0xFFFF9500), // 1: Orange Squeaky Chicken
-    Color(0xFF34C759), // 2: Green Wobbly Banana / Pickle
+    Color(0xFF34C759), // 2: Green Wobbly Pickle (Sallanan Turşu)
     Color(0xFFBF4FFF), // 3: Purple Flying Slipper
     Color(0xFFFFCC00), // 4: Gold Golden Champagne (VIP)
   ];
@@ -4068,10 +4068,10 @@ class _WobblyBottleShowcaseState extends State<WobblyBottleShowcase>
 
               return AnimatedContainer(
                 duration: const Duration(milliseconds: 400),
-                width: 94,
-                height: 94,
+                width: 106,
+                height: 106,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(24),
+                  borderRadius: BorderRadius.circular(26),
                   gradient: const RadialGradient(
                     center: Alignment(0, -0.2),
                     radius: 0.9,
@@ -4082,18 +4082,18 @@ class _WobblyBottleShowcaseState extends State<WobblyBottleShowcase>
                   ),
                   border: Border.all(
                     color: activeColor,
-                    width: 2.4,
+                    width: 2.6,
                   ),
                   boxShadow: [
                     BoxShadow(
                       color: activeColor.withValues(alpha: 0.55),
-                      blurRadius: 26,
+                      blurRadius: 28,
                       spreadRadius: 2,
                     ),
                   ],
                 ),
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(22),
+                  borderRadius: BorderRadius.circular(24),
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
@@ -4103,20 +4103,20 @@ class _WobblyBottleShowcaseState extends State<WobblyBottleShowcase>
                           shape: BoxShape.circle,
                           gradient: RadialGradient(
                             colors: [
-                              activeColor.withValues(alpha: 0.28),
+                              activeColor.withValues(alpha: 0.32),
                               Colors.transparent,
                             ],
                           ),
                         ),
                       ),
-                      // Wobbling Animated Bottle with live bend & tilt
+                      // Wobbling Animated Bottle with live bend & tilt (Scaled up to fill box)
                       Transform.rotate(
                         angle: tiltAngle,
                         child: AnimatedSwitcher(
                           duration: const Duration(milliseconds: 350),
                           transitionBuilder: (child, anim) {
                             return ScaleTransition(
-                              scale: Tween<double>(begin: 0.80, end: 1.0).animate(
+                              scale: Tween<double>(begin: 0.84, end: 1.0).animate(
                                 CurvedAnimation(parent: anim, curve: Curves.easeOutBack),
                               ),
                               child: FadeTransition(opacity: anim, child: child),
@@ -4124,8 +4124,8 @@ class _WobblyBottleShowcaseState extends State<WobblyBottleShowcase>
                           },
                           child: KeyedSubtree(
                             key: ValueKey("showcase_obj_$_currentIndex"),
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
+                            child: Transform.scale(
+                              scale: 1.34,
                               child: Image.asset(
                                 'assets/bent_${_currentIndex}_$bendSuffix.png',
                                 fit: BoxFit.contain,
@@ -4137,9 +4137,9 @@ class _WobblyBottleShowcaseState extends State<WobblyBottleShowcase>
                       // VIP Crown badge for Golden Champagne (Index 4)
                       if (_currentIndex == 4)
                         const Positioned(
-                          top: 5,
-                          right: 6,
-                          child: Text("👑", style: TextStyle(fontSize: 13)),
+                          top: 6,
+                          right: 8,
+                          child: Text("👑", style: TextStyle(fontSize: 14)),
                         ),
                     ],
                   ),
