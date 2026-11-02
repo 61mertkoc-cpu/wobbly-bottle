@@ -66,6 +66,8 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Wobbly Bottle uses the local network to discover and connect with nearby friends in the same room for multiplayer party games.</string>
 	<key>GADApplicationIdentifier</key>
 	<string>ca-app-pub-7561629034641721~6446464120</string>
 	<key>SKAdNetworkItems</key>
