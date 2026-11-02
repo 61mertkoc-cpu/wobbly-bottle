@@ -1872,32 +1872,14 @@ class _MainGameScreenState extends State<MainGameScreen>
           ),
           const SizedBox(height: 12),
 
-          // Glowing App Icon
+          // Dynamic Wobbling Bottles Showcase (Endless Animated Loop of 5 Objects)
           Center(
             child: Column(
               children: [
-                Container(
-                  width: 90,
-                  height: 90,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(24),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF00F2FE).withValues(alpha: 0.55),
-                        blurRadius: 28,
-                        spreadRadius: 3,
-                      )
-                    ],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(24),
-                    child: Image.asset(
-                      'assets/app_icon.png',
-                      fit: BoxFit.cover,
-                    ),
-                  ),
+                WobblyBottleShowcase(
+                  currentLangIndex: _currentLangIndex,
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 8),
                 Text(
                   _loc("CHOOSE GAME MODE", "OYUN MODUNU SEÇİN", "SPIELMODUS WÄHLEN", "ELIGE MODO DE JUEGO", "CHOISIR LE MODE DE JEU"),
                   style: const TextStyle(
@@ -1910,7 +1892,7 @@ class _MainGameScreenState extends State<MainGameScreen>
               ],
             ),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 10),
 
           // 1. MASA MODU (Tek Telefon)
           Expanded(
@@ -3985,4 +3967,233 @@ class RingLinePainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant RingLinePainter oldDelegate) =>
       oldDelegate.center != center || oldDelegate.radius != radius;
+}
+
+// =========================================================================
+// DYNAMIC WOBBLY BOTTLES SHOWCASE (Endless Animated Carousel of 5 Objects)
+// =========================================================================
+class WobblyBottleShowcase extends StatefulWidget {
+  final int currentLangIndex;
+  final VoidCallback? onTap;
+
+  const WobblyBottleShowcase({
+    super.key,
+    required this.currentLangIndex,
+    this.onTap,
+  });
+
+  @override
+  State<WobblyBottleShowcase> createState() => _WobblyBottleShowcaseState();
+}
+
+class _WobblyBottleShowcaseState extends State<WobblyBottleShowcase>
+    with SingleTickerProviderStateMixin {
+  int _currentIndex = 0;
+  Timer? _cycleTimer;
+  late AnimationController _wobbleController;
+
+  static const List<Color> _bottleColors = [
+    Color(0xFF00F2FE), // 0: Cyan Soda Bottle
+    Color(0xFFFF9500), // 1: Orange Squeaky Chicken
+    Color(0xFF34C759), // 2: Green Wobbly Banana / Pickle
+    Color(0xFFBF4FFF), // 3: Purple Flying Slipper
+    Color(0xFFFFCC00), // 4: Gold Golden Champagne (VIP)
+  ];
+
+  static const List<String> _bottleIcons = [
+    "🍾",
+    "🐔",
+    "🥒",
+    "🩴",
+    "✨",
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    // Continuous smooth wobble rocking physics (sine wave animation)
+    _wobbleController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1400),
+    )..repeat(reverse: true);
+
+    // Automatically cycle through all 5 objects in an endless loop
+    _cycleTimer = Timer.periodic(const Duration(milliseconds: 2400), (_) {
+      if (mounted) {
+        setState(() {
+          _currentIndex = (_currentIndex + 1) % 5;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _cycleTimer?.cancel();
+    _wobbleController.dispose();
+    super.dispose();
+  }
+
+  void _nextBottle() {
+    HapticFeedback.lightImpact();
+    setState(() {
+      _currentIndex = (_currentIndex + 1) % 5;
+    });
+    widget.onTap?.call();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final activeColor = _bottleColors[_currentIndex];
+    final bottleName = WobblyBottleAppGame.getObjectName(_currentIndex, widget.currentLangIndex);
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        GestureDetector(
+          onTap: _nextBottle,
+          child: AnimatedBuilder(
+            animation: _wobbleController,
+            builder: (context, child) {
+              final sineVal = math.sin(_wobbleController.value * 2 * math.pi);
+              final tiltAngle = sineVal * 0.16; // Gentle tilt angle in radians
+
+              // Signature Wobbly bend physics: tilts left -> bends left ('l'), tilts right -> bends right ('r')
+              String bendSuffix = '0';
+              if (sineVal < -0.32) {
+                bendSuffix = 'l';
+              } else if (sineVal > 0.32) {
+                bendSuffix = 'r';
+              }
+
+              return AnimatedContainer(
+                duration: const Duration(milliseconds: 400),
+                width: 94,
+                height: 94,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(24),
+                  gradient: const RadialGradient(
+                    center: Alignment(0, -0.2),
+                    radius: 0.9,
+                    colors: [
+                      Color(0xFF1E293B),
+                      Color(0xFF0A0E1A),
+                    ],
+                  ),
+                  border: Border.all(
+                    color: activeColor,
+                    width: 2.4,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: activeColor.withValues(alpha: 0.55),
+                      blurRadius: 26,
+                      spreadRadius: 2,
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(22),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      // Radial color aura behind the bottle
+                      Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: RadialGradient(
+                            colors: [
+                              activeColor.withValues(alpha: 0.28),
+                              Colors.transparent,
+                            ],
+                          ),
+                        ),
+                      ),
+                      // Wobbling Animated Bottle with live bend & tilt
+                      Transform.rotate(
+                        angle: tiltAngle,
+                        child: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 350),
+                          transitionBuilder: (child, anim) {
+                            return ScaleTransition(
+                              scale: Tween<double>(begin: 0.80, end: 1.0).animate(
+                                CurvedAnimation(parent: anim, curve: Curves.easeOutBack),
+                              ),
+                              child: FadeTransition(opacity: anim, child: child),
+                            );
+                          },
+                          child: KeyedSubtree(
+                            key: ValueKey("showcase_obj_$_currentIndex"),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Image.asset(
+                                'assets/bent_${_currentIndex}_$bendSuffix.png',
+                                fit: BoxFit.contain,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      // VIP Crown badge for Golden Champagne (Index 4)
+                      if (_currentIndex == 4)
+                        const Positioned(
+                          top: 5,
+                          right: 6,
+                          child: Text("👑", style: TextStyle(fontSize: 13)),
+                        ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+        const SizedBox(height: 6),
+        // 5 Mini Glowing Dots Indicator
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(5, (dotIdx) {
+            final isActive = dotIdx == _currentIndex;
+            final dotColor = _bottleColors[dotIdx];
+            return AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              margin: const EdgeInsets.symmetric(horizontal: 2.5),
+              width: isActive ? 14 : 5,
+              height: 5,
+              decoration: BoxDecoration(
+                color: isActive ? dotColor : Colors.white24,
+                borderRadius: BorderRadius.circular(3),
+                boxShadow: isActive
+                    ? [
+                        BoxShadow(
+                          color: dotColor.withValues(alpha: 0.8),
+                          blurRadius: 5,
+                        ),
+                      ]
+                    : null,
+              ),
+            );
+          }),
+        ),
+        const SizedBox(height: 4),
+        // Active Bottle Name Badge
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 250),
+          child: Text(
+            "${_bottleIcons[_currentIndex]} $bottleName",
+            key: ValueKey("name_$_currentIndex"),
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w800,
+              color: activeColor,
+              letterSpacing: 0.5,
+              shadows: [
+                Shadow(color: activeColor.withValues(alpha: 0.6), blurRadius: 6),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 }
