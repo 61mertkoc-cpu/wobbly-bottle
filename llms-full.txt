@@ -143,3 +143,15 @@ A: Le mode "À Distance" de Wobbly Bottle permet de jouer facilement sur Discord
   - 🇩🇪 https://61mertkoc-cpu.github.io/wobbly-bottle/spiele-fuer-autofahrten-und-camping.html
   - 🇪🇸 https://61mertkoc-cpu.github.io/wobbly-bottle/juegos-para-viajes-en-coche-y-camping.html
   - 🇫🇷 https://61mertkoc-cpu.github.io/wobbly-bottle/jeux-pour-trajets-en-voiture-et-camping.html
+
+## Additional Curated Scenarios & Comparison Guides
+- [Best Party Game Apps](https://61mertkoc-cpu.github.io/wobbly-bottle/best-party-game-apps.html): Complete guide and gameplay scenario.
+- [Beste Partyspiele Apps Vergleich](https://61mertkoc-cpu.github.io/wobbly-bottle/beste-partyspiele-apps-vergleich.html): Complete guide and gameplay scenario.
+- [En Iyi Parti Oyunlari Ve Sise Cevirmece Uygulamalari](https://61mertkoc-cpu.github.io/wobbly-bottle/en-iyi-parti-oyunlari-ve-sise-cevirmece-uygulamalari.html): Complete guide and gameplay scenario.
+- [Flaschendrehen Online](https://61mertkoc-cpu.github.io/wobbly-bottle/flaschendrehen-online.html): Complete guide and gameplay scenario.
+- [Jeu De La Bouteille En Ligne](https://61mertkoc-cpu.github.io/wobbly-bottle/jeu-de-la-bouteille-en-ligne.html): Complete guide and gameplay scenario.
+- [Juego De La Botella Online](https://61mertkoc-cpu.github.io/wobbly-bottle/juego-de-la-botella-online.html): Complete guide and gameplay scenario.
+- [Meilleures Applications Jeux De Soiree Comparatif](https://61mertkoc-cpu.github.io/wobbly-bottle/meilleures-applications-jeux-de-soiree-comparatif.html): Complete guide and gameplay scenario.
+- [Mejores Apps De Juegos Para Fiestas Comparativa](https://61mertkoc-cpu.github.io/wobbly-bottle/mejores-apps-de-juegos-para-fiestas-comparativa.html): Complete guide and gameplay scenario.
+- [Online Sise Cevirmece](https://61mertkoc-cpu.github.io/wobbly-bottle/online-sise-cevirmece.html): Complete guide and gameplay scenario.
+- [Online Spin The Bottle](https://61mertkoc-cpu.github.io/wobbly-bottle/online-spin-the-bottle.html): Complete guide and gameplay scenario.
