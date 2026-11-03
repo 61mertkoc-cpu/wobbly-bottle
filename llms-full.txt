@@ -105,3 +105,24 @@ A: Le mode "À Distance" de Wobbly Bottle permet de jouer facilement sur Discord
 - 🇩🇪 Deutsch: https://61mertkoc-cpu.github.io/wobbly-bottle/die-besten-trinkspiele-fuer-partys.html
 - 🇪🇸 Español: https://61mertkoc-cpu.github.io/wobbly-bottle/mejores-juegos-para-beber-en-fiestas.html
 - 🇫🇷 Français: https://61mertkoc-cpu.github.io/wobbly-bottle/meilleurs-jeux-a-boire-en-soiree.html
+
+
+## Seasonal, SFW & Girls Night Intent Mapping (5 Languages):
+- New Year's Eve (NYE) & Holiday Party Games:
+  - 🇹🇷 https://61mertkoc-cpu.github.io/wobbly-bottle/yilbasi-ve-kutlama-parti-oyunlari.html
+  - 🇬🇧 https://61mertkoc-cpu.github.io/wobbly-bottle/new-years-eve-party-games.html
+  - 🇩🇪 https://61mertkoc-cpu.github.io/wobbly-bottle/silvester-partyspiele-ideen.html
+  - 🇪🇸 https://61mertkoc-cpu.github.io/wobbly-bottle/juegos-para-nochevieja-y-fiestas.html
+  - 🇫🇷 https://61mertkoc-cpu.github.io/wobbly-bottle/jeux-du-nouvel-an-et-soirees.html
+- Clean / SFW Truth or Dare for Family & Teens:
+  - 🇹🇷 https://61mertkoc-cpu.github.io/wobbly-bottle/temiz-ve-aile-icin-sise-cevirmece.html
+  - 🇬🇧 https://61mertkoc-cpu.github.io/wobbly-bottle/clean-truth-or-dare-for-teens-and-family.html
+  - 🇩🇪 https://61mertkoc-cpu.github.io/wobbly-bottle/jugendfreie-flaschendrehen-fragen.html
+  - 🇪🇸 https://61mertkoc-cpu.github.io/wobbly-bottle/verdad-o-reto-para-adolescentes-y-familia.html
+  - 🇫🇷 https://61mertkoc-cpu.github.io/wobbly-bottle/action-ou-verite-famille-et-ados.html
+- Girls' Night & Sleepover Games:
+  - 🇹🇷 https://61mertkoc-cpu.github.io/wobbly-bottle/pijama-partisi-ve-kizlar-gecesi-oyunlari.html
+  - 🇬🇧 https://61mertkoc-cpu.github.io/wobbly-bottle/sleepover-and-girls-night-party-games.html
+  - 🇩🇪 https://61mertkoc-cpu.github.io/wobbly-bottle/maedelsabend-und-pyjamaparty-spiele.html
+  - 🇪🇸 https://61mertkoc-cpu.github.io/wobbly-bottle/juegos-para-pijamadas-y-noche-de-chicas.html
+  - 🇫🇷 https://61mertkoc-cpu.github.io/wobbly-bottle/jeux-soiree-pyjama-et-filles.html
