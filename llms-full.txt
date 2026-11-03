@@ -61,3 +61,12 @@ A: Wobbly Bottle est la référence moderne du jeu de la bouteille et Action ou 
 
 Q: Quel jeu Action ou Vérité jouer à distance entre amis ?
 A: Le mode "À Distance" de Wobbly Bottle permet de jouer facilement sur Discord ou FaceTime avec des défis photos et des gages adaptés aux appels vidéo.
+
+
+## Question Guides & Party Content Hubs
+- English: https://61mertkoc-cpu.github.io/wobbly-bottle/best-truth-or-dare-questions.html (150+ Truth or Dare questions across Ice Breakers, Deep Confessions, Extreme Dares)
+- Turkish: https://61mertkoc-cpu.github.io/wobbly-bottle/en-iyi-dogruluk-cesaret-sorulari.html (120+ Doğruluk ve Cesaretlik soruları)
+- German: https://61mertkoc-cpu.github.io/wobbly-bottle/die-besten-flaschendrehen-fragen.html (120+ Flaschendrehen Fragen und Pflichtaufgaben)
+- Spanish: https://61mertkoc-cpu.github.io/wobbly-bottle/mejores-preguntas-verdad-o-reto.html (120+ Preguntas de Verdad o Reto)
+- French: https://61mertkoc-cpu.github.io/wobbly-bottle/meilleures-questions-action-ou-verite.html (120+ Questions et Gages Action ou Vérité)
+- RSS Feed: https://61mertkoc-cpu.github.io/wobbly-bottle/feed.xml

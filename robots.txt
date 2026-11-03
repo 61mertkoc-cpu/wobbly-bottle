@@ -1,9 +1,11 @@
 User-agent: *
 Allow: /
-Sitemap: https://61mertkoc-cpu.github.io/wobbly-bottle/sitemap.xml
 
-# LLM & AI Search Bots
+# Explicit AI & LLM Search Crawlers
 User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
 Allow: /
 
 User-agent: Google-Extended
@@ -15,5 +17,13 @@ Allow: /
 User-agent: ClaudeBot
 Allow: /
 
-# AI Manifest
-# https://61mertkoc-cpu.github.io/wobbly-bottle/llms.txt
+User-agent: Claude-Web
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+Sitemap: https://61mertkoc-cpu.github.io/wobbly-bottle/sitemap.xml
