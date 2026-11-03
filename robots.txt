@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://61mertkoc-cpu.github.io/wobbly-bottle/sitemap.xml
