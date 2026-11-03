@@ -409,7 +409,206 @@
     text-align: center;
   }
 
-  </style>
+  
+  /* Interactive Bottle Simulator Styles */
+  .teaser-box {
+    margin: 24px 0 28px;
+    background: radial-gradient(circle at 50% 30%, rgba(0, 242, 254, 0.12) 0%, rgba(10, 24, 40, 0.98) 75%);
+    border: 2px solid #00f2fe;
+    border-radius: 28px;
+    padding: 24px 18px;
+    box-shadow: 0 0 35px rgba(0, 242, 254, 0.25), inset 0 0 20px rgba(0, 242, 254, 0.1);
+    position: relative;
+    overflow: hidden;
+  }
+  .teaser-badge {
+    display: inline-block;
+    background: linear-gradient(90deg, #00f2fe 0%, #4facfe 100%);
+    color: #050817;
+    font-size: 11px;
+    font-weight: 900;
+    padding: 4px 12px;
+    border-radius: 12px;
+    letter-spacing: 0.8px;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+  .teaser-box h2 {
+    font-size: 20px;
+    font-weight: 900;
+    color: #ffffff;
+    margin-bottom: 6px;
+    text-shadow: 0 0 16px rgba(0, 242, 254, 0.5);
+  }
+  .teaser-box .sub-p {
+    font-size: 13.5px;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 16px;
+  }
+  .canvas-wrapper {
+    position: relative;
+    width: 260px;
+    height: 260px;
+    margin: 0 auto 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    touch-action: none;
+  }
+  #bottleCanvas {
+    width: 260px;
+    height: 260px;
+    cursor: grab;
+    filter: drop-shadow(0 0 18px rgba(0, 242, 254, 0.45));
+  }
+  #bottleCanvas:active {
+    cursor: grabbing;
+  }
+  .spin-trigger-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #ff0844 0%, #ff4b2b 100%);
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    padding: 14px 32px;
+    border-radius: 30px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 0 25px rgba(255, 8, 68, 0.6), 0 4px 15px rgba(0,0,0,0.5);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .spin-trigger-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 35px rgba(255, 8, 68, 0.85);
+  }
+  .spin-trigger-btn:active {
+    transform: scale(0.96);
+  }
+  .result-card {
+    margin-top: 18px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1.5px solid #ffcc00;
+    border-radius: 20px;
+    padding: 16px;
+    box-shadow: 0 0 20px rgba(255, 204, 0, 0.3);
+    animation: popIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  @keyframes popIn {
+    0% { transform: scale(0.85); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .card-type {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 900;
+    color: #ffcc00;
+    background: rgba(255, 204, 0, 0.15);
+    padding: 3px 10px;
+    border-radius: 8px;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+  .card-question {
+    font-size: 15px;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.45;
+  }
+  /* Modal Overlay */
+  .app-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 9999;
+    animation: fadeIn 0.3s ease;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  .modal-content {
+    background: linear-gradient(135deg, #091428 0%, #160a22 100%);
+    border: 2px solid #00f2fe;
+    border-radius: 28px;
+    padding: 28px 22px;
+    max-width: 440px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 0 50px rgba(0, 242, 254, 0.4);
+  }
+  .modal-badge {
+    display: inline-block;
+    background: #ff0844;
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 900;
+    padding: 4px 12px;
+    border-radius: 10px;
+    margin-bottom: 12px;
+  }
+  .modal-content h3 {
+    font-size: 21px;
+    font-weight: 900;
+    color: #ffffff;
+    margin-bottom: 10px;
+    line-height: 1.3;
+  }
+  .modal-content p {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.85);
+    line-height: 1.5;
+    margin-bottom: 22px;
+  }
+  .modal-btns {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .m-btn {
+    display: block;
+    padding: 14px 20px;
+    border-radius: 16px;
+    font-size: 15px;
+    font-weight: 800;
+    text-decoration: none;
+    color: #ffffff;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+    transition: transform 0.15s ease;
+  }
+  .m-btn.ios {
+    background: linear-gradient(90deg, #00c6ff 0%, #0072ff 100%);
+  }
+  .m-btn.android {
+    background: linear-gradient(90deg, #ff0844 0%, #ff4b2b 100%);
+  }
+  .m-btn:active {
+    transform: scale(0.97);
+  }
+  .modal-close {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 8px 16px;
+    text-decoration: underline;
+  }
+
+</style>
 </head>
 <body>
 
@@ -474,6 +673,40 @@
         <span class="arrow">➔</span>
       </a>
     </div>
+
+
+    <!-- INTERACTIVE PLAYABLE TEASER -->
+    <div class="teaser-box" id="teaserSection">
+      <span class="teaser-badge">CANLI DENE</span>
+      <h2>🍾 Şişeyi Çevir (Tadımlık Simülatör)</h2>
+      <p class="sub-p">Parmağınla şişeyi kaydır veya butona bas, bakalım sana ne çıkacak!</p>
+
+      <div class="canvas-wrapper">
+        <canvas id="bottleCanvas" width="260" height="260"></canvas>
+      </div>
+
+      <button id="spinBtn" class="spin-trigger-btn">🎲 ŞİŞEYİ ÇEVİR!</button>
+
+      <div id="resultCard" class="result-card" style="display: none;">
+        <span class="card-type" id="cardType">DOĞRULUK</span>
+        <p class="card-question" id="cardQuestion"></p>
+      </div>
+    </div>
+
+    <!-- Conversion Modal Popup -->
+    <div id="appModal" class="app-modal" style="display: none;">
+      <div class="modal-content">
+        <span class="modal-badge">🔥 GERÇEK EĞLENCE BAŞLIYOR</span>
+        <h3>Arkadaşlarınla 15 Kişi Kendi Telefonundan Oyna!</h3>
+        <p>1.000+ çılgın soru, ciyaklayan kauçuk tavuk ve kesintisiz 60 FPS çok oyunculu deneyim için Wobbly Bottle'ı ücretsiz indir!</p>
+        <div class="modal-btns">
+          <a href="https://apps.apple.com/app/id6794894168" class="m-btn ios" target="_blank" rel="noopener">🍏 App Store'dan Ücretsiz İndir</a>
+          <a href="https://play.google.com/store/apps/details?id=com.wobblybottle.game" class="m-btn android" target="_blank" rel="noopener">🤖 Google Play'den Ücretsiz İndir</a>
+        </div>
+        <button id="closeModalBtn" class="modal-close">Bir Kez Daha Çevir</button>
+      </div>
+    </div>
+
 
     <div class="section-title">3 EĞLENCELİ OYUN MODU</div>
     <div class="mode-grid">
@@ -584,5 +817,195 @@
       }
     })();
   </script>
+
+<script>
+(function() {
+  const canvas = document.getElementById('bottleCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const spinBtn = document.getElementById('spinBtn');
+  const resultCard = document.getElementById('resultCard');
+  const cardType = document.getElementById('cardType');
+  const cardQuestion = document.getElementById('cardQuestion');
+  const appModal = document.getElementById('appModal');
+  const closeModalBtn = document.getElementById('closeModalBtn');
+
+  const questions = [
+    { type: "DOĞRULUK", q: "Telefonundaki en utanç verici son fotoğrafı veya ekran görüntüsünü göster!" },
+    { type: "CESARET", q: "Rehberindeki 5. kişiye 'Sana acil bir şey söylemem lazım' yazıp cevabı bekle!" },
+    { type: "DOĞRULUK", q: "İlk buluşmada karşındaki insanda gördüğün en büyük turn-off (soğuma) sebebi nedir?" },
+    { type: "CESARET", q: "Son dinlediğin şarkıyı 15 saniye boyunca opera sanatçısı gibi söyle!" },
+    { type: "DOĞRULUK", q: "Şu an odadaki/masadaki kişilerden biriyle ıssız bir adada kalsan kimi seçerdin?" },
+    { type: "CESARET", q: "Gözlerini kapat ve karşındaki kişinin burnuna işaret parmağınla dokunmayı dene!" },
+    { type: "DOĞRULUK", q: "En son kimi stalkladın ve gördüğün şey seni şaşırttı mı?" }
+  ];
+
+  let angle = 0;
+  let angularVelocity = 0;
+  let isSpinning = false;
+  let spinCount = 0;
+
+  // Web Audio Synth Chime
+  function playClickSound() {
+    try {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5
+      osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.1); // A5
+      gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.12);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.12);
+    } catch(e) {}
+  }
+
+  function drawBottle(currentAngle) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const cx = canvas.width / 2;
+    const cy = canvas.height / 2;
+
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(currentAngle);
+
+    // Glowing circle underneath
+    const grad = ctx.createRadialGradient(0, 0, 10, 0, 0, 110);
+    grad.addColorStop(0, 'rgba(0, 242, 254, 0.25)');
+    grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(0, 0, 110, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Bottle Body Shadow
+    ctx.shadowColor = 'rgba(0, 242, 254, 0.7)';
+    ctx.shadowBlur = 18;
+
+    // Glass Bottle Body
+    ctx.fillStyle = '#00f2fe';
+    ctx.beginPath();
+    // Base
+    ctx.roundRect(-22, -15, 44, 90, [0, 0, 16, 16]);
+    ctx.fill();
+
+    // Shoulder & Neck
+    ctx.beginPath();
+    ctx.moveTo(-22, -15);
+    ctx.quadraticCurveTo(-18, -45, -9, -60);
+    ctx.lineTo(-9, -88);
+    ctx.lineTo(9, -88);
+    ctx.lineTo(9, -60);
+    ctx.quadraticCurveTo(18, -45, 22, -15);
+    ctx.closePath();
+    ctx.fill();
+
+    // Bottle Cap (Gold)
+    ctx.fillStyle = '#ffcc00';
+    ctx.shadowColor = '#ffcc00';
+    ctx.shadowBlur = 10;
+    ctx.fillRect(-11, -96, 22, 10);
+
+    // Glass Reflection Highlight
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
+    ctx.beginPath();
+    ctx.moveTo(-14, 0);
+    ctx.lineTo(-14, 60);
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+    ctx.stroke();
+
+    ctx.restore();
+  }
+
+  function loop() {
+    if (isSpinning) {
+      angle += angularVelocity;
+      angularVelocity *= 0.985; // Damping
+
+      if (angularVelocity < 0.008) {
+        isSpinning = false;
+        angularVelocity = 0;
+        onSpinComplete();
+      }
+    }
+    drawBottle(angle);
+    requestAnimationFrame(loop);
+  }
+
+  function startSpin(impulse) {
+    if (isSpinning) return;
+    isSpinning = true;
+    angularVelocity = impulse || (Math.random() * 0.35 + 0.35);
+    resultCard.style.display = 'none';
+    playClickSound();
+  }
+
+  function onSpinComplete() {
+    playClickSound();
+    spinCount++;
+    const pick = questions[Math.floor(Math.random() * questions.length)];
+    cardType.textContent = pick.type;
+    cardType.style.color = pick.type === 'DOĞRULUK' ? '#00f2fe' : '#ff0844';
+    cardType.style.background = pick.type === 'DOĞRULUK' ? 'rgba(0, 242, 254, 0.15)' : 'rgba(255, 8, 68, 0.15)';
+    cardQuestion.textContent = pick.q;
+    resultCard.style.display = 'block';
+
+    // Show conversion modal after 2nd spin
+    if (spinCount >= 2) {
+      setTimeout(() => {
+        appModal.style.display = 'flex';
+      }, 700);
+    }
+  }
+
+  spinBtn.addEventListener('click', () => {
+    startSpin();
+  });
+
+  // Touch drag to spin
+  let startX, startY, startTime;
+  canvas.addEventListener('touchstart', (e) => {
+    if (isSpinning) return;
+    const t = e.touches[0];
+    startX = t.clientX;
+    startY = t.clientY;
+    startTime = Date.now();
+  }, { passive: true });
+
+  canvas.addEventListener('touchend', (e) => {
+    if (isSpinning) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - startX;
+    const dy = t.clientY - startY;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    const time = (Date.now() - startTime) || 1;
+    const speed = dist / time;
+    if (speed > 0.4) {
+      startSpin(Math.min(speed * 0.22, 0.65));
+    } else {
+      startSpin();
+    }
+  });
+
+  // Mouse click to spin
+  canvas.addEventListener('click', () => {
+    startSpin();
+  });
+
+  closeModalBtn.addEventListener('click', () => {
+    appModal.style.display = 'none';
+  });
+
+  // Initial render
+  drawBottle(0);
+  requestAnimationFrame(loop);
+})();
+</script>
+
 </body>
 </html>
