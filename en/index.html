@@ -14,26 +14,115 @@
   <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "MobileApplication",
-  "name": "Online Spin the Bottle & Truth or Dare Party Game | Wobbly Bottle",
-  "operatingSystem": "iOS, Android",
-  "applicationCategory": "GameApplication",
-  "genre": "Party Game",
-  "offers": {
-    "@type": "Offer",
-    "price": "0",
-    "priceCurrency": "USD"
-  },
-  "aggregateRating": {
-    "@type": "AggregateRating",
-    "ratingValue": "4.9",
-    "ratingCount": "128"
-  },
-  "description": "The ultimate multiplayer Spin the Bottle & Truth or Dare party game! Join private live rooms on your own phone with real physics. Free on iOS & Android.",
-  "url": "https://61mertkoc-cpu.github.io/wobbly-bottle/",
-  "downloadUrl": [
-    "https://apps.apple.com/app/id6794894168",
-    "https://play.google.com/store/apps/details?id=com.wobblybottle.game"
+  "@graph": [
+    {
+      "@type": "MobileApplication",
+      "name": "Online Spin the Bottle & Truth or Dare Party Game | Wobbly Bottle",
+      "operatingSystem": "iOS, Android",
+      "applicationCategory": "GameApplication",
+      "genre": "Party Game",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.9",
+        "ratingCount": "135"
+      },
+      "description": "The ultimate multiplayer Spin the Bottle & Truth or Dare party game! Join private live rooms on your own phone with real physics. Free on iOS & Android.",
+      "url": "https://61mertkoc-cpu.github.io/wobbly-bottle/",
+      "downloadUrl": [
+        "https://apps.apple.com/app/id6794894168",
+        "https://play.google.com/store/apps/details?id=com.wobblybottle.game"
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What is the best online Spin the Bottle app to play with friends?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Wobbly Bottle is the top-rated online Spin the Bottle and Truth or Dare party game. It allows players to connect their own phones to a private room code, spinning a physics-based bottle in real-time."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How does synchronized multiplayer work?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The host generates a 6-digit room PIN (similar to Jackbox or Kahoot). Everyone enters the code on their own phone. When the bottle spins, it bends and rotates live across every connected screen simultaneously."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can we play Truth or Dare over Discord or FaceTime?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes! Remote Party Mode is specifically built for long-distance hangouts. It features screenshot dares, camera photo proofs, and voice confessions tailored for video and voice calls."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is Wobbly Bottle completely free?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, Wobbly Bottle is 100% free to download and play on both the iOS App Store and Google Play Store without predatory subscriptions."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can it be played as a drinking party game?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Absolutely! The 'Extreme Dares & Shots' deck turns every round into a drinking game where players must do the dare or take a penalty shot."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What funny objects can you spin instead of the bottle?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "You can spin a classic soda bottle, a squeaky rubber chicken, a wobbly green pickle, a flying slipper, or a prestigious VIP golden champagne bottle."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does it work well for large groups of 10-15 people?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes! Supporting up to 20+ players per room, it eliminates the awkwardness of crowding around one screen. The 'Ice Breaker' deck helps strangers bond instantly."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Are there spicy and adult modes available?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, Wobbly Bottle includes an unfiltered +18 Spicy pack designed for late-night adult gatherings, as well as a Flirt & Couples pack."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What does the VIP upgrade include?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "VIP removes all ads permanently, unlocks the Golden VIP Champagne bottle, and opens the +18 Spicy pack for your entire party room."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can players create custom cards and inside jokes?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes! You can add your own custom Truth or Dare prompts directly into the deck for personalized party fun."
+          }
+        }
+      ]
+    }
   ]
 }
   </script>
@@ -49,8 +138,8 @@
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     background-color: #050817;
     background-image:
-      radial-gradient(circle at 50% 15%, rgba(0, 242, 254, 0.25) 0%, transparent 60%),
-      radial-gradient(circle at 80% 80%, rgba(255, 8, 68, 0.20) 0%, transparent 55%),
+      radial-gradient(circle at 50% 12%, rgba(0, 242, 254, 0.28) 0%, transparent 60%),
+      radial-gradient(circle at 85% 85%, rgba(255, 8, 68, 0.22) 0%, transparent 55%),
       linear-gradient(180deg, #050817 0%, #091428 100%);
     color: #ffffff;
     min-height: 100vh;
@@ -58,25 +147,25 @@
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    padding: 20px 16px 40px;
+    padding: 20px 16px 50px;
     overflow-x: hidden;
   }
   .lang-bar {
     display: flex;
     gap: 8px;
-    margin-bottom: 20px;
+    margin-bottom: 22px;
     flex-wrap: wrap;
     justify-content: center;
     z-index: 10;
   }
   .lang-btn {
-    padding: 6px 14px;
+    padding: 7px 16px;
     border-radius: 20px;
     font-size: 13px;
-    font-weight: 700;
+    font-weight: 800;
     color: #a0c4ff;
     background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(0, 242, 254, 0.3);
+    border: 1px solid rgba(0, 242, 254, 0.35);
     text-decoration: none;
     transition: all 0.2s ease;
   }
@@ -84,32 +173,32 @@
     background: #00f2fe;
     color: #050817;
     border-color: #00f2fe;
-    box-shadow: 0 0 15px rgba(0, 242, 254, 0.6);
+    box-shadow: 0 0 16px rgba(0, 242, 254, 0.7);
   }
   .card {
     width: 100%;
-    max-width: 580px;
-    background: rgba(10, 24, 40, 0.92);
-    border: 2px solid rgba(0, 242, 254, 0.45);
-    border-radius: 32px;
-    padding: 32px 24px;
+    max-width: 620px;
+    background: rgba(10, 24, 40, 0.94);
+    border: 2px solid rgba(0, 242, 254, 0.5);
+    border-radius: 36px;
+    padding: 34px 26px;
     text-align: center;
     box-shadow:
-      0 0 45px rgba(0, 242, 254, 0.25),
-      0 20px 60px rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(16px);
+      0 0 50px rgba(0, 242, 254, 0.3),
+      0 20px 65px rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(18px);
   }
   .logo-wrap {
-    width: 120px;
-    height: 120px;
+    width: 125px;
+    height: 125px;
     margin: 0 auto 16px;
     border-radius: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: radial-gradient(circle, rgba(0, 242, 254, 0.3) 0%, rgba(5, 23, 37, 0.9) 75%);
-    border: 2px solid #00f2fe;
-    box-shadow: 0 0 30px rgba(0, 242, 254, 0.6);
+    background: radial-gradient(circle, rgba(0, 242, 254, 0.35) 0%, rgba(5, 23, 37, 0.95) 75%);
+    border: 2.5px solid #00f2fe;
+    box-shadow: 0 0 35px rgba(0, 242, 254, 0.7);
     overflow: hidden;
   }
   .logo-wrap img {
@@ -118,11 +207,11 @@
     object-fit: contain;
   }
   h1 {
-    font-size: 28px;
+    font-size: 30px;
     font-weight: 900;
-    letter-spacing: 1px;
+    letter-spacing: 1.2px;
     color: #ffffff;
-    text-shadow: 0 0 20px rgba(0, 242, 254, 0.6);
+    text-shadow: 0 0 24px rgba(0, 242, 254, 0.65);
     margin-bottom: 8px;
   }
   .highlight-badge {
@@ -132,23 +221,24 @@
     font-weight: 900;
     font-size: 12px;
     letter-spacing: 0.8px;
-    padding: 6px 14px;
+    padding: 7px 16px;
     border-radius: 20px;
     text-transform: uppercase;
     margin-bottom: 14px;
-    box-shadow: 0 0 20px rgba(255, 8, 68, 0.5);
+    box-shadow: 0 0 22px rgba(255, 8, 68, 0.55);
   }
   .subtitle {
     font-size: 16px;
     font-weight: 800;
     color: #00f2fe;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.6px;
     margin-bottom: 14px;
+    text-transform: uppercase;
   }
   .desc {
     font-size: 15px;
-    color: rgba(255, 255, 255, 0.85);
-    line-height: 1.55;
+    color: rgba(255, 255, 255, 0.88);
+    line-height: 1.6;
     margin-bottom: 26px;
   }
   .btn-list {
@@ -164,7 +254,7 @@
     justify-content: flex-start;
     gap: 16px;
     width: 100%;
-    padding: 16px 20px;
+    padding: 16px 22px;
     border-radius: 20px;
     text-decoration: none;
     color: #ffffff;
@@ -177,16 +267,16 @@
   .store-btn.ios {
     background: linear-gradient(135deg, #121c2d 0%, #09101d 100%);
     border: 2.5px solid #00f2fe;
-    box-shadow: 0 0 22px rgba(0, 242, 254, 0.35);
+    box-shadow: 0 0 25px rgba(0, 242, 254, 0.35);
   }
   .store-btn.android {
     background: linear-gradient(135deg, #1b0f24 0%, #0f091c 100%);
     border: 2.5px solid #ff0844;
-    box-shadow: 0 0 22px rgba(255, 8, 68, 0.35);
+    box-shadow: 0 0 25px rgba(255, 8, 68, 0.35);
   }
   .store-btn.recommended {
     border-color: #ffcc00;
-    box-shadow: 0 0 30px rgba(255, 204, 0, 0.65);
+    box-shadow: 0 0 35px rgba(255, 204, 0, 0.7);
   }
   .badge {
     position: absolute;
@@ -245,9 +335,9 @@
     color: #00f2fe;
     text-transform: uppercase;
     letter-spacing: 1px;
-    margin: 24px 0 14px;
+    margin: 28px 0 14px;
     text-align: left;
-    border-bottom: 1px solid rgba(0, 242, 254, 0.2);
+    border-bottom: 1px solid rgba(0, 242, 254, 0.25);
     padding-bottom: 8px;
   }
   .mode-grid {
@@ -261,60 +351,61 @@
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 16px;
-    padding: 14px;
+    padding: 15px;
   }
   .mode-box h3 {
     font-size: 15px;
     color: #ffcc00;
     margin-bottom: 4px;
+    font-weight: 800;
   }
   .mode-box p {
-    font-size: 13px;
-    color: rgba(255, 255, 255, 0.75);
-    line-height: 1.4;
+    font-size: 13.5px;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.45;
   }
   .features-pills {
     display: flex;
     justify-content: center;
     gap: 8px;
     flex-wrap: wrap;
-    margin: 20px 0;
+    margin: 22px 0;
   }
   .pill {
     font-size: 12px;
     font-weight: 800;
-    padding: 6px 12px;
-    border-radius: 14px;
+    padding: 7px 14px;
+    border-radius: 16px;
     background: rgba(255, 255, 255, 0.07);
     border: 1px solid rgba(255, 255, 255, 0.15);
     color: #ffcc00;
   }
   .faq-section {
     text-align: left;
-    margin-top: 24px;
+    margin-top: 10px;
   }
   .faq-item {
-    margin-bottom: 14px;
+    margin-bottom: 12px;
     background: rgba(255, 255, 255, 0.04);
-    padding: 12px 14px;
-    border-radius: 14px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 14px 16px;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.09);
   }
   .faq-q {
-    font-size: 14px;
+    font-size: 14.5px;
     font-weight: 800;
     color: #00f2fe;
-    margin-bottom: 4px;
+    margin-bottom: 6px;
   }
   .faq-a {
-    font-size: 13px;
-    color: rgba(255, 255, 255, 0.8);
-    line-height: 1.45;
+    font-size: 13.5px;
+    color: rgba(255, 255, 255, 0.85);
+    line-height: 1.5;
   }
   .footer {
-    margin-top: 24px;
+    margin-top: 28px;
     font-size: 12px;
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(255, 255, 255, 0.55);
     text-align: center;
   }
 
@@ -389,12 +480,12 @@
       
         <div class="mode-box">
           <h3>📱 TABLE MODE (Single Phone)</h3>
-          <p>Place one phone in the center of the table and take turns spinning. Classic pass-and-play fun.</p>
+          <p>Place one phone in the center of the table and take turns spinning. Classic pass-and-play fun that starts instantly.</p>
         </div>
       
         <div class="mode-box">
           <h3>🏠 HOUSE PARTY (In-Person)</h3>
-          <p>Everyone joins with a private room code on their own device. Close-contact dares, couples, and drinking games right on your screen!</p>
+          <p>Everyone joins with a private room code on their own device. Close-contact dares, couples chemistry, and drinking games right on your screen!</p>
         </div>
       
         <div class="mode-box">
@@ -405,25 +496,60 @@
     </div>
 
     <div class="features-pills">
-      <span class="pill">🍾 5 Hilarious Objects</span><span class="pill">🎯 1,000+ Prompts & Dares</span><span class="pill">🔒 6-Digit Private PIN</span><span class="pill">🆓 100% Free</span>
+      <span class="pill">🍾 5 Hilarious Objects</span><span class="pill">🎯 1,000+ Prompts & Dares</span><span class="pill">🔒 6-Digit Private PIN</span><span class="pill">🆓 100% Free</span><span class="pill">👥 2-20+ Players</span>
     </div>
 
-    <div class="section-title">FREQUENTLY ASKED QUESTIONS</div>
+    <div class="section-title">FREQUENTLY ASKED QUESTIONS (FAQ)</div>
     <div class="faq-section">
       
         <div class="faq-item">
-          <div class="faq-q">How does online Spin the Bottle work?</div>
-          <div class="faq-a">The host creates a room and gets a 6-digit code. Friends enter the code on their own phones. When the host spins the bottle, it tilts, wobbles, and spins in real-time across every device!</div>
+          <div class="faq-q">What is the best online Spin the Bottle app to play with friends?</div>
+          <div class="faq-a">Wobbly Bottle is the top-rated online Spin the Bottle and Truth or Dare party game. It allows players to connect their own phones to a private room code, spinning a physics-based bottle in real-time.</div>
         </div>
       
         <div class="faq-item">
-          <div class="faq-q">Is Wobbly Bottle free?</div>
-          <div class="faq-a">Yes, Wobbly Bottle is 100% free to download on both the Apple App Store and Google Play Store.</div>
+          <div class="faq-q">How does synchronized multiplayer work?</div>
+          <div class="faq-a">The host generates a 6-digit room PIN (similar to Jackbox or Kahoot). Everyone enters the code on their own phone. When the bottle spins, it bends and rotates live across every connected screen simultaneously.</div>
         </div>
       
         <div class="faq-item">
-          <div class="faq-q">Can we play long distance across different cities?</div>
-          <div class="faq-a">Absolutely! The Remote Party mode is specifically designed for long-distance friends playing over voice or video calls.</div>
+          <div class="faq-q">Can we play Truth or Dare over Discord or FaceTime?</div>
+          <div class="faq-a">Yes! Remote Party Mode is specifically built for long-distance hangouts. It features screenshot dares, camera photo proofs, and voice confessions tailored for video and voice calls.</div>
+        </div>
+      
+        <div class="faq-item">
+          <div class="faq-q">Is Wobbly Bottle completely free?</div>
+          <div class="faq-a">Yes, Wobbly Bottle is 100% free to download and play on both the iOS App Store and Google Play Store without predatory subscriptions.</div>
+        </div>
+      
+        <div class="faq-item">
+          <div class="faq-q">Can it be played as a drinking party game?</div>
+          <div class="faq-a">Absolutely! The 'Extreme Dares & Shots' deck turns every round into a drinking game where players must do the dare or take a penalty shot.</div>
+        </div>
+      
+        <div class="faq-item">
+          <div class="faq-q">What funny objects can you spin instead of the bottle?</div>
+          <div class="faq-a">You can spin a classic soda bottle, a squeaky rubber chicken, a wobbly green pickle, a flying slipper, or a prestigious VIP golden champagne bottle.</div>
+        </div>
+      
+        <div class="faq-item">
+          <div class="faq-q">Does it work well for large groups of 10-15 people?</div>
+          <div class="faq-a">Yes! Supporting up to 20+ players per room, it eliminates the awkwardness of crowding around one screen. The 'Ice Breaker' deck helps strangers bond instantly.</div>
+        </div>
+      
+        <div class="faq-item">
+          <div class="faq-q">Are there spicy and adult modes available?</div>
+          <div class="faq-a">Yes, Wobbly Bottle includes an unfiltered +18 Spicy pack designed for late-night adult gatherings, as well as a Flirt & Couples pack.</div>
+        </div>
+      
+        <div class="faq-item">
+          <div class="faq-q">What does the VIP upgrade include?</div>
+          <div class="faq-a">VIP removes all ads permanently, unlocks the Golden VIP Champagne bottle, and opens the +18 Spicy pack for your entire party room.</div>
+        </div>
+      
+        <div class="faq-item">
+          <div class="faq-q">Can players create custom cards and inside jokes?</div>
+          <div class="faq-a">Yes! You can add your own custom Truth or Dare prompts directly into the deck for personalized party fun.</div>
         </div>
       
     </div>

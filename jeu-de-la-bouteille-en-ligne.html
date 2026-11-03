@@ -14,26 +14,115 @@
   <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "MobileApplication",
-  "name": "Jeu de la Bouteille en Ligne & Action ou Vérité | Wobbly Bottle",
-  "operatingSystem": "iOS, Android",
-  "applicationCategory": "GameApplication",
-  "genre": "Party Game",
-  "offers": {
-    "@type": "Offer",
-    "price": "0",
-    "priceCurrency": "USD"
-  },
-  "aggregateRating": {
-    "@type": "AggregateRating",
-    "ratingValue": "4.9",
-    "ratingCount": "128"
-  },
-  "description": "Le jeu de la bouteille et Action ou Vérité en ligne et multijoueur ! Rejoignez des salons privés en direct sur vos smartphones. Gratuit sur iOS et Android.",
-  "url": "https://61mertkoc-cpu.github.io/wobbly-bottle/",
-  "downloadUrl": [
-    "https://apps.apple.com/app/id6794894168",
-    "https://play.google.com/store/apps/details?id=com.wobblybottle.game"
+  "@graph": [
+    {
+      "@type": "MobileApplication",
+      "name": "Jeu de la Bouteille en Ligne & Action ou Vérité | Wobbly Bottle",
+      "operatingSystem": "iOS, Android",
+      "applicationCategory": "GameApplication",
+      "genre": "Party Game",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.9",
+        "ratingCount": "135"
+      },
+      "description": "Le jeu de la bouteille et Action ou Vérité en ligne et multijoueur ! Rejoignez des salons privés en direct sur vos smartphones. Gratuit sur iOS et Android.",
+      "url": "https://61mertkoc-cpu.github.io/wobbly-bottle/",
+      "downloadUrl": [
+        "https://apps.apple.com/app/id6794894168",
+        "https://play.google.com/store/apps/details?id=com.wobblybottle.game"
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Quelle est la meilleure application de jeu de la bouteille en ligne ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Wobbly Bottle est la référence moderne du jeu de la bouteille et Action ou Vérité. Les joueurs rejoignent un salon privé avec un code à 6 chiffres sur leur propre smartphone et la bouteille tourne en direct."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Comment fonctionne le mode multijoueur synchronisé ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "L'hôte crée un salon et obtient un code PIN à 6 chiffres (comme Jackbox). Tous les amis saisissent le code sur leur propre smartphone et jouent ensemble de manière synchronisée."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Peut-on jouer à Action ou Vérité à distance sur Discord ou FaceTime ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Absolument ! Le mode 'À Distance' a été spécialement conçu pour les appels vidéo Discord ou FaceTime avec des gages photos et des confessions vocales."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "L'application est-elle gratuite sans abonnement forcé ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Oui, Wobbly Bottle est 100% gratuite à télécharger sur l'App Store et Google Play, sans abonnement hebdomadaire abusif."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Peut-on y jouer comme jeu à boire en soirée ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Tout à fait ! Le pack de défis extrêmes propose des gages de shots : réalisez le défi ou buvez un shot de pénalité."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Quels objets délirants peut-on faire tourner ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Vous pouvez faire tourner la bouteille classique, un poulet en plastique couineur, une tong volante, un cornichon ou du champagne VIP doré."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Est-ce adapté aux grands groupes de 10 à 15 personnes ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Parfaitement ! Le salon accueille plus de 20 joueurs sans avoir à se bousculer autour d'un seul écran, et le mode Brise-Glace détend immédiatement l'ambiance."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Y a-t-il des modes coquins ou pour couples ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Oui, l'application propose un pack Flirt & Couples ainsi qu'un pack Épicé +18 non censuré pour les soirées entre adultes."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Que débloque l'option VIP ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "L'option VIP supprime définitivement toutes les publicités, débloque la bouteille de champagne doré et active le pack +18 pour tout votre salon."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Peut-on ajouter ses propres questions personnalisées ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Oui ! Vous pouvez écrire vos propres délires et défis sur-mesure pour les intégrer directement aux parties."
+          }
+        }
+      ]
+    }
   ]
 }
   </script>
@@ -49,8 +138,8 @@
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     background-color: #050817;
     background-image:
-      radial-gradient(circle at 50% 15%, rgba(0, 242, 254, 0.25) 0%, transparent 60%),
-      radial-gradient(circle at 80% 80%, rgba(255, 8, 68, 0.20) 0%, transparent 55%),
+      radial-gradient(circle at 50% 12%, rgba(0, 242, 254, 0.28) 0%, transparent 60%),
+      radial-gradient(circle at 85% 85%, rgba(255, 8, 68, 0.22) 0%, transparent 55%),
       linear-gradient(180deg, #050817 0%, #091428 100%);
     color: #ffffff;
     min-height: 100vh;
@@ -58,25 +147,25 @@
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    padding: 20px 16px 40px;
+    padding: 20px 16px 50px;
     overflow-x: hidden;
   }
   .lang-bar {
     display: flex;
     gap: 8px;
-    margin-bottom: 20px;
+    margin-bottom: 22px;
     flex-wrap: wrap;
     justify-content: center;
     z-index: 10;
   }
   .lang-btn {
-    padding: 6px 14px;
+    padding: 7px 16px;
     border-radius: 20px;
     font-size: 13px;
-    font-weight: 700;
+    font-weight: 800;
     color: #a0c4ff;
     background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(0, 242, 254, 0.3);
+    border: 1px solid rgba(0, 242, 254, 0.35);
     text-decoration: none;
     transition: all 0.2s ease;
   }
@@ -84,32 +173,32 @@
     background: #00f2fe;
     color: #050817;
     border-color: #00f2fe;
-    box-shadow: 0 0 15px rgba(0, 242, 254, 0.6);
+    box-shadow: 0 0 16px rgba(0, 242, 254, 0.7);
   }
   .card {
     width: 100%;
-    max-width: 580px;
-    background: rgba(10, 24, 40, 0.92);
-    border: 2px solid rgba(0, 242, 254, 0.45);
-    border-radius: 32px;
-    padding: 32px 24px;
+    max-width: 620px;
+    background: rgba(10, 24, 40, 0.94);
+    border: 2px solid rgba(0, 242, 254, 0.5);
+    border-radius: 36px;
+    padding: 34px 26px;
     text-align: center;
     box-shadow:
-      0 0 45px rgba(0, 242, 254, 0.25),
-      0 20px 60px rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(16px);
+      0 0 50px rgba(0, 242, 254, 0.3),
+      0 20px 65px rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(18px);
   }
   .logo-wrap {
-    width: 120px;
-    height: 120px;
+    width: 125px;
+    height: 125px;
     margin: 0 auto 16px;
     border-radius: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: radial-gradient(circle, rgba(0, 242, 254, 0.3) 0%, rgba(5, 23, 37, 0.9) 75%);
-    border: 2px solid #00f2fe;
-    box-shadow: 0 0 30px rgba(0, 242, 254, 0.6);
+    background: radial-gradient(circle, rgba(0, 242, 254, 0.35) 0%, rgba(5, 23, 37, 0.95) 75%);
+    border: 2.5px solid #00f2fe;
+    box-shadow: 0 0 35px rgba(0, 242, 254, 0.7);
     overflow: hidden;
   }
   .logo-wrap img {
@@ -118,11 +207,11 @@
     object-fit: contain;
   }
   h1 {
-    font-size: 28px;
+    font-size: 30px;
     font-weight: 900;
-    letter-spacing: 1px;
+    letter-spacing: 1.2px;
     color: #ffffff;
-    text-shadow: 0 0 20px rgba(0, 242, 254, 0.6);
+    text-shadow: 0 0 24px rgba(0, 242, 254, 0.65);
     margin-bottom: 8px;
   }
   .highlight-badge {
@@ -132,23 +221,24 @@
     font-weight: 900;
     font-size: 12px;
     letter-spacing: 0.8px;
-    padding: 6px 14px;
+    padding: 7px 16px;
     border-radius: 20px;
     text-transform: uppercase;
     margin-bottom: 14px;
-    box-shadow: 0 0 20px rgba(255, 8, 68, 0.5);
+    box-shadow: 0 0 22px rgba(255, 8, 68, 0.55);
   }
   .subtitle {
     font-size: 16px;
     font-weight: 800;
     color: #00f2fe;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.6px;
     margin-bottom: 14px;
+    text-transform: uppercase;
   }
   .desc {
     font-size: 15px;
-    color: rgba(255, 255, 255, 0.85);
-    line-height: 1.55;
+    color: rgba(255, 255, 255, 0.88);
+    line-height: 1.6;
     margin-bottom: 26px;
   }
   .btn-list {
@@ -164,7 +254,7 @@
     justify-content: flex-start;
     gap: 16px;
     width: 100%;
-    padding: 16px 20px;
+    padding: 16px 22px;
     border-radius: 20px;
     text-decoration: none;
     color: #ffffff;
@@ -177,16 +267,16 @@
   .store-btn.ios {
     background: linear-gradient(135deg, #121c2d 0%, #09101d 100%);
     border: 2.5px solid #00f2fe;
-    box-shadow: 0 0 22px rgba(0, 242, 254, 0.35);
+    box-shadow: 0 0 25px rgba(0, 242, 254, 0.35);
   }
   .store-btn.android {
     background: linear-gradient(135deg, #1b0f24 0%, #0f091c 100%);
     border: 2.5px solid #ff0844;
-    box-shadow: 0 0 22px rgba(255, 8, 68, 0.35);
+    box-shadow: 0 0 25px rgba(255, 8, 68, 0.35);
   }
   .store-btn.recommended {
     border-color: #ffcc00;
-    box-shadow: 0 0 30px rgba(255, 204, 0, 0.65);
+    box-shadow: 0 0 35px rgba(255, 204, 0, 0.7);
   }
   .badge {
     position: absolute;
@@ -245,9 +335,9 @@
     color: #00f2fe;
     text-transform: uppercase;
     letter-spacing: 1px;
-    margin: 24px 0 14px;
+    margin: 28px 0 14px;
     text-align: left;
-    border-bottom: 1px solid rgba(0, 242, 254, 0.2);
+    border-bottom: 1px solid rgba(0, 242, 254, 0.25);
     padding-bottom: 8px;
   }
   .mode-grid {
@@ -261,60 +351,61 @@
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 16px;
-    padding: 14px;
+    padding: 15px;
   }
   .mode-box h3 {
     font-size: 15px;
     color: #ffcc00;
     margin-bottom: 4px;
+    font-weight: 800;
   }
   .mode-box p {
-    font-size: 13px;
-    color: rgba(255, 255, 255, 0.75);
-    line-height: 1.4;
+    font-size: 13.5px;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.45;
   }
   .features-pills {
     display: flex;
     justify-content: center;
     gap: 8px;
     flex-wrap: wrap;
-    margin: 20px 0;
+    margin: 22px 0;
   }
   .pill {
     font-size: 12px;
     font-weight: 800;
-    padding: 6px 12px;
-    border-radius: 14px;
+    padding: 7px 14px;
+    border-radius: 16px;
     background: rgba(255, 255, 255, 0.07);
     border: 1px solid rgba(255, 255, 255, 0.15);
     color: #ffcc00;
   }
   .faq-section {
     text-align: left;
-    margin-top: 24px;
+    margin-top: 10px;
   }
   .faq-item {
-    margin-bottom: 14px;
+    margin-bottom: 12px;
     background: rgba(255, 255, 255, 0.04);
-    padding: 12px 14px;
-    border-radius: 14px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 14px 16px;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.09);
   }
   .faq-q {
-    font-size: 14px;
+    font-size: 14.5px;
     font-weight: 800;
     color: #00f2fe;
-    margin-bottom: 4px;
+    margin-bottom: 6px;
   }
   .faq-a {
-    font-size: 13px;
-    color: rgba(255, 255, 255, 0.8);
-    line-height: 1.45;
+    font-size: 13.5px;
+    color: rgba(255, 255, 255, 0.85);
+    line-height: 1.5;
   }
   .footer {
-    margin-top: 24px;
+    margin-top: 28px;
     font-size: 12px;
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(255, 255, 255, 0.55);
     text-align: center;
   }
 
@@ -405,25 +496,60 @@
     </div>
 
     <div class="features-pills">
-      <span class="pill">🍾 5 Objets Délirants</span><span class="pill">🎯 Plus de 1 000 Défis</span><span class="pill">🔒 Code PIN à 6 Chiffres</span><span class="pill">🆓 100% Gratuit</span>
+      <span class="pill">🍾 5 Objets Délirants</span><span class="pill">🎯 Plus de 1 000 Défis</span><span class="pill">🔒 Code PIN à 6 Chiffres</span><span class="pill">🆓 100% Gratuit</span><span class="pill">👥 2-20+ Joueurs</span>
     </div>
 
-    <div class="section-title">FOIRE AUX QUESTIONS</div>
+    <div class="section-title">FOIRE AUX QUESTIONS (FAQ)</div>
     <div class="faq-section">
       
         <div class="faq-item">
-          <div class="faq-q">Comment fonctionne le jeu de la bouteille en ligne ?</div>
-          <div class="faq-a">L'hôte crée un salon et obtient un code à 6 chiffres. Les amis entrent le code sur leur propre smartphone. Quand la bouteille tourne, elle pivote en direct sur tous les écrans en même temps !</div>
+          <div class="faq-q">Quelle est la meilleure application de jeu de la bouteille en ligne ?</div>
+          <div class="faq-a">Wobbly Bottle est la référence moderne du jeu de la bouteille et Action ou Vérité. Les joueurs rejoignent un salon privé avec un code à 6 chiffres sur leur propre smartphone et la bouteille tourne en direct.</div>
         </div>
       
         <div class="faq-item">
-          <div class="faq-q">L'application est-elle gratuite ?</div>
-          <div class="faq-a">Oui, Wobbly Bottle est 100% gratuite à télécharger sur l'App Store d'Apple et le Google Play Store.</div>
+          <div class="faq-q">Comment fonctionne le mode multijoueur synchronisé ?</div>
+          <div class="faq-a">L'hôte crée un salon et obtient un code PIN à 6 chiffres (comme Jackbox). Tous les amis saisissent le code sur leur propre smartphone et jouent ensemble de manière synchronisée.</div>
         </div>
       
         <div class="faq-item">
-          <div class="faq-q">Peut-on jouer à distance avec des amis d'autres villes ?</div>
-          <div class="faq-a">Absolument ! Le mode à distance est spécialement conçu pour jouer lors d'appels Discord ou FaceTime.</div>
+          <div class="faq-q">Peut-on jouer à Action ou Vérité à distance sur Discord ou FaceTime ?</div>
+          <div class="faq-a">Absolument ! Le mode 'À Distance' a été spécialement conçu pour les appels vidéo Discord ou FaceTime avec des gages photos et des confessions vocales.</div>
+        </div>
+      
+        <div class="faq-item">
+          <div class="faq-q">L'application est-elle gratuite sans abonnement forcé ?</div>
+          <div class="faq-a">Oui, Wobbly Bottle est 100% gratuite à télécharger sur l'App Store et Google Play, sans abonnement hebdomadaire abusif.</div>
+        </div>
+      
+        <div class="faq-item">
+          <div class="faq-q">Peut-on y jouer comme jeu à boire en soirée ?</div>
+          <div class="faq-a">Tout à fait ! Le pack de défis extrêmes propose des gages de shots : réalisez le défi ou buvez un shot de pénalité.</div>
+        </div>
+      
+        <div class="faq-item">
+          <div class="faq-q">Quels objets délirants peut-on faire tourner ?</div>
+          <div class="faq-a">Vous pouvez faire tourner la bouteille classique, un poulet en plastique couineur, une tong volante, un cornichon ou du champagne VIP doré.</div>
+        </div>
+      
+        <div class="faq-item">
+          <div class="faq-q">Est-ce adapté aux grands groupes de 10 à 15 personnes ?</div>
+          <div class="faq-a">Parfaitement ! Le salon accueille plus de 20 joueurs sans avoir à se bousculer autour d'un seul écran, et le mode Brise-Glace détend immédiatement l'ambiance.</div>
+        </div>
+      
+        <div class="faq-item">
+          <div class="faq-q">Y a-t-il des modes coquins ou pour couples ?</div>
+          <div class="faq-a">Oui, l'application propose un pack Flirt & Couples ainsi qu'un pack Épicé +18 non censuré pour les soirées entre adultes.</div>
+        </div>
+      
+        <div class="faq-item">
+          <div class="faq-q">Que débloque l'option VIP ?</div>
+          <div class="faq-a">L'option VIP supprime définitivement toutes les publicités, débloque la bouteille de champagne doré et active le pack +18 pour tout votre salon.</div>
+        </div>
+      
+        <div class="faq-item">
+          <div class="faq-q">Peut-on ajouter ses propres questions personnalisées ?</div>
+          <div class="faq-a">Oui ! Vous pouvez écrire vos propres délires et défis sur-mesure pour les intégrer directement aux parties.</div>
         </div>
       
     </div>
