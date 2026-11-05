@@ -31,7 +31,7 @@ class NetworkPlayer {
   bool isAfk;
   DateTime lastSeen;
   int completedTasks;
-  int penaltyShots;
+  int penaltiesTaken;
 
   NetworkPlayer({
     required this.id,
@@ -42,7 +42,7 @@ class NetworkPlayer {
     this.isAfk = false,
     DateTime? lastSeen,
     this.completedTasks = 0,
-    this.penaltyShots = 0,
+    this.penaltiesTaken = 0,
   }) : lastSeen = lastSeen ?? DateTime.now();
 
   Map<String, dynamic> toJson() => {
@@ -53,7 +53,7 @@ class NetworkPlayer {
     'isVip': isVip,
     'isAfk': isAfk,
     'completedTasks': completedTasks,
-    'penaltyShots': penaltyShots,
+    'penaltiesTaken': penaltiesTaken,
     'lastSeen': lastSeen.millisecondsSinceEpoch,
   };
 
@@ -65,7 +65,7 @@ class NetworkPlayer {
     isVip: json['isVip'] as bool? ?? false,
     isAfk: json['isAfk'] as bool? ?? false,
     completedTasks: json['completedTasks'] as int? ?? 0,
-    penaltyShots: json['penaltyShots'] as int? ?? 0,
+    penaltiesTaken: (json['penaltiesTaken'] ?? json['penaltyShots']) as int? ?? 0,
     lastSeen: json['lastSeen'] != null
         ? DateTime.fromMillisecondsSinceEpoch(json['lastSeen'] as int)
         : DateTime.now(),

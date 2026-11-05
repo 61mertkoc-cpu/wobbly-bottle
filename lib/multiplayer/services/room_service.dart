@@ -233,7 +233,7 @@ class RoomService {
     _startTurnTimer(); // 30-second response countdown
   }
 
-  /// Complete task or take penalty shot
+  /// Complete task or accept group penalty
   void completeTurn({required bool tookPenalty}) {
     if (_currentRoom == null) return;
 
@@ -629,7 +629,7 @@ class RoomService {
     if (_currentRoom!.answererIndex >= 0 &&
         _currentRoom!.answererIndex < _currentRoom!.players.length) {
       if (tookPenalty) {
-        _currentRoom!.players[_currentRoom!.answererIndex].penaltyShots++;
+        _currentRoom!.players[_currentRoom!.answererIndex].penaltiesTaken++;
       } else {
         _currentRoom!.players[_currentRoom!.answererIndex].completedTasks++;
       }
@@ -673,7 +673,7 @@ class RoomService {
           (_currentRoom!.status == RoomStatus.decisionPending ||
               _currentRoom!.status == RoomStatus.cardOpen)) {
         // Player timed out! Apply penalty and proceed
-        onToast?.call("30 saniye doldu! Ceza Shot'ı yazıldı! 🥃");
+        onToast?.call("30 saniye doldu! Grubun verdiği cezayı çekme vakti! 💀");
         _handleDoneEvent(RoomEvent(
           type: 'DONE',
           senderId: isHost ? _myPlayerId : '',

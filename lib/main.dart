@@ -1895,10 +1895,10 @@ class _MainGameScreenState extends State<MainGameScreen>
 
                 // 2. EV PARTİSİ (Aynı Odadayız)
                 _buildModeCard(
-                  icon: "🍻",
+                  icon: "🎉",
                   title: _loc("HOUSE PARTY (IN-PERSON)", "EV PARTİSİ (AYNI ODADAYIZ)", "HAUSPARTY (VOR ORT)", "FIESTA EN CASA", "SOIRÉE MAISON"),
                   desc: _loc("Everyone joins on their own phone! Dares, kisses & close-contact fun!",
-                             "Herkes kendi telefonuyla bağlansın! Yakın temas, flört ve shotlar havada uçuşsun!",
+                             "Herkes kendi telefonuyla bağlansın! Yakın temas, flört ve çılgın cezalar havada uçuşsun!",
                              "Jeder tritt mit dem eigenen Handy bei! Aufgaben, Küsse & Spaß!",
                              "¡Cada uno con su móvil! ¡Retos, besos y diversión íntima!",
                              "Chacun rejoint avec son téléphone ! Gages, bisous et contacts intimes !"),
@@ -3819,7 +3819,7 @@ class _MainGameScreenState extends State<MainGameScreen>
     if (promptText.isEmpty) {
       promptText = mode == 'TRUTH'
           ? _loc("What is your biggest secret in this room?", "Bu odadaki en büyük sırrın nedir?", "Was ist dein größtes Geheimnis?", "¿Cuál es tu mayor secreto?", "Quel est ton plus grand secret ?")
-          : _loc("Do 10 push-ups or take 1 penalty shot!", "10 şınav çek veya 1 shot ceza iç!", "Mache 10 Liegestütze oder trinke 1 Shot!", "¡Haz 10 flexiones o toma 1 chupito!", "Fais 10 pompes ou bois 1 shot !");
+          : _loc("Complete the dare or face the group's penalty!", "Görevi tamamla veya grubun verdiği cezayı çek!", "Erfülle die Aufgabe oder trage die Strafe der Gruppe!", "¡Cumple el reto o acepta el castigo del grupo!", "Fais le gage ou accepte la punition du groupe !");
     }
 
     showDialog(
@@ -3915,7 +3915,7 @@ class _MainGameScreenState extends State<MainGameScreen>
                             ),
                           ),
                           child: Text(
-                            _loc("SHOT! 🥃", "SHOT İÇTİM! 🥃", "SHOT! 🥃", "¡CHUPITO! 🥃", "SHOT ! 🥃"),
+                            _loc("PENALTY! 💀", "CEZAMI ÇEKERİM! 💀", "STRAFE! 💀", "¡CASTIGO! 💀", "GAGE ! 💀"),
                             style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13),
                           ),
                         ),
