@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'multiplayer/models/room_models.dart';
 import 'multiplayer/services/room_service.dart';
 import 'multiplayer/screens/room_join_screen.dart';
@@ -284,6 +286,11 @@ class _MainGameScreenState extends State<MainGameScreen>
   bool _isInterstitialLoading = false;
   int _spinCounter = 0;
 
+  // AdMob Persistent Bottom Banner Ad
+  BannerAd? _bannerAd;
+  bool _isBannerAdLoaded = false;
+  int _totalSpinsForRating = 0;
+
   // In-App Purchase
   final InAppPurchase _iap = InAppPurchase.instance;
   StreamSubscription<List<PurchaseDetails>>? _iapSubscription;
@@ -297,7 +304,10 @@ class _MainGameScreenState extends State<MainGameScreen>
   static const String _androidRewardedAdUnitId = 'ca-app-pub-7561629034641721/2336738850';
 
   static const String _iosInterstitialAdUnitId = 'ca-app-pub-7561629034641721/1266289633';
-  static const String _androidInterstitialAdUnitId = 'ca-app-pub-7561629034641721/1266289633';
+  static const String _androidInterstitialAdUnitId = 'ca-app-pub-7561629034641721/2604957857';
+
+  static const String _iosBannerAdUnitId = 'ca-app-pub-7561629034641721/6725175426';
+  static const String _androidBannerAdUnitId = 'ca-app-pub-7561629034641721/5614264572';
 
   static const String _vipProductId = 'wobbly_vip';
 
@@ -306,6 +316,9 @@ class _MainGameScreenState extends State<MainGameScreen>
 
   String get _interstitialAdUnitId =>
       Platform.isIOS ? _iosInterstitialAdUnitId : _androidInterstitialAdUnitId;
+
+  String get _bannerAdUnitId =>
+      Platform.isIOS ? _iosBannerAdUnitId : _androidBannerAdUnitId;
 
   void _initDeviceLanguage() {
     try {
@@ -341,6 +354,7 @@ class _MainGameScreenState extends State<MainGameScreen>
     _loadPackSheet();
     _loadRewardedAd();
     _loadInterstitialAd();
+    _loadBannerAd();
     _initInAppPurchase();
     _initMultiplayerListener();
 
@@ -467,6 +481,7 @@ class _MainGameScreenState extends State<MainGameScreen>
     _rewardedAd?.dispose();
     _interstitialAd?.dispose();
     _spinRewardedInterstitialAd?.dispose();
+    _bannerAd?.dispose();
     _iapSubscription?.cancel();
     super.dispose();
   }
@@ -689,6 +704,13 @@ class _MainGameScreenState extends State<MainGameScreen>
   }
 
   void _showInterstitialAdIfNeeded() {
+    _totalSpinsForRating++;
+    if (_totalSpinsForRating == 6) {
+      Future.delayed(const Duration(milliseconds: 600), () {
+        _checkAndShowRateDialog();
+      });
+    }
+
     if (_vip) return; // VIP users never see ads!
 
     _spinCounter++;
@@ -963,6 +985,207 @@ class _MainGameScreenState extends State<MainGameScreen>
     });
   }
 
+  // --- ADMOB BOTTOM BANNER AD ---
+  void _loadBannerAd() {
+    if (_vip) return;
+    _bannerAd?.dispose();
+    _bannerAd = BannerAd(
+      adUnitId: _bannerAdUnitId,
+      size: AdSize.banner,
+      request: const AdRequest(),
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          if (mounted) {
+            setState(() {
+              _isBannerAdLoaded = true;
+            });
+          }
+        },
+        onAdFailedToLoad: (ad, error) {
+          debugPrint('BannerAd failed to load: $error');
+          ad.dispose();
+          _bannerAd = null;
+          if (mounted) {
+            setState(() {
+              _isBannerAdLoaded = false;
+            });
+          }
+        },
+      ),
+    )..load();
+  }
+
+  // --- 5-STAR RATING POPUP DIALOG ---
+  Future<void> _checkAndShowRateDialog() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final bool hasRated = prefs.getBool('wb_has_rated_v1') ?? false;
+      if (!hasRated && mounted) {
+        _show5StarRatingDialog();
+      }
+    } catch (e) {
+      debugPrint('Rate dialog check error: $e');
+    }
+  }
+
+  void _show5StarRatingDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (ctx) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF1B1B3A), Color(0xFF0F0F1E)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(28),
+              border: Border.all(
+                color: Colors.amberAccent.withValues(alpha: 0.6),
+                width: 2,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.amberAccent.withValues(alpha: 0.25),
+                  blurRadius: 30,
+                  spreadRadius: 2,
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(
+                    5,
+                    (i) => const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 4),
+                      child: Icon(Icons.star_rounded, color: Colors.amberAccent, size: 36),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  _loc(
+                    "ENJOYING WOBBLY BOTTLE?",
+                    "WOBBLY BOTTLE'I SEVDİN Mİ?",
+                    "GEFÄLLT DIR WOBBLY BOTTLE?",
+                    "¿TE GUSTA WOBBLY BOTTLE?",
+                    "TU AIMES WOBBLY BOTTLE?",
+                  ),
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  _loc(
+                    "Having fun with your friends? Support our indie developer team with a quick 5-star rating on the store! It helps us add more crazy objects & packs!",
+                    "Arkadaşlarınla eğleniyor musun? Bağımsız geliştiricimize mağazada 5 yıldız vererek destek olmak ister misin? Yeni çılgın nesneler ve soru paketleri eklememize çok yardımcı olur!",
+                    "Hast du Spaß mit deinen Freunden? Unterstütze unser Indie-Team mit einer 5-Sterne-Bewertung im Store! Es hilft uns, mehr verrückte Objekte hinzuzufügen!",
+                    "¿Te estás divirtiendo con tus amigos? ¡Apoya a nuestro equipo indie con una calificación de 5 estrellas en la tienda! ¡Nos ayuda a crear más objetos locos!",
+                    "Tu t'amuses avec tes amis ? Soutiens notre équipe indépendante avec une note de 5 étoiles sur le store ! Cela nous aide à ajouter de nouveaux objets fous !",
+                  ),
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 14,
+                    height: 1.4,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      Navigator.of(ctx).pop();
+                      try {
+                        final prefs = await SharedPreferences.getInstance();
+                        await prefs.setBool('wb_has_rated_v1', true);
+                      } catch (_) {}
+                      _openStoreRating();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.amberAccent,
+                      foregroundColor: Colors.black,
+                      elevation: 8,
+                      shadowColor: Colors.amberAccent.withValues(alpha: 0.6),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    child: Text(
+                      _loc(
+                        "⭐ RATE 5 STARS",
+                        "⭐ 5 YILDIZ VER",
+                        "⭐ 5 STERNE BEWERTEN",
+                        "⭐ CALIFICAR 5 ESTRELLAS",
+                        "⭐ NOTER 5 ÉTOILES",
+                      ),
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 1.0,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                TextButton(
+                  onPressed: () => Navigator.of(ctx).pop(),
+                  child: Text(
+                    _loc(
+                      "MAYBE LATER",
+                      "BELKİ DAHA SONRA",
+                      "SPÄTER VIELLEICHT",
+                      "TAL VEZ MÁS TARDE",
+                      "PEUT-ÊTRE PLUS TARD",
+                    ),
+                    style: const TextStyle(
+                      color: Colors.white54,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _openStoreRating() async {
+    final Uri storeUri = Platform.isIOS
+        ? Uri.parse('https://apps.apple.com/app/id6794894168?action=write-review')
+        : Uri.parse('market://details?id=com.wobblybottle.game');
+
+    try {
+      if (await canLaunchUrl(storeUri)) {
+        await launchUrl(storeUri, mode: LaunchMode.externalApplication);
+      } else {
+        final webFallback = Platform.isIOS
+            ? Uri.parse('https://apps.apple.com/app/id6794894168')
+            : Uri.parse('https://play.google.com/store/apps/details?id=com.wobblybottle.game');
+        await launchUrl(webFallback, mode: LaunchMode.externalApplication);
+      }
+    } catch (e) {
+      debugPrint('Error launching store rating: $e');
+    }
+  }
+
   // --- APPLE / GOOGLE IN-APP PURCHASE ---
   Future<void> _initInAppPurchase() async {
     final bool available = await _iap.isAvailable();
@@ -1014,6 +1237,9 @@ class _MainGameScreenState extends State<MainGameScreen>
             _unlockedObjects[4] = true;
             _selectedPacks[4] = true;
             _isPurchasing = false;
+            _bannerAd?.dispose();
+            _bannerAd = null;
+            _isBannerAdLoaded = false;
           });
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -3981,6 +4207,15 @@ class _MainGameScreenState extends State<MainGameScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      bottomNavigationBar: (!_vip && _isBannerAdLoaded && _bannerAd != null)
+          ? Container(
+              color: Colors.black,
+              width: _bannerAd!.size.width.toDouble(),
+              height: _bannerAd!.size.height.toDouble(),
+              alignment: Alignment.center,
+              child: AdWidget(ad: _bannerAd!),
+            )
+          : null,
       body: Stack(
         children: [
           // Background Neon Party Atmosphere Image

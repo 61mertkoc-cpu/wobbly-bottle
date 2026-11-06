@@ -383,7 +383,7 @@ class RoomService {
     try {
       // Free public resilient WebSocket pub/sub channel
       final uri = Uri.parse(
-          'wss://free.blr2.piesocket.com/v3/wb_room_$roomCode?api_key=VC3OtKQUdvtAnfNoipAVxjFAIL&notify_self=1');
+          'wss://free.blr2.piesocket.com/v3/wb_room_$roomCode?api_key=B9UKgvptNTWrZxfCUTquFp7nKVsYqu2LtmBao5Jg&notify_self=1');
       _socket = await WebSocket.connect(uri.toString())
           .timeout(const Duration(seconds: 4));
 
