@@ -6,7 +6,7 @@ import '../services/room_service.dart';
 class RoomLobbyScreen extends StatefulWidget {
   final bool isVip;
   final int currentLangIndex;
-  final Function(String en, String tr, String de, String es, String fr) loc;
+  final Function(String en, String tr, String de, String es, String fr, [String? ru]) loc;
   final VoidCallback onStartGame;
   final VoidCallback onLeaveRoom;
 
@@ -26,8 +26,8 @@ class RoomLobbyScreen extends StatefulWidget {
 class _RoomLobbyScreenState extends State<RoomLobbyScreen> {
   final RoomService _roomService = RoomService();
 
-  String _t(String en, String tr, String de, String es, String fr) {
-    return widget.loc(en, tr, de, es, fr);
+  String _t(String en, String tr, String de, String es, String fr, [String? ru]) {
+    return widget.loc(en, tr, de, es, fr, ru);
   }
 
   void _copyRoomDetails(RoomState state) {

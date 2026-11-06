@@ -70,20 +70,21 @@ class WobblyBottleAppGame {
     ["🇩🇪", "DE", "Deutsch"],
     ["🇪🇸", "ES", "Español"],
     ["🇫🇷", "FR", "Français"],
+    ["🇷🇺", "RU", "Русский"],
   ];
 
   static String getObjectName(int index, int langIdx) {
     switch (index) {
       case 0:
-        return getLoc(langIdx, "Funny Soda Bottle", "Komik Gazoz Şişesi", "Lustige Limo-Flasche", "Botella de Refresco Divertida", "Bouteille de Soda Drôle");
+        return getLoc(langIdx, "Funny Soda Bottle", "Komik Gazoz Şişesi", "Lustige Limo-Flasche", "Botella de Refresco Divertida", "Bouteille de Soda Drôle", "Весёлая Бутылка Газировки");
       case 1:
-        return getLoc(langIdx, "Squeaky Chicken", "Bipleyen Tavuk", "Quietsche-Huhn", "Pollo Chillón", "Poulet Qui Couine");
+        return getLoc(langIdx, "Squeaky Chicken", "Bipleyen Tavuk", "Quietsche-Huhn", "Pollo Chillón", "Poulet Qui Couine", "Пищащая Курица");
       case 2:
-        return getLoc(langIdx, "Wobbly Pickle", "Sallanan Turşu", "Wackel-Gurke", "Pepinillo Tambaleante", "Cornichon Vacillant");
+        return getLoc(langIdx, "Wobbly Pickle", "Sallanan Turşu", "Wackel-Gurke", "Pepinillo Tambaleante", "Cornichon Vacillant", "Качающийся Огурчик");
       case 3:
-        return getLoc(langIdx, "Flying Slipper", "Uçan Terlik", "Fliegender Hausschuh", "Zapatilla Voladora", "Pantoufle Volante");
+        return getLoc(langIdx, "Flying Slipper", "Uçan Terlik", "Fliegender Hausschuh", "Zapatilla Voladora", "Pantoufle Volante", "Летающий Тапок");
       case 4:
-        return getLoc(langIdx, "Golden Champagne", "Altın Şampanya", "Goldener Champagner", "Champán Dorado", "Champagne Doré");
+        return getLoc(langIdx, "Golden Champagne", "Altın Şampanya", "Goldener Champagner", "Champán Dorado", "Champagne Doré", "Золотое Шампанское");
       default:
         return "";
     }
@@ -92,17 +93,17 @@ class WobblyBottleAppGame {
   static String getPackName(int index, int langIdx) {
     switch (index) {
       case 0:
-        return getLoc(langIdx, "PARTY AND FUN", "PARTİ VE EĞLENCE", "PARTY UND SPASS", "FIESTA Y DIVERSIÓN", "SOIRÉE ET FUN");
+        return getLoc(langIdx, "PARTY AND FUN", "PARTİ VE EĞLENCE", "PARTY UND SPASS", "FIESTA Y DIVERSIÓN", "SOIRÉE ET FUN", "ВЕЧЕРИНКА И ВЕСЕЛЬЕ");
       case 1:
-        return getLoc(langIdx, "DEEP CONFESSIONS", "DERİN İTİRAFLAR", "TIEFE GESTÄNDNISSE", "CONFESIONES PROFUNDAS", "CONFESSIONS PROFONDES");
+        return getLoc(langIdx, "DEEP CONFESSIONS", "DERİN İTİRAFLAR", "TIEFE GESTÄNDNISSE", "CONFESIONES PROFUNDAS", "CONFESSIONS PROFONDES", "ГЛУБОКИЕ ПРИЗНАНИЯ");
       case 2:
-        return getLoc(langIdx, "BOLD CHALLENGES / DARES", "CESUR GÖREVLER / MEYDAN OKUMA", "MUTIGE HERAUSFORDERUNGEN", "DESAFÍOS ATREVIDOS", "DÉFIS AUDACIEUX");
+        return getLoc(langIdx, "BOLD CHALLENGES / DARES", "CESUR GÖREVLER / MEYDAN OKUMA", "MUTIGE HERAUSFORDERUNGEN", "DESAFÍOS ATREVIDOS", "DÉFIS AUDACIEUX", "СМЕЛЫЕ ЗАДАНИЯ / ВЫЗОВ");
       case 3:
-        return getLoc(langIdx, "FLIRT AND COUPLES", "FLÖRT VE ÇİFTLER", "FLIRT UND PÄRCHEN", "COQUETEO Y PAREJAS", "FLIRT ET COUPLES");
+        return getLoc(langIdx, "FLIRT AND COUPLES", "FLÖRT VE ÇİFTLER", "FLIRT UND PÄRCHEN", "COQUETEO Y PAREJAS", "FLIRT ET COUPLES", "ФЛИРТ И ПАРЫ");
       case 4:
-        return getLoc(langIdx, "+18 SPICY", "+18 BAHARATLI", "+18 SCHARF", "+18 PICANTE", "+18 ÉPICÉ");
+        return getLoc(langIdx, "+18 SPICY", "+18 BAHARATLI", "+18 SCHARF", "+18 PICANTE", "+18 ÉPICÉ", "+18 ПИКАНТНО");
       case 5:
-        return getLoc(langIdx, "FREE MODE / ASK OURSELVES", "SERBEST MOD / KENDİMİZ SORALIM", "FREIER MODUS", "MODO LIBRE", "MODE LIBRE");
+        return getLoc(langIdx, "FREE MODE / ASK OURSELVES", "SERBEST MOD / KENDİMİZ SORALIM", "FREIER MODUS", "MODO LIBRE", "MODE LIBRE", "СВОБОДНЫЙ РЕЖИМ");
       default:
         return "";
     }
@@ -171,7 +172,70 @@ class WobblyBottleAppGame {
     "WAITING FOR NETWORK...": "EN ATTENTE DU RÉSEAU...",
   };
 
-  static String getLoc(int langIdx, String en, String tr, String de, String es, [String? fr]) {
+  static const Map<String, String> _ruUiMap = {
+    "SPONSORED VIDEO": "РЕКЛАМНОЕ ВИДЕО",
+    "Remove all ads & unlock Golden Champagne + 18+ Spicy Pack with VIP!": "Уберите всю рекламу и откройте Золотое Шампанское + Набор 18+ с VIP!",
+    "👑 Wobbly VIP Activated! All features unlocked!": "👑 Wobbly VIP Активирован! Все возможности открыты!",
+    "Purchase failed or canceled.": "Покупка не удалась или была отменена.",
+    "Connecting to App Store... Please try again in a moment.": "Подключение к магазину... Пожалуйста, повторите попытку через минуту.",
+    "Premium Party Upgrade": "Премиум Обновление для Вечеринки",
+    "Golden Champagne Bottle": "Бутылка Золотого Шампанского",
+    "🔥 +18 Spicy Secret Pack": "🔥 Секретный Пикантный Набор 18+",
+    "Instant In-Game Switching": "Мгновенное переключение в игре",
+    "ACTIVATE VIP": "АКТИВИРОВАТЬ VIP",
+    "Restore Purchase": "Восстановить покупки",
+    "Cancel": "Отмена",
+    "Maximum 10 players!": "Максимум 10 игроков!",
+    "Player": "Игрок",
+    "EDIT PLAYER": "ИЗМЕНИТЬ ИГРОКА",
+    "Enter player name...": "Введите имя игрока...",
+    "CANCEL": "ОТМЕНА",
+    "SAVE": "СОХРАНИТЬ",
+    "FREE QUESTION": "СВОБОДНЫЙ ВОПРОС",
+    "What is the most memorable party moment in your life?": "Какой самый запоминающийся момент вечеринки в твоей жизни?",
+    "Do your best 10-second funny dance right now!": "Исполни свой самый смешной танец на 10 секунд прямо сейчас!",
+    "DONE / NEXT ROUND": "ГОТОВО / СЛЕДУЮЩИЙ РАУНД",
+    "ADD PLAYERS (MIN 2 - MAX 10)": "ДОБАВИТЬ ИГРОКОВ (ОТ 2 ДО 10)",
+    "Enter name or tap + to quick add...": "Введите имя или нажмите +, чтобы добавить...",
+    "PICK COLOR:": "ВЫБЕРИТЕ ЦВЕТ:",
+    "No players added yet.\nAdd at least 2 players to start!": "Игроки еще не добавлены.\nДобавьте минимум 2 игроков для старта!",
+    "CONTINUE TO OBJECTS": "ПЕРЕЙТИ К ПРЕДМЕТАМ",
+    "PLAYERS": "ИГРОКИ",
+    "CHOOSE YOUR OBJECT": "ВЫБЕРИТЕ ПРЕДМЕТ",
+    "SELECTED": "ВЫБРАНО",
+    "WATCH AD": "СМОТРЕТЬ РЕКЛАМУ",
+    "UNLOCKED": "РАЗБЛОКИРОВАНО",
+    "Unlock as VIP": "Открыть с VIP",
+    "Unlock with 1 Video": "Открыть за 1 видео",
+    "CONTINUE TO PACKS": "ПЕРЕЙТИ К НАБОРАМ",
+    "CHOOSE YOUR PACKS": "ВЫБЕРИТЕ НАБОРЫ",
+    "START GAME": "НАЧАТЬ ИГРУ",
+    "⚡ MAKE YOUR CHOICE": "⚡ СДЕЛАЙТЕ ВЫБОР",
+    "Truth, Dare, or Ask Yourselves?": "Правда, Действие или Свой вопрос?",
+    "TRUTH": "ПРАВДА",
+    "DARE": "ДЕЙСТВИЕ",
+    "CUSTOM": "СВОЙ ВОПРОС",
+    "WOBBLING...": "КРУТИТСЯ...",
+    "SPIN BOTTLE!": "КРУТИТЬ БУТЫЛОЧКУ!",
+    "HOME": "ГЛАВНАЯ",
+    "PROFILE": "ПРОФИЛЬ",
+    "👑 VIP MEMBER": "👑 VIP УЧАСТНИК",
+    "👑 GO VIP": "👑 СТАТЬ VIP",
+    "All premium content is unlocked": "Весь премиум-контент разблокирован",
+    "Unlock Golden Champagne + Spicy pack": "Разблокируйте Золотое Шампанское + Набор 18+",
+    "ACTIVE": "АКТИВНО",
+    "VIEW OFFER": "ПОСМОТРЕТЬ ПРЕДЛОЖЕНИЕ",
+    "CHANGE OBJECT NOW": "СМЕНИТЬ ПРЕДМЕТ",
+    "CHOOSE": "ВЫБРАТЬ",
+    "AD": "РЕКЛАМА",
+    "ACTIVE PACKS": "АКТИВНЫЕ НАБОРЫ",
+    "NO CONNECTION": "НЕТ ПОДКЛЮЧЕНИЯ",
+    "Wobbly Bottle requires an active internet connection.": "Для игры требуется подключение к интернету.",
+    "Connect to Wi-Fi or mobile data to continue.": "Подключитесь к Wi-Fi или мобильной сети, чтобы продолжить.",
+    "WAITING FOR NETWORK...": "ОЖИДАНИЕ СЕТИ...",
+  };
+
+  static String getLoc(int langIdx, String en, String tr, String de, String es, [String? fr, String? ru]) {
     switch (langIdx) {
       case 1:
         return tr;
@@ -207,6 +271,36 @@ class WobblyBottleAppGame {
           final asker = parts[0];
           final target = parts[1].replaceAll("!", "");
           return "$asker pose n'importe quelle question ou lance un défi à $target !";
+        }
+        return en;
+      case 5:
+        if (ru != null) return ru;
+        if (_ruUiMap.containsKey(en)) return _ruUiMap[en]!;
+        if (en.startsWith("TRUTH FOR ")) {
+          return "ПРАВДА ДЛЯ ${en.substring("TRUTH FOR ".length)}";
+        }
+        if (en.startsWith("DARE FOR ")) {
+          return "ДЕЙСТВИЕ ДЛЯ ${en.substring("DARE FOR ".length)}";
+        }
+        if (en.startsWith("🎉 Unlocked: ")) {
+          return "🎉 Разблокировано: ${en.substring("🎉 Unlocked: ".length)}";
+        }
+        if (en.startsWith("Unlocking ")) {
+          return "Разблокировка...";
+        }
+        if (en.startsWith("Reward granted in ")) {
+          final secs = en.replaceAll(RegExp(r'[^0-9]'), '');
+          return "Награда через $secs сек...";
+        }
+        if (en.startsWith("Game resumes in ")) {
+          final secs = en.replaceAll(RegExp(r'[^0-9]'), '');
+          return "Игра продолжится через $secs сек...";
+        }
+        if (en.contains(" asks any question or gives any challenge to ")) {
+          final parts = en.split(" asks any question or gives any challenge to ");
+          final asker = parts[0];
+          final target = parts[1].replaceAll("!", "");
+          return "$asker задает любой вопрос или дает задание $target!";
         }
         return en;
       default:
@@ -332,6 +426,8 @@ class _MainGameScreenState extends State<MainGameScreen>
         _currentLangIndex = 3; // ES - Español
       } else if (localeCode.startsWith('fr')) {
         _currentLangIndex = 4; // FR - Français
+      } else if (localeCode.startsWith('ru')) {
+        _currentLangIndex = 5; // RU - Русский
       } else {
         _currentLangIndex = 0; // EN - English (default for EN & other regions)
       }
@@ -486,8 +582,8 @@ class _MainGameScreenState extends State<MainGameScreen>
     super.dispose();
   }
 
-  String _loc(String en, String tr, String de, String es, [String? fr]) {
-    return WobblyBottleAppGame.getLoc(_currentLangIndex, en, tr, de, es, fr);
+  String _loc(String en, String tr, String de, String es, [String? fr, String? ru]) {
+    return WobblyBottleAppGame.getLoc(_currentLangIndex, en, tr, de, es, fr, ru);
   }
 
   String get _currentLangKey {
@@ -500,6 +596,8 @@ class _MainGameScreenState extends State<MainGameScreen>
         return 'ES';
       case 4:
         return 'FR';
+      case 5:
+        return 'RU';
       default:
         return 'EN';
     }
@@ -1078,6 +1176,7 @@ class _MainGameScreenState extends State<MainGameScreen>
                     "GEFÄLLT DIR WOBBLY BOTTLE?",
                     "¿TE GUSTA WOBBLY BOTTLE?",
                     "TU AIMES WOBBLY BOTTLE?",
+                    "НРАВИТСЯ WOBBLY BOTTLE?",
                   ),
                   textAlign: TextAlign.center,
                   style: const TextStyle(
@@ -1095,6 +1194,7 @@ class _MainGameScreenState extends State<MainGameScreen>
                     "Hast du Spaß mit deinen Freunden? Unterstütze unser Indie-Team mit einer 5-Sterne-Bewertung im Store! Es hilft uns, mehr verrückte Objekte hinzuzufügen!",
                     "¿Te estás divirtiendo con tus amigos? ¡Apoya a nuestro equipo indie con una calificación de 5 estrellas en la tienda! ¡Nos ayuda a crear más objetos locos!",
                     "Tu t'amuses avec tes amis ? Soutiens notre équipe indépendante avec une note de 5 étoiles sur le store ! Cela nous aide à ajouter de nouveaux objets fous !",
+                    "Веселитесь с друзьями? Поддержите нашу инди-команду оценкой 5 звёзд в магазине! Это поможет нам добавлять ещё больше безумных предметов и наборов!",
                   ),
                   textAlign: TextAlign.center,
                   style: const TextStyle(
@@ -1132,6 +1232,7 @@ class _MainGameScreenState extends State<MainGameScreen>
                         "⭐ 5 STERNE BEWERTEN",
                         "⭐ CALIFICAR 5 ESTRELLAS",
                         "⭐ NOTER 5 ÉTOILES",
+                        "⭐ ОЦЕНИТЬ НА 5 ЗВЁЗД",
                       ),
                       style: const TextStyle(
                         fontSize: 16,
@@ -1151,6 +1252,7 @@ class _MainGameScreenState extends State<MainGameScreen>
                       "SPÄTER VIELLEICHT",
                       "TAL VEZ MÁS TARDE",
                       "PEUT-ÊTRE PLUS TARD",
+                      "ПОЗЖЕ",
                     ),
                     style: const TextStyle(
                       color: Colors.white54,
@@ -4252,7 +4354,7 @@ class _MainGameScreenState extends State<MainGameScreen>
                       initialMode: _activeGameMode,
                       isVip: _vip,
                       currentLangIndex: _currentLangIndex,
-                      loc: (en, tr, de, es, fr) => _loc(en, tr, de, es, fr),
+                      loc: (en, tr, de, es, fr, [ru]) => _loc(en, tr, de, es, fr, ru),
                       onBackToMenu: () => setState(() => currentScreen = 0),
                       onRoomCreatedOrJoined: () => setState(() => currentScreen = 6),
                     );
@@ -4260,7 +4362,7 @@ class _MainGameScreenState extends State<MainGameScreen>
                     return RoomLobbyScreen(
                       isVip: _vip,
                       currentLangIndex: _currentLangIndex,
-                      loc: (en, tr, de, es, fr) => _loc(en, tr, de, es, fr),
+                      loc: (en, tr, de, es, fr, [ru]) => _loc(en, tr, de, es, fr, ru),
                       onStartGame: () => setState(() {
                         RoomService().setStatus(RoomStatus.objects);
                         currentScreen = 2; // Move to Objects selection step

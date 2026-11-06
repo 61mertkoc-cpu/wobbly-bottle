@@ -7,7 +7,7 @@ class RoomJoinScreen extends StatefulWidget {
   final WobblyGameMode initialMode;
   final bool isVip;
   final int currentLangIndex;
-  final Function(String en, String tr, String de, String es, String fr) loc;
+  final Function(String en, String tr, String de, String es, String fr, [String? ru]) loc;
   final VoidCallback onBackToMenu;
   final VoidCallback onRoomCreatedOrJoined;
 
@@ -70,8 +70,8 @@ class _RoomJoinScreenState extends State<RoomJoinScreen>
     super.dispose();
   }
 
-  String _t(String en, String tr, String de, String es, String fr) {
-    return widget.loc(en, tr, de, es, fr);
+  String _t(String en, String tr, String de, String es, String fr, [String? ru]) {
+    return widget.loc(en, tr, de, es, fr, ru);
   }
 
   Future<void> _handleCreateRoom() async {
