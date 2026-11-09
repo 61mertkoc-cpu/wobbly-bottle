@@ -8,6 +8,13 @@ import '../models/room_models.dart';
 typedef OnRoomStateChanged = void Function(RoomState state);
 typedef OnKickedCallback = void Function(String reason);
 typedef OnToastCallback = void Function(String message);
+typedef OnVipGiftedCallback = void Function(
+  String giverName,
+  String targetId,
+  String targetName,
+  bool isLifetime,
+);
+typedef OnRequestGiftPurchaseCallback = void Function(NetworkPlayer targetPlayer);
 
 /// Zero-cost, resilient multiplayer room service for Wobbly Bottle
 class RoomService {
@@ -19,6 +26,7 @@ class RoomService {
   String _myPlayerId = '';
   String _myPlayerName = 'Player';
   int _myColorIndex = 0;
+  String _myEmoji = '🥳';
   bool _myIsVip = false;
 
   RoomState? _currentRoom;
@@ -38,11 +46,14 @@ class RoomService {
 
   OnKickedCallback? onKicked;
   OnToastCallback? onToast;
+  OnVipGiftedCallback? onVipGifted;
+  OnRequestGiftPurchaseCallback? onRequestGiftPurchase;
 
   // Getters
   String get myPlayerId => _myPlayerId;
   String get myPlayerName => _myPlayerName;
   int get myColorIndex => _myColorIndex;
+  String get myEmoji => _myEmoji;
   bool get myIsVip => _myIsVip;
   RoomState? get currentRoom => _currentRoom;
   bool get isHost => _currentRoom != null && _currentRoom!.hostId == _myPlayerId;
@@ -52,13 +63,61 @@ class RoomService {
     required String name,
     required int colorIndex,
     required bool isVip,
+    String emoji = '🥳',
   }) {
     if (_myPlayerId.isEmpty) {
       _myPlayerId = 'wb_${DateTime.now().millisecondsSinceEpoch}_${Random().nextInt(9999)}';
     }
     _myPlayerName = name;
     _myColorIndex = colorIndex;
+    _myEmoji = emoji;
     _myIsVip = isVip;
+  }
+
+  void updateMyEmoji(String newEmoji) {
+    _myEmoji = newEmoji;
+    if (_currentRoom == null) return;
+    if (isHost) {
+      for (var p in _currentRoom!.players) {
+        if (p.id == _myPlayerId) {
+          p.emoji = newEmoji;
+        }
+      }
+      _broadcastSync();
+    } else {
+      _sendEvent(RoomEvent(
+        type: 'UPDATE_EMOJI',
+        senderId: _myPlayerId,
+        payload: {'emoji': newEmoji},
+      ));
+    }
+  }
+
+  void broadcastVipGift({
+    required String targetPlayerId,
+    required String targetPlayerName,
+    required bool isLifetime,
+  }) {
+    if (_currentRoom == null) return;
+    final event = RoomEvent(
+      type: 'GIFT_VIP',
+      senderId: _myPlayerId,
+      payload: {
+        'giverName': _myPlayerName,
+        'targetId': targetPlayerId,
+        'targetName': targetPlayerName,
+        'isLifetime': isLifetime,
+      },
+    );
+    _sendEvent(event);
+    if (isHost) {
+      for (var p in _currentRoom!.players) {
+        if (p.id == targetPlayerId) {
+          p.isVip = true;
+        }
+      }
+      _broadcastSync();
+    }
   }
 
   /// Generates a random 6-digit room code (100000 - 999999)
@@ -83,6 +142,7 @@ class RoomService {
       id: _myPlayerId,
       name: _myPlayerName,
       colorIndex: _myColorIndex,
+      emoji: _myEmoji,
       isHost: true,
       isVip: _myIsVip,
     );
@@ -138,6 +198,7 @@ class RoomService {
       payload: {
         'name': _myPlayerName,
         'colorIndex': _myColorIndex,
+        'emoji': _myEmoji,
         'isVip': _myIsVip,
         'pin': pin,
       },
@@ -214,23 +275,74 @@ class RoomService {
     }
   }
 
-  /// Card drawn with prompt
+  /// Sync spin finish result (called after bottle stops)
+  void syncSpinResult({
+    required double angle,
+    required String bendVariant,
+    required int answererIndex,
+    required int questionerIndex,
+  }) {
+    if (_currentRoom == null) return;
+
+    final event = RoomEvent(
+      type: 'SPIN_RESULT',
+      senderId: _myPlayerId,
+      payload: {
+        'angle': angle,
+        'bendVariant': bendVariant,
+        'answererIndex': answererIndex,
+        'questionerIndex': questionerIndex,
+      },
+    );
+
+    if (isHost) {
+      _handleSpinResult(event);
+    } else {
+      _sendEvent(event);
+    }
+  }
+
+  /// Card drawn with prompt (called by Host or Answerer)
   void publishCard({
     required String mode,
     int? packIndex,
     int? questionIndex,
     String? promptOverride,
+    int? answererIndex,
+    int? questionerIndex,
   }) {
-    if (_currentRoom == null || !isHost) return;
+    if (_currentRoom == null) return;
 
-    _currentRoom!.status = RoomStatus.cardOpen;
-    _currentRoom!.activeMode = mode;
-    _currentRoom!.activePackIndex = packIndex;
-    _currentRoom!.activeQuestionIndex = questionIndex;
-    _currentRoom!.activePromptOverride = promptOverride;
+    if (answererIndex != null && answererIndex >= 0) {
+      _currentRoom!.answererIndex = answererIndex;
+    }
+    if (questionerIndex != null && questionerIndex >= 0) {
+      _currentRoom!.questionerIndex = questionerIndex;
+    }
 
-    _broadcastSync();
-    _startTurnTimer(); // 30-second response countdown
+    if (isHost) {
+      _currentRoom!.status = RoomStatus.cardOpen;
+      _currentRoom!.activeMode = mode;
+      _currentRoom!.activePackIndex = packIndex;
+      _currentRoom!.activeQuestionIndex = questionIndex;
+      _currentRoom!.activePromptOverride = promptOverride;
+
+      _broadcastSync();
+      _startTurnTimer(); // 30-second response countdown
+    } else {
+      _sendEvent(RoomEvent(
+        type: 'PUBLISH_CARD',
+        senderId: _myPlayerId,
+        payload: {
+          'mode': mode,
+          'packIndex': packIndex,
+          'questionIndex': questionIndex,
+          'promptOverride': promptOverride,
+          'answererIndex': answererIndex,
+          'questionerIndex': questionerIndex,
+        },
+      ));
+    }
   }
 
   /// Complete task or accept group penalty
@@ -308,6 +420,32 @@ class RoomService {
   void setStatus(RoomStatus newStatus) {
     if (!isHost || _currentRoom == null) return;
     _currentRoom!.status = newStatus;
+    _broadcastSync();
+  }
+
+  void proceedToObjects() {
+    if (!isHost || _currentRoom == null) return;
+    _currentRoom!.status = RoomStatus.objects;
+    _broadcastSync();
+  }
+
+  void proceedToPacks({required int selectedObjectIndex}) {
+    if (!isHost || _currentRoom == null) return;
+    if (selectedObjectIndex == 4 && !_currentRoom!.isVipRoom) {
+      selectedObjectIndex = 0;
+    }
+    _currentRoom!.selectedObjectIndex = selectedObjectIndex;
+    _currentRoom!.status = RoomStatus.packs;
+    _broadcastSync();
+  }
+
+  void proceedToArena({required List<bool> selectedPacks}) {
+    if (!isHost || _currentRoom == null) return;
+    _currentRoom!.selectedPacks = List.from(selectedPacks);
+    if (!_currentRoom!.isVipRoom && _currentRoom!.selectedPacks.length > 4) {
+      _currentRoom!.selectedPacks[4] = false;
+    }
+    _currentRoom!.status = RoomStatus.decisionPending;
     _broadcastSync();
   }
 
@@ -481,6 +619,26 @@ class RoomService {
       return;
     }
 
+    if (event.type == 'GIFT_VIP') {
+      final giverName = event.payload['giverName']?.toString() ?? 'Player';
+      final targetId = event.payload['targetId']?.toString() ?? '';
+      final targetName = event.payload['targetName']?.toString() ?? 'Player';
+      final isLifetime = event.payload['isLifetime'] as bool? ?? true;
+      if (targetId == _myPlayerId) {
+        _myIsVip = true;
+      }
+      if (isHost && _currentRoom != null) {
+        for (var p in _currentRoom!.players) {
+          if (p.id == targetId) {
+            p.isVip = true;
+          }
+        }
+        _broadcastSync();
+      }
+      onVipGifted?.call(giverName, targetId, targetName, isLifetime);
+      return;
+    }
+
     if (isHost) {
       // Host handles client incoming requests
       switch (event.type) {
@@ -490,8 +648,25 @@ class RoomService {
         case 'LEAVE':
           _handleLeaveRequest(event);
           break;
+        case 'UPDATE_EMOJI':
+          if (_currentRoom != null) {
+            final newEmoji = event.payload['emoji']?.toString() ?? '🥳';
+            for (var p in _currentRoom!.players) {
+              if (p.id == event.senderId) {
+                p.emoji = newEmoji;
+              }
+            }
+            _broadcastSync();
+          }
+          break;
         case 'SPIN':
           _handleSpinEvent(event);
+          break;
+        case 'SPIN_RESULT':
+          _handleSpinResult(event);
+          break;
+        case 'PUBLISH_CARD':
+          _handlePublishCardEvent(event);
           break;
         case 'CHOOSE':
           _handleChooseEvent(event);
@@ -539,6 +714,7 @@ class RoomService {
 
     final name = event.payload['name']?.toString() ?? 'Player';
     final colorIdx = event.payload['colorIndex'] as int? ?? 0;
+    final emoji = event.payload['emoji']?.toString() ?? '🥳';
     final isVip = event.payload['isVip'] as bool? ?? false;
 
     // Check if player already in list (reconnect)
@@ -547,6 +723,7 @@ class RoomService {
     if (existingIndex >= 0) {
       _currentRoom!.players[existingIndex].name = name;
       _currentRoom!.players[existingIndex].colorIndex = colorIdx;
+      _currentRoom!.players[existingIndex].emoji = emoji;
       _currentRoom!.players[existingIndex].isVip = isVip;
       _currentRoom!.players[existingIndex].isAfk = false;
       _currentRoom!.players[existingIndex].lastSeen = DateTime.now();
@@ -556,6 +733,7 @@ class RoomService {
         id: event.senderId,
         name: name,
         colorIndex: colorIdx,
+        emoji: emoji,
         isHost: false,
         isVip: isVip,
       ));
@@ -614,11 +792,50 @@ class RoomService {
     });
   }
 
+  void _handleSpinResult(RoomEvent event) {
+    if (_currentRoom == null) return;
+    _currentRoom!.status = RoomStatus.decisionPending;
+    _currentRoom!.currentAngle = (event.payload['angle'] as num).toDouble();
+    _currentRoom!.targetAngle = (event.payload['angle'] as num).toDouble();
+    _currentRoom!.bendVariant = event.payload['bendVariant']?.toString() ?? "0";
+    _currentRoom!.answererIndex = event.payload['answererIndex'] as int? ?? 0;
+    _currentRoom!.questionerIndex = event.payload['questionerIndex'] as int? ?? 0;
+    _currentRoom!.activeMode = null;
+    _currentRoom!.activePromptOverride = null;
+    _broadcastSync();
+    _startTurnTimer();
+  }
+
   void _handleChooseEvent(RoomEvent event) {
     if (_currentRoom == null) return;
     final mode = event.payload['mode']?.toString() ?? 'TRUTH';
     _currentRoom!.activeMode = mode;
     _broadcastSync();
+  }
+
+  void _handlePublishCardEvent(RoomEvent event) {
+    if (_currentRoom == null) return;
+    final mode = event.payload['mode']?.toString() ?? 'TRUTH';
+    final packIndex = event.payload['packIndex'] as int?;
+    final questionIndex = event.payload['questionIndex'] as int?;
+    final promptOverride = event.payload['promptOverride'] as String?;
+    final answererIndex = event.payload['answererIndex'] as int?;
+    final questionerIndex = event.payload['questionerIndex'] as int?;
+
+    _currentRoom!.status = RoomStatus.cardOpen;
+    _currentRoom!.activeMode = mode;
+    _currentRoom!.activePackIndex = packIndex;
+    _currentRoom!.activeQuestionIndex = questionIndex;
+    _currentRoom!.activePromptOverride = promptOverride;
+    if (answererIndex != null && answererIndex >= 0) {
+      _currentRoom!.answererIndex = answererIndex;
+    }
+    if (questionerIndex != null && questionerIndex >= 0) {
+      _currentRoom!.questionerIndex = questionerIndex;
+    }
+
+    _broadcastSync();
+    _startTurnTimer(); // 30-second response countdown
   }
 
   void _handleDoneEvent(RoomEvent event) {
@@ -640,15 +857,19 @@ class RoomService {
       _currentRoom!.status = RoomStatus.adBreak;
       _broadcastSync();
 
-      // Resume back to lobby/ready after 6-second synchronized ad break
+      // Resume back to ready after 6-second synchronized ad break
       Timer(const Duration(seconds: 6), () {
         if (_currentRoom != null && _currentRoom!.status == RoomStatus.adBreak) {
-          _currentRoom!.status = RoomStatus.lobby;
+          _currentRoom!.status = RoomStatus.decisionPending;
+          _currentRoom!.activeMode = null;
+          _currentRoom!.activePromptOverride = null;
           _broadcastSync();
         }
       });
     } else {
-      _currentRoom!.status = RoomStatus.lobby;
+      _currentRoom!.status = RoomStatus.decisionPending;
+      _currentRoom!.activeMode = null;
+      _currentRoom!.activePromptOverride = null;
       _broadcastSync();
     }
   }

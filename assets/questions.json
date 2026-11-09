@@ -1907,6 +1907,51 @@
       "TR": "Bu masadan birine 'Bu geceki suç ortağım sensin' madalyası takacak olsan kimin boynuna takardın?",
       "FR": "Si tu devais décerner la médaille du « Meilleur Complice de la Soirée » maintenant, qui à cette table la recevrait ?",
       "RU": "Если бы ты вручал медаль «Главный сообщник этого вечера», кому за этим столом она бы досталась?"
+    },
+    {
+      "type": "TRUTH",
+      "TR": "Hayatında sarhoşken yaptığın ve ertesi sabah hatırlayınca yerin dibine girdiğin en absürt olay neydi?",
+      "EN": "What is the most absurd, cringe-worthy thing you ever did while drunk that made you want to disappear the next morning?",
+      "DE": "Was war das peinlichste Erlebnis im Rausch, weswegen du am nächsten Morgen am liebsten im Boden versunken wärst?",
+      "ES": "¿Qué es lo más absurdo y vergonzoso que hiciste con unas copas de más y que te dio pena recordar al día siguiente?",
+      "FR": "Quelle est la chose la plus honteuse et absurde que tu aies faite en soirée et qui t’a fait mourir de honte le lendemain ?",
+      "RU": "Какую самую нелепую вещь ты совершил(а) навеселе, от воспоминаний о которой на утро хотелось провалиться сквозь землю?"
+    },
+    {
+      "type": "TRUTH",
+      "TR": "Buradaki insanlardan hangisinin polis tarafından yanlışlıkla tutuklanma ihtimali en yüksek?",
+      "EN": "Who in this room is most likely to get accidentally mistaken for a criminal and questioned by the police?",
+      "DE": "Wer in diesem Raum würde am ehesten aus Versehen mit einem Kriminellen verwechselt und von der Polizei verhört werden?",
+      "ES": "¿Quién en esta sala tiene más probabilidades de ser confundido con un sospechoso por la policía?",
+      "FR": "Qui dans cette pièce a le plus de chances d’être confondu par erreur avec un criminel par la police ?",
+      "RU": "Кого в этой комнате скорее всего могли бы по ошибке принять за преступника и задержать?"
+    },
+    {
+      "type": "DARE",
+      "TR": "Gruptan seçilen biri senin telefonundan rehberdeki rasgele birine sadece 'Bunu bildiğini biliyorum...' yazıp göndersin.",
+      "EN": "Let a player pick a random contact on your phone and text them simply: \"I know you know this...\"",
+      "DE": "Lass einen Spieler einen zufälligen Kontakt wählen und ihm schreiben: \"Ich weiß genau, dass du Bescheid weißt...\"",
+      "ES": "Deja que alguien elija un contacto al azar y le envíe solo: \"Sé que lo sabes todo...\"",
+      "FR": "Laisse un joueur choisir un contact au hasard et lui envoyer simplement : \"Je sais que tu es au courant...\"",
+      "RU": "Пусть игрок выберет случайный контакт в твоем телефоне и отправит ему: \"Я знаю, что тебе всё известно...\""
+    },
+    {
+      "type": "DARE",
+      "TR": "1 tur boyunca sanki bir İtalyan mafya babasıymışsın gibi konuş ve herkes sana 'Patron' desin.",
+      "EN": "Talk like an old-school mafia boss for 1 full round, and everyone must address you as \"Don\" or \"Boss\".",
+      "DE": "Sprich für eine ganze Runde wie ein Mafia-Pate, und jeder am Tisch muss dich mit \"Don\" oder \"Boss\" anreden.",
+      "ES": "Habla como un capo de la mafia durante 1 ronda entera, y todos deben llamarte \"Don\" o \"El Padrino\".",
+      "FR": "Parle comme un parrain de la mafia pendant tout un tour, et tout le monde doit t’appeler \"Le Parrain\".",
+      "RU": "Говори как босс мафии целый раунд, и каждый обязан обращаться к тебе \"Дон\" или \"Босс\"."
+    },
+    {
+      "type": "DARE",
+      "TR": "En sevdiğin şarkının nakaratını sanki bir opera sanatçısıymışsın gibi tüm ciğerlerinle söyle.",
+      "EN": "Sing the chorus of your favorite pop song at the top of your lungs like a dramatic dramatic opera singer.",
+      "DE": "Singe den Refrain deines Lieblingslieds aus voller Kehle wie ein dramatischer Opernstar.",
+      "ES": "Canta el estribillo de tu canción favorita con todas tus fuerzas como si fueras un cantante de ópera dramático.",
+      "FR": "Chante le refrain de ta chanson préférée à pleins poumons comme un chanteur d’opéra dramatique.",
+      "RU": "Спой припев своей любимой песни во всю мощь легких, как драматический оперный певец."
     }
   ],
   "pack1_deep": [
@@ -3817,6 +3862,51 @@
       "TR": "Ayağa kalk, yanındaki iki kişinin elini tutarak kaldır ve bu masadaki bağın hiç kopmaması için kadehlerinizi birleştirin!",
       "FR": "Lève-toi en tenant la main de tes deux voisins et porte un toast à un lien qui durera toute la vie autour de cette table !",
       "RU": "Встань, держа за руки соседей по бокам, и подними тост за вечную дружбу нашей компании!"
+    },
+    {
+      "type": "TRUTH",
+      "TR": "Hayatında en çok kıskandığın ve \"keşke onun yerinde ben olsaydım\" dediğin kişi kimdi?",
+      "EN": "Who is the person you have secretly envied the most in your life, wishing you were in their shoes?",
+      "DE": "Wen hast du in deinem Leben insgeheim am meisten beneidet und dir gewünscht, an seiner Stelle zu sein?",
+      "ES": "¿Quién ha sido la persona que más has envidiado en secreto en tu vida, deseando estar en su lugar?",
+      "FR": "Qui as-tu le plus secrètement envié dans ta vie, en rêvant d’être à sa place ?",
+      "RU": "Кому в жизни ты больше всего тайно завидовал(а), мечтая оказаться на его месте?"
+    },
+    {
+      "type": "TRUTH",
+      "TR": "Bu odadaki birinin sana söylediği ama senin asla inanmadığın en bariz yalan neydi?",
+      "EN": "What is the most obvious lie someone in this room told you that you knew was completely untrue?",
+      "DE": "Was war die offensichtlichste Lüge, die dir jemand in diesem Raum erzählt hat und die du nie geglaubt hast?",
+      "ES": "¿Cuál ha sido la mentira más evidente que alguien en esta sala te ha dicho y nunca te creíste?",
+      "FR": "Quel est le mensonge le plus flagrant que quelqu’un ici t’ait raconté et auquel tu n’as jamais cru ?",
+      "RU": "Какая самая очевидная ложь была сказана тебе кем-то из этой комнаты, в которую ты так и не поверил(а)?"
+    },
+    {
+      "type": "TRUTH",
+      "TR": "Sosyal medyada sahte (fake) bir hesapla gizlice stalkladığın biri var mı? Kim o?",
+      "EN": "Do you have a secret fake account on social media to stalk anyone? Who is your main target?",
+      "DE": "Hast du einen geheimen Fake-Account in den sozialen Medien zum Stalken? Wer ist dein Hauptziel?",
+      "ES": "¿Tienes una cuenta falsa en redes sociales para espiar a alguien? ¿A quién investigas?",
+      "FR": "As-tu un faux compte secret sur les réseaux pour espionner quelqu’un ? Qui espionnes-tu ?",
+      "RU": "Есть ли у тебя фейковый аккаунт в соцсетях для слежки? За кем ты шпионишь?"
+    },
+    {
+      "type": "DARE",
+      "TR": "Instagram veya WhatsApp'taki arama geçmişinin en üstündeki 3 kişiyi herkese göster.",
+      "EN": "Show the top 3 recent searches in your Instagram or WhatsApp search bar to everyone in the room.",
+      "DE": "Zeige allen im Raum die obersten 3 Suchanfragen in deinem Instagram- oder WhatsApp-Suchverlauf.",
+      "ES": "Muestra a todos en la sala las 3 personas más recientes en tu buscador de Instagram o WhatsApp.",
+      "FR": "Montre à tout le monde les 3 recherches les plus récentes dans ta barre de recherche Instagram ou WhatsApp.",
+      "RU": "Покажи всем 3 последних контакта из поисковой строки твоего Instagram или WhatsApp."
+    },
+    {
+      "type": "DARE",
+      "TR": "Gözlerini kapat; gruptakiler senin hakkında düşündüğü tek kelimelik dürüst bir özelliği kulağına fısıldasın, kimin ne dediğini tahmin et.",
+      "EN": "Close your eyes: everyone whispers one brutally honest word describing you into your ear. Guess who said what!",
+      "DE": "Schließe die Augen: Jeder flüstert dir ein ehrliches Wort über dich ins Ohr. Rate, wer was gesagt hat!",
+      "ES": "Cierra los ojos: cada persona te susurra una palabra sincera que te defina. ¡Adivina quién dijo qué!",
+      "FR": "Ferme les yeux : chacun te chuchote un mot sincère qui te décrit. Devine qui a dit quoi !",
+      "RU": "Закрой глаза: каждый пусть прошепчет тебе на ухо одно честное слово о тебе. Угадай, кто что сказал!"
     }
   ],
   "pack2_challenge": [
@@ -5727,6 +5817,51 @@
       "TR": "Bu geceki cesaret performansını 1'den 10'a kadar puanla ve masadan kime meydan okuduğunu söyle!",
       "FR": "Note ta propre audace ce soir de 1 à 10 et désigne le/la prochain(e) joueur/joueuse que tu défies !",
       "RU": "Оцени свою собственную смелость сегодня от 1 до 10 и брось вызов следующему игроку!"
+    },
+    {
+      "type": "TRUTH",
+      "TR": "Para karşılığı yapabileceğin en uçuk, en yasa dışı olmayan şey nedir?",
+      "EN": "What is the absolute wildest (yet completely legal) dare you would do for 1,000 dollars?",
+      "DE": "Was ist die absolut verrückteste (aber legale) Aktion, die du für 1.000 Dollar durchziehen würdest?",
+      "ES": "¿Cuál es la locura más grande (pero legal) que estarías dispuesto(a) a hacer por mil dólares?",
+      "FR": "Quelle est la chose la plus folle (mais légale) que tu serais prêt(e) à faire pour 1 000 euros ?",
+      "RU": "Какое самое безумное (но законное) действие ты согласился бы сделать за 1000 долларов?"
+    },
+    {
+      "type": "TRUTH",
+      "TR": "Şimdiye kadar sırf bir iddia veya meydan okuma uğruna yaptığın en çılgınca hareket neydi?",
+      "EN": "What is the craziest stunt you ever pulled purely because someone dared or challenged you?",
+      "DE": "Was war die verrückteste Mutprobe, die du je gemacht hast, nur weil dich jemand herausgefordert hat?",
+      "ES": "¿Cuál es la locura más grande que hiciste solo porque alguien te retó o desafió?",
+      "FR": "Quelle est la cascade ou bêtise la plus dingue que tu aies faite uniquement par défi ?",
+      "RU": "Какой самый безумный поступок ты совершил(а) исключительно на спор или ради вызова?"
+    },
+    {
+      "type": "DARE",
+      "TR": "En ciddi yüz ifadenle odadaki birinin karşısına geç ve 30 saniye boyunca ona aşkını ilan eden dramatik bir pembe dizi sahnesi oyna.",
+      "EN": "With the most serious face, dramatically profess your undying love to a player like a soap opera star for 30 seconds.",
+      "DE": "Gestehe einem Spieler mit todernster Miene 30 Sekunden lang dramatisch deine unsterbliche Liebe wie in einer Telenovela.",
+      "ES": "Con la cara más seria, declárale dramáticamente tu amor eterno a alguien como en una telenovela durante 30 segundos.",
+      "FR": "Avec le visage le plus sérieux, déclare ton amour éternel de façon dramatique à un joueur comme dans une télénovela pendant 30s.",
+      "RU": "С самым серьезным лицом драматично признайся в вечной любви игроку как в мыльной опере в течение 30 секунд."
+    },
+    {
+      "type": "DARE",
+      "TR": "Gruptan biri ağzına 3 kelime versin; rehberden rasgele aradığın kişiye bu 3 kelimeyi cümlenin içinde çaktırmadan kullan.",
+      "EN": "Let the group pick 3 random words; call a contact on speaker and seamlessly sneak all 3 words into the conversation.",
+      "DE": "Lass die Gruppe 3 Wörter wählen; rufe jemanden auf Lautsprecher an und baue alle 3 Wörter unauffällig ins Gespräch ein.",
+      "ES": "Deja que el grupo elija 3 palabras; llama a un contacto en altavoz y cuela esas 3 palabras con naturalidad.",
+      "FR": "Laisse le groupe choisir 3 mots ; appelle un contact sur haut-parleur et glisse ces 3 mots discrètement dans la discussion.",
+      "RU": "Пусть группа выберет 3 слова; позвони контакту на громкой связи и незаметно используй все 3 слова в разговоре."
+    },
+    {
+      "type": "DARE",
+      "TR": "Sonraki 2 tur boyunca sadece tek ayağın üzerinde durarak oyna; yere basarsan ceza shot'ı çekersin!",
+      "EN": "Balance on one leg for the next 2 full rounds; if your second foot touches the floor, take a penalty sip!",
+      "DE": "Balanciere die nächsten 2 Runden nur auf einem Bein; berührt der zweite Fuß den Boden, nimmst du einen Strafschluck!",
+      "ES": "Mantén el equilibrio sobre una sola pierna durante las próximas 2 rondas; si apoyas el otro pie, ¡trago de castigo!",
+      "FR": "Reste en équilibre sur une jambe pendant les 2 prochains tours ; si ton pied touche terre, bois une gorgée de pénalité !",
+      "RU": "Стой на одной ноге следующие 2 раунда; если коснешься пола второй ногой — пьешь штрафной глоток!"
     }
   ],
   "pack3_flirt": [
@@ -7637,6 +7772,105 @@
       "TR": "Bu gece Flört paketinde sana çıkmasını içten içe en çok istediğin kişi bu masada kim?",
       "FR": "Sur qui à cette table espérais-tu secrètement voir la bouteille s'arrêter pendant ce pack Flirt ?",
       "RU": "На кого за этим столом ты втайне надеялся(лась), что укажет бутылочка в этой колоде «Флирт»?"
+    },
+    {
+      "type": "TRUTH",
+      "TR": "İlk görüşte aşka mı yoksa konuştukça alevlenen çekime mi daha çok inanırsın? Bu odada ikincisi var mı?",
+      "EN": "Do you believe in love at first sight or a spark that builds through deep conversation? Does anyone here fit that spark?",
+      "DE": "Glaubst du an Liebe auf den ersten Blick oder an ein Knistern, das im Gespräch wächst? Gibt es hier jemanden dafür?",
+      "ES": "¿Crees en el amor a primera vista o en la atracción que crece hablando? ¿Hay alguien en esta sala que la despierte?",
+      "FR": "Crois-tu au coup de foudre ou à l’étincelle qui grandit en parlant ? Quelqu’un ici inspire-t-il cette étincelle ?",
+      "RU": "Ты веришь в любовь с первого взгляда или в искру, разгорающуюся в разговоре? Есть ли здесь кто-то такой?"
+    },
+    {
+      "type": "TRUTH",
+      "TR": "Bugüne kadar aldığın veya yaptığın en unutulmaz, filmlerden fırlamış gibi olan romantik jest neydi?",
+      "EN": "What is the most unforgettable, movie-like romantic gesture you have ever made or received?",
+      "DE": "Was war die unvergesslichste, filmreife romantische Geste, die du je gemacht oder bekommen hast?",
+      "ES": "¿Cuál ha sido el gesto romántico de película más inolvidable que has hecho o recibido?",
+      "FR": "Quel est le geste romantique le plus inoubliable, digne d’un film, que tu aies jamais fait ou reçu ?",
+      "RU": "Какой самый незабываемый романтический поступок как из кино ты совершал(а) или получал(а)?"
+    },
+    {
+      "type": "TRUTH",
+      "TR": "Karşı cinste seni ilk 10 saniyede etkileyen şey nedir: Bakışlar mı, koku mu, ses tonu mu?",
+      "EN": "What captures your interest in someone within the first 10 seconds: their gaze, their scent, or their voice?",
+      "DE": "Was fasziniert dich in den ersten 10 Sekunden an jemandem am meisten: der Blick, der Duft oder die Stimme?",
+      "ES": "¿Qué te atrapa en los primeros 10 segundos de alguien: la mirada, el perfume o el tono de voz?",
+      "FR": "Qu’est-ce qui te séduit dans les 10 premières secondes : le regard, le parfum ou la voix ?",
+      "RU": "Что цепляет тебя в человеке за первые 10 секунд: взгляд, аромат или тембр голоса?"
+    },
+    {
+      "type": "TRUTH",
+      "TR": "Odadaki kişilerden biriyle romantik bir Paris veya Roma kaçamağına gidecek olsan kimin biletini alırdın?",
+      "EN": "If you had two tickets for a romantic weekend getaway to Paris or Rome, who in this room are you taking?",
+      "DE": "Wenn du zwei Tickets für ein romantisches Wochenende in Paris oder Rom hättest, wen aus diesem Raum nimmst du mit?",
+      "ES": "Si tuvieras dos billetes para una escapada romántica a París o Roma, ¿a quién de esta sala te llevarías?",
+      "FR": "Si tu avais deux billets pour un week-end romantique à Paris ou Rome, qui emmènerais-tu de cette pièce ?",
+      "RU": "Если бы у тебя было два билета на романтические выходные в Париж или Рим, кого отсюда ты взял(а) бы с собой?"
+    },
+    {
+      "type": "TRUTH",
+      "TR": "Karşı cinste zekâ mı, özgüven mi yoksa fiziksel aura mı seni ilk saniyede teslim alır?",
+      "EN": "What melts your defenses faster in a person: sharp wit, undeniable confidence, or irresistible physical aura?",
+      "DE": "Was bricht deine Gegenwehr schneller: scharfer Verstand, pure Selbstsicherheit oder eine unwiderstehliche Ausstrahlung?",
+      "ES": "¿Qué desarma tus defensas más rápido: el ingenio brillante, la confianza o una presencia física arrolladora?",
+      "FR": "Qu’est-ce qui te fait craquer le plus vite : un esprit vif, une grande confiance en soi ou une aura irrésistible ?",
+      "RU": "Что быстрее обезоруживает тебя: острый ум, уверенность в себе или неотразимая харизма?"
+    },
+    {
+      "type": "TRUTH",
+      "TR": "Bu odada seninle flört etseydi \"hayır\" demekte en çok zorlanacağın kişi kim?",
+      "EN": "If everyone in this room started charming you, who would you find it hardest to say \"no\" to?",
+      "DE": "Wenn jeder in diesem Raum mit dir flirten würde, wem könntest du am schwersten einen Korb geben?",
+      "ES": "Si todos en esta sala empezaran a coquetear contigo, ¿a quién te costaría más decirle que \"no\"?",
+      "FR": "Si tout le monde ici commençait à te charmer, à qui aurais-tu le plus de mal à dire \"non\" ?",
+      "RU": "Если бы все в этой комнате начали с тобой флиртовать, кому тебе труднее всего было бы отказать?"
+    },
+    {
+      "type": "DARE",
+      "TR": "Karşındaki oyuncunun gözlerinin içine bakarak onun hakkında gerçekten çok beğendiğin 3 fiziksel özelliği söyle.",
+      "EN": "Look deeply into the eyes of the player across from you and name 3 physical traits you genuinely adore about them.",
+      "DE": "Sieh deinem Gegenüber tief in die Augen und nenne 3 körperliche Merkmale, die du wirklich an ihm magst.",
+      "ES": "Mira fijamente a los ojos a la persona frente a ti y dile 3 rasgos físicos que sinceramente te encantan de ella.",
+      "FR": "Regarde le joueur en face dans les yeux et dis-lui 3 traits physiques que tu adores sincèrement chez lui.",
+      "RU": "Посмотри в глаза игроку напротив и искренне назови 3 физические черты, которые тебе в нем нравятся."
+    },
+    {
+      "type": "DARE",
+      "TR": "Odadan birini seç ve onunla müzik olmadan, yavaş ve yakın bir şekilde 30 saniye boyunca dans et.",
+      "EN": "Pick someone in the room and slow dance with them closely for 30 seconds with no background music.",
+      "DE": "Wähle jemanden im Raum und tanze mit ihm 30 Sekunden lang eng und langsam ganz ohne Musik.",
+      "ES": "Elige a alguien de la sala y baila lento y pegado durante 30 segundos sin música de fondo.",
+      "FR": "Choisis quelqu’un et danse un slow très rapproché pendant 30 secondes sans musique.",
+      "RU": "Выбери кого-то в комнате и станцуй с ним медленный танец вплотную 30 секунд без музыки."
+    },
+    {
+      "type": "DARE",
+      "TR": "Seçilen bir oyuncunun boynuna parfümünü sıktığı yeri kokla ve ona 10 üzerinden puan ver.",
+      "EN": "Gently lean in to smell the perfume on the neck of a chosen player and rate their scent out of 10.",
+      "DE": "Rieche sanft am Parfüm am Hals einer gewählten Person und bewerte den Duft auf einer Skala von 1 bis 10.",
+      "ES": "Acércate al cuello de la persona elegida para oler su perfume y califícalo del 1 al 10.",
+      "FR": "Approche-toi doucement pour sentir le parfum dans le cou d’un joueur choisi et note son odeur sur 10.",
+      "RU": "Осторожно вдохни аромат духов на шее выбранного игрока и оцени запах по шкале от 1 до 10."
+    },
+    {
+      "type": "DARE",
+      "TR": "Sağındaki kişinin kulağına çok tatlı bir ses tonuyla bu gece onda en çok neyi beğendiğini fısılda.",
+      "EN": "Whisper with your sweetest, warmest voice into the ear of the person on your right what you love most about them tonight.",
+      "DE": "Flüstere der Person zu deiner Rechten mit sanftester Stimme ins Ohr, was dir heute Abend am besten an ihr gefällt.",
+      "ES": "Susurra con tu voz más dulce al oído de la persona a tu derecha qué es lo que más te gusta de ella esta noche.",
+      "FR": "Chuchote de ta voix la plus douce à l’oreille de ton voisin de droite ce qui te plaît le plus chez lui ce soir.",
+      "RU": "Прошепчи самым нежным голосом на ухо соседу справа, что больше всего тебе нравится в нем сегодня вечером."
+    },
+    {
+      "type": "DARE",
+      "TR": "Karşındaki kişiyle 20 saniye boyunca hiç konuşmadan, sadece gözlerinizle flörtleşin.",
+      "EN": "Flirt with the person across from you using only facial expressions and eye contact for 20 seconds straight.",
+      "DE": "Flirte 20 Sekunden lang nur mit Blicken und Mimik mit deinem Gegenüber, ohne ein einziges Wort zu sprechen.",
+      "ES": "Coquetea con la persona frente a ti usando únicamente la mirada y expresiones faciales durante 20 segundos.",
+      "FR": "Séduis la personne en face de toi uniquement avec le regard et les expressions du visage pendant 20 secondes.",
+      "RU": "Флиртуй с человеком напротив только взглядом и мимикой целых 20 секунд без единого слова."
     }
   ],
   "pack4_spicy": [
@@ -9547,6 +9781,258 @@
       "TR": "Bu masadaki en tehlikeli, en baştan çıkarıcı oyuncuyu seç ve neden onunla baş başa kalmanın ateşle oynamak olduğunu söyle!",
       "FR": "Désigne la personne la plus dangereusement séduisante de cette table et dis à tout le monde pourquoi rester seul(e) avec elle serait jouer avec le feu !",
       "RU": "Укажи пальцем на самого опасно притягательного человека за столом и объясни всем, почему остаться с ним наедине — это игра с огнем!"
+    },
+    {
+      "type": "TRUTH",
+      "TR": "Bu odadaki insanlardan biriyle 24 saat boyunca ıssız bir adada baş başa kalsan, kiminle yakınlaşma ihtimalin en yüksek olurdu?",
+      "EN": "If you were stranded on a deserted island with one person from this room for 24 hours, who would you most likely hook up with?",
+      "DE": "Wenn du 24 Stunden lang mit einer Person aus diesem Raum auf einer einsamen Insel gestrandet wärst, mit wem würdest du am ehesten anbandeln?",
+      "ES": "Si te quedaras varado en una isla desierta con una persona de esta sala durante 24 horas, ¿con quién tendrías más probabilidades de liarte?",
+      "FR": "Si tu te retrouvais bloqué(e) 24h sur une île déserte avec une personne de cette pièce, avec qui serais-tu le plus susceptible de te rapprocher ?",
+      "RU": "Если бы ты застрял(а) на необитаемом острове на 24 часа с кем-то из этой комнаты, с кем вероятнее всего у вас что-то произошло бы?"
+    },
+    {
+      "type": "TRUTH",
+      "TR": "Bugüne kadar yaşadığın en çılgın veya en beklenmedik yerdeki kaçamağın neresiydi?",
+      "EN": "What is the wildest or most unexpected place you have ever hooked up or had a secret fling?",
+      "DE": "Was war der wildeste oder unerwarteteste Ort, an dem du je ein intimes Abenteuer hattest?",
+      "ES": "¿Cuál ha sido el lugar más salvaje o inesperado donde has tenido una aventura secreta?",
+      "FR": "Quel a été l’endroit le plus fou ou le plus inattendu où tu aies eu une aventure secrète ?",
+      "RU": "Какое самое дикое или неожиданное место было у тебя для тайной романтической интрижки?"
+    },
+    {
+      "type": "TRUTH",
+      "TR": "Telefonundaki gizli klasörde veya kilitli fotoğraflarda kimsenin görmemesi gereken bir şey var mı? Dürüst ol!",
+      "EN": "Is there anything in your hidden album or locked notes that no one should ever see? Be completely honest!",
+      "DE": "Gibt es in deinem versteckten Fotoalbum oder deinen gesperrten Notizen etwas, das absolut niemand sehen darf? Sei ehrlich!",
+      "ES": "¿Hay algo en tu carpeta oculta o notas bloqueadas que nadie debería ver jamás? ¡Sé totalmente sincero!",
+      "FR": "Y a-t-il quelque chose dans ton dossier masqué ou tes notes verrouillées que personne ne devrait jamais voir ? Sois honnête !",
+      "RU": "Есть ли в твоей скрытой папке или защищенных заметках что-то, что никто никогда не должен увидеть? Будь честен!"
+    },
+    {
+      "type": "TRUTH",
+      "TR": "Yatakta kesinlikle \"asla yapmam\" dediğin ve kırmızı çizgin olan bir fantezi veya hareket var mı?",
+      "EN": "Is there a bedroom fantasy or boundary that is an absolute, unconditional \"hard no\" for you?",
+      "DE": "Gibt es eine Fantasie oder Vorliebe im Bett, die für dich ein absolutes, unumstößliches Tabu ist?",
+      "ES": "¿Hay alguna fantasía o límite en la cama que sea un \"no rotundo\" absoluto para ti?",
+      "FR": "Y a-t-il un fantasme ou une pratique au lit qui est un \"non catégorique\" absolu pour toi ?",
+      "RU": "Есть ли у тебя в постели фантазия или граница, которая является абсолютным категорическим табу?"
+    },
+    {
+      "type": "TRUTH",
+      "TR": "Bir partnerinde seni anında baştan çıkaran ama kimseye söylemediğin en tuhaf fiziksel veya davranışsal detay nedir?",
+      "EN": "What is the strangest physical or behavioral quirk in a partner that instantly turns you on?",
+      "DE": "Was ist das ungewöhnlichste körperliche oder charakterliche Detail an einem Partner, das dich sofort anmacht?",
+      "ES": "¿Cuál es el detalle físico o de actitud más raro en una pareja que te enciende al instante?",
+      "FR": "Quel est le détail physique ou comportemental le plus étrange chez un partenaire qui t’excite instantanément ?",
+      "RU": "Какая самая странная физическая или поведенческая деталь в партнере мгновенно заводит тебя?"
+    },
+    {
+      "type": "TRUTH",
+      "TR": "Yakalanma riskinin tavan yaptığı bir yerde (araba, sinema, asansör veya balkon) hiç ileri gittin mi? En tehlikelisi neredeydi?",
+      "EN": "Have you ever pushed the limits in a place with a high risk of getting caught (car, cinema, elevator, or balcony)? Where was the riskiest?",
+      "DE": "Bist du schon mal an einem Ort mit extremem Entdeckungsrisiko intim geworden (Auto, Kino, Aufzug, Balkon)? Wo war es am heikelsten?",
+      "ES": "¿Has llegado lejos en un lugar con alto riesgo de ser descubierto (coche, cine, ascensor o balcón)? ¿Dónde fue el más arriesgado?",
+      "FR": "Es-tu déjà allé(e) loin dans un endroit où le risque de te faire surprendre était immense (voiture, ciné, ascenseur, balcon) ? Où était-ce ?",
+      "RU": "Заходил(а) ли ты далеко в месте с огромным риском быть пойманным (машина, кинотеатр, лифт, балкон)? Где было опаснее всего?"
+    },
+    {
+      "type": "TRUTH",
+      "TR": "Yatak odasında hafif yaramazlıkları (dirty talk / kulağa fısıldama) mı seversin, yoksa sessiz ve derin bir tutkuyu mu?",
+      "EN": "In the bedroom, do you prefer playful dirty talk and whispering, or intense, silent passion?",
+      "DE": "Bevorzugst du im Schlafzimmer freche Worte und Flüstern (Dirty Talk) oder tiefe, stille Leidenschaft?",
+      "ES": "En la cama, ¿prefieres el juego sucio al oído (dirty talk) o una pasión profunda y silenciosa?",
+      "FR": "Au lit, préfères-tu les murmures provocateurs (dirty talk) ou une passion intense et silencieuse ?",
+      "RU": "В постели ты предпочитаешь дерзкие шепотки на ухо (dirty talk) или глубокую молчаливую страсть?"
+    },
+    {
+      "type": "TRUTH",
+      "TR": "Göz bağı, kelepçe veya hafif kısıtlayıcı fantezilere bakışın nedir: Denedin mi, yoksa denemek ister miydin?",
+      "EN": "How do you feel about blindfolds, light restraints, or handcuffs: have you tried them, or would you like to?",
+      "DE": "Wie stehst du zu Augenbinden, Handschellen oder leichten Fesselspielen: Schon probiert oder neugierig darauf?",
+      "ES": "¿Qué opinas de las vendas en los ojos, esposas o restricciones ligeras: lo has probado o te gustaría probarlo?",
+      "FR": "Que penses-tu des bandeaux sur les yeux, menottes ou légères entraves : déjà testé ou envie d’essayer ?",
+      "RU": "Как ты относишься к повязкам на глаза, наручникам или связыванию: пробовал(а) или хочешь попробовать?"
+    },
+    {
+      "type": "TRUTH",
+      "TR": "Bu odadaki oyunculardan biriyle sarhoş bir gecede aynı odada yalnız kalsaydınız, aranızda bir kıvılcım çakma ihtimali en yüksek olan kim?",
+      "EN": "If you were left alone in a bedroom late at night with someone from this room, with whom is a spark most likely to fly?",
+      "DE": "Wenn du nach einer langen Partynacht mit einer Person aus diesem Raum allein in einem Zimmer wärst, mit wem fliegen am ehesten Funken?",
+      "ES": "Si te quedaras a solas en una habitación por la noche con alguien de este grupo, ¿con quién saltarían chispas más fácilmente?",
+      "FR": "Si tu te retrouvais seul(e) tard la nuit dans une chambre avec quelqu’un de cette pièce, avec qui l’étincelle prendrait-elle le plus vite ?",
+      "RU": "Если бы ты остался(лась) наедине в комнате поздней ночью с кем-то отсюда, с кем вероятнее всего проскочила бы искра?"
+    },
+    {
+      "type": "TRUTH",
+      "TR": "Bir partnerde gördüğün an nabzını anında 180'e çıkaran iç çamaşırı, kıyafet veya koku nedir?",
+      "EN": "What specific underwear style, outfit, or scent on a partner instantly makes your heart race to 180 BPM?",
+      "DE": "Welche Unterwäsche, welches Outfit oder welcher Duft an einem Partner lässt deinen Puls sofort auf 180 schnellen?",
+      "ES": "¿Qué estilo de ropa interior, atuendo o perfume en una pareja hace que tu corazón se acelere a 180 al instante?",
+      "FR": "Quel style de lingerie, tenue ou parfum chez un(e) partenaire fait grimper ton pouls à 180 instantanément ?",
+      "RU": "Какое белье, наряд или аромат на партнере заставляет твой пульс мгновенно подскакивать до 180?"
+    },
+    {
+      "type": "TRUTH",
+      "TR": "Şimdiye kadar yaşadığın en uzun, en tutkulu ve ertesi gün yataktan çıkamadığın romantik kaçamağın nasıldı?",
+      "EN": "What was your longest, most exhausting, and passionate romantic marathon that left you unable to get out of bed the next day?",
+      "DE": "Was war dein längster und leidenschaftlichster Liebesmarathon, nach dem du am nächsten Tag kaum aus dem Bett kamst?",
+      "ES": "¿Cómo fue tu maratón romántico más largo y apasionado que te dejó sin poder levantarte de la cama al día siguiente?",
+      "FR": "Quelle a été ta nuit la plus longue et passionnée, celle qui t’a laissé(e) incapable de sortir du lit le lendemain ?",
+      "RU": "Какой была твоя самая долгая и страстная ночь, после которой на следующий день невозможно было встать с постели?"
+    },
+    {
+      "type": "TRUTH",
+      "TR": "Daha önce hiç partnerin uyurken veya başkaları yan odadayken yakalanma korkusuyla heyecan dolu bir yakınlaşma yaşadın mı?",
+      "EN": "Have you ever had an adrenaline-fueled intimate encounter while someone else was sleeping right in the next room?",
+      "DE": "Hattest du schon mal ein atemberaubendes Abenteuer, während jemand direkt im Nebenzimmer schlief?",
+      "ES": "¿Alguna vez tuviste un encuentro íntimo lleno de adrenalina mientras alguien dormía en la habitación de al lado?",
+      "FR": "As-tu déjà vécu un moment intime plein d’adrénaline alors que quelqu’un dormait juste dans la pièce d’à côté ?",
+      "RU": "Бывала ли у тебя близость, полная адреналина, когда кто-то спал буквально в соседней комнате?"
+    },
+    {
+      "type": "TRUTH",
+      "TR": "Karşı taraftan aldığın ve silmeye kıyamayıp gizli albümünde sakladığın en ateşli fotoğraf veya mesaj ne hakkındaydı?",
+      "EN": "What was the spiciest photo or message you ever received that you just could not bring yourself to delete?",
+      "DE": "Was war das heißeste Foto oder die heißeste Nachricht, die du je bekommen hast und einfach nicht löschen konntest?",
+      "ES": "¿De qué trataba la foto o mensaje más ardiente que recibiste y que no pudiste obligarte a borrar?",
+      "FR": "De quoi parlait la photo ou le message le plus torride que tu aies reçu et que tu n’as jamais eu le courage d’effacer ?",
+      "RU": "О чем было самое горячее фото или сообщение, которое ты получил(а) и не поднялась рука удалить?"
+    },
+    {
+      "type": "TRUTH",
+      "TR": "Hayatında aldığın veya verdiğin en çılgın öpücüğü 10 üzerinden puanla; o tutkuya bu odadan yaklaşabilecek biri var mı?",
+      "EN": "Rate the best kiss of your entire life out of 10. Could anyone in this room potentially match that intensity?",
+      "DE": "Bewerte den besten Kuss deines Lebens von 1 bis 10. Könnte jemand in diesem Raum an diese Intensität herankommen?",
+      "ES": "Puntúa del 1 al 10 el mejor beso de tu vida. ¿Podría alguien en esta sala igualar esa intensidad?",
+      "FR": "Note le meilleur baiser de toute ta vie sur 10. Quelqu’un dans cette pièce pourrait-il égaler cette intensité ?",
+      "RU": "Оцени лучший поцелуй в своей жизни по 10-балльной шкале. Смог бы кто-то в этой комнате сравниться с этой страстью?"
+    },
+    {
+      "type": "TRUTH",
+      "TR": "Dominant (yöneten) tarafta olmayı mı seversin, yoksa kontrolü tamamen karşı tarafa bırakmayı mı?",
+      "EN": "Do you naturally lean towards being dominant (in charge), or do you prefer giving total control away?",
+      "DE": "Bist du von Natur aus lieber dominant (die Zügel in der Hand) oder gibst du die Kontrolle lieber völlig ab?",
+      "ES": "¿Prefieres tener el control (ser dominante) o te gusta más rendirte y ceder el control por completo?",
+      "FR": "Préfères-tu naturellement être dominant(e) (avoir le contrôle) ou abandonner totalement les commandes ?",
+      "RU": "Ты по натуре больше любишь доминировать (руководить процессом) или полностью отдавать контроль партнеру?"
+    },
+    {
+      "type": "TRUTH",
+      "TR": "Bu odadaki oyunculardan birinin sadece bir geceliğine aklını okuma şansın olsa, kimin fantezilerini görmek isterdin?",
+      "EN": "If you could read the mind of one person in this room for just one night, whose secret desires would you want to see?",
+      "DE": "Wenn du für eine einzige Nacht die Gedanken einer Person hier lesen könntest, wessen geheime Wünsche würdest du lüften?",
+      "ES": "Si pudieras leer la mente de una persona de esta sala por una sola noche, ¿de quién querrías descubrir los deseos secretos?",
+      "FR": "Si tu pouvais lire dans les pensées d’une personne ici pendant une nuit, de qui voudrais-tu découvrir les désirs secrets ?",
+      "RU": "Если бы ты мог(ла) читать мысли одного человека из этой комнаты одну ночь, чьи тайные фантазии ты захотел(а) бы узнать?"
+    },
+    {
+      "type": "DARE",
+      "TR": "Odadan seçilen bir kişinin kulağına çok kısık bir sesle, onu baştan çıkaracak 5 saniyelik bir cümle fısılda.",
+      "EN": "Whisper a 5-second seductive, teasing sentence directly into the ear of a person chosen by the group.",
+      "DE": "Flüstere einer von der Gruppe gewählten Person einen 5-sekündigen, verführerischen Satz direkt ins Ohr.",
+      "ES": "Susurra una frase seductora y atrevida de 5 segundos directamente al oído de la persona elegida por el grupo.",
+      "FR": "Chuchote une phrase séduisante de 5 secondes au creux de l’oreille de la personne choisie par le groupe.",
+      "RU": "Прошепчи на ухо выбранному группой игроку 5-секундную соблазнительную и дерзкую фразу."
+    },
+    {
+      "type": "DARE",
+      "TR": "Seçilen bir oyuncuyla 30 saniye boyunca hiç konuşmadan ve göz temasını kesmeden burun buruna kadar yaklaşın.",
+      "EN": "Get nose-to-nose with a chosen player for 30 seconds without speaking or breaking eye contact.",
+      "DE": "Gehe mit einem ausgewählten Spieler 30 Sekunden lang Nase an Nase, ohne zu sprechen oder den Blick abzuwenden.",
+      "ES": "Ponte nariz con nariz con la persona elegida durante 30 segundos sin hablar ni romper el contacto visual.",
+      "FR": "Approche-toi nez à nez avec un joueur choisi pendant 30 secondes sans parler ni quitter son regard.",
+      "RU": "Приблизьтесь нос к носу с выбранным игроком на 30 секунд, не говоря ни слова и не отводя взгляда."
+    },
+    {
+      "type": "DARE",
+      "TR": "Solundaki kişinin ensesine veya omzuna gözlerin kapalıyken 20 saniye boyunca masaj yap.",
+      "EN": "Give a 20-second sensual shoulder or neck massage to the player on your left with your eyes completely closed.",
+      "DE": "Gib der Person links von dir mit geschlossenen Augen 20 Sekunden lang eine sanfte Nacken- oder Schultermassage.",
+      "ES": "Haz un masaje relajante de cuello u hombros de 20 segundos a la persona a tu izquierda con los ojos cerrados.",
+      "FR": "Masse la nuque ou les épaules de la personne à ta gauche pendant 20 secondes, les yeux totalement fermés.",
+      "RU": "Сделай 20-секундный массаж шеи или плеч игроку слева от тебя с закрытыми глазами."
+    },
+    {
+      "type": "DARE",
+      "TR": "Üzerindeki kıyafetlerden bir parçayı (ceket, çorap, kemer vb.) çıkar ve oyunun sonuna kadar öyle kal.",
+      "EN": "Remove one piece of clothing or accessory (jacket, belt, socks, outer shirt) and keep it off for the rest of the game.",
+      "DE": "Ziehe ein Kleidungsstück oder Accessoire aus (Jacke, Gürtel, Socken usw.) und bleibe bis Spielende so.",
+      "ES": "Quítate una prenda o accesorio (chaqueta, cinturón, calcetines) y quédate así hasta el final del juego.",
+      "FR": "Retire un vêtement ou accessoire (veste, ceinture, chaussettes) et reste ainsi jusqu’à la fin de la partie.",
+      "RU": "Сними один предмет одежды или аксессуар (куртка, ремень, носки) и оставайся так до конца игры."
+    },
+    {
+      "type": "DARE",
+      "TR": "Telefonundaki son gelen 3 flörtöz/özel mesajı kimden geldiğini söylemeden sesli oku.",
+      "EN": "Read out loud the last 3 flirty or private messages on your phone without revealing who sent them.",
+      "DE": "Lies die letzten 3 privaten oder flirtenden Nachrichten auf deinem Handy laut vor, ohne den Absender zu verraten.",
+      "ES": "Lee en voz alta los últimos 3 mensajes coquetos o privados de tu móvil sin revelar quién los envió.",
+      "FR": "Lis à voix haute les 3 derniers messages séduisants ou intimes de ton téléphone sans dévoiler qui les a envoyés.",
+      "RU": "Зачитай вслух 3 последних личных или флиртующих сообщения в телефоне, не раскрывая имя отправителя."
+    },
+    {
+      "type": "DARE",
+      "TR": "Sağındaki kişinin elini al, göğsüne koy ve 15 saniye boyunca kalp atışını hissetmesini sağla.",
+      "EN": "Take the hand of the person on your right, place it over your heart, and let them feel your pulse for 15 seconds.",
+      "DE": "Nimm die Hand der Person rechts von dir, lege sie auf dein Herz und lass sie 15 Sekunden lang deinen Herzschlag spüren.",
+      "ES": "Toma la mano de la persona a tu derecha, ponla sobre tu corazón y haz que sienta tus latidos durante 15 segundos.",
+      "FR": "Prends la main de la personne à ta droite, pose-la sur ton cœur et fais-lui sentir tes battements pendant 15 secondes.",
+      "RU": "Возьми руку игрока справа, приложи к своей груди и дай ему почувствовать биение твоего сердца на 15 секунд."
+    },
+    {
+      "type": "DARE",
+      "TR": "Gruptan seçtiğin bir kişi senin kucağına otursun ve sonraki 2 tur boyunca öyle oynayın.",
+      "EN": "Have a player chosen by you sit comfortably on your lap for the next 2 full rounds of the game.",
+      "DE": "Lass eine von dir gewählte Person für die nächsten 2 Runden auf deinem Schoß sitzen, während das Spiel weitergeht.",
+      "ES": "Haz que una persona elegida por ti se siente en tu regazo durante las próximas 2 rondas de juego.",
+      "FR": "Fais asseoir une personne de ton choix sur tes genoux pendant les 2 prochains tours de jeu.",
+      "RU": "Пусть выбранный тобой игрок сядет к тебе на колени на следующие 2 раунда игры."
+    },
+    {
+      "type": "DARE",
+      "TR": "Seçilen bir kişiyi duvara yasla ve 10 saniye boyunca sadece nefesini hissedeceği kadar yaklaş (öpüşmek yok!).",
+      "EN": "Gently pin a chosen player against the wall and stand close enough that they only feel your breath for 10 seconds (no kissing!).",
+      "DE": "Lehne eine gewählte Person sanft an die Wand und trete so nah heran, dass sie 10 Sekunden lang nur deinen Atem spürt (kein Kuss!).",
+      "ES": "Apoya suavemente a alguien contra la pared y acércate tanto que solo sienta tu respiración por 10 segundos (¡sin besar!).",
+      "FR": "Plaque doucement quelqu’un contre le mur et reste si proche qu’il ne sente que ton souffle pendant 10 secondes (sans embrasser !).",
+      "RU": "Прижми выбранного игрока к стене и подойди так близко, чтобы он(а) 10 секунд чувствовал(а) только твое дыхание (целоваться нельзя!)."
+    },
+    {
+      "type": "DARE",
+      "TR": "Solundaki kişinin gömleğinin/ceketinin üstten iki düğmesini sadece tek elini kullanarak (veya dişlerinle) aç.",
+      "EN": "Unbutton the top two buttons of the shirt or jacket of the person to your left using only one hand or your teeth.",
+      "DE": "Öffne die obersten zwei Knöpfe am Hemd oder an der Jacke der Person links von dir nur mit einer Hand oder den Zähnen.",
+      "ES": "Desabrocha los dos botones superiores de la camisa o chaqueta de quien está a tu izquierda usando solo una mano o los dientes.",
+      "FR": "Déboutonne les deux premiers boutons de la chemise ou veste de la personne à ta gauche avec une seule main ou les dents.",
+      "RU": "Расстегни две верхние пуговицы на рубашке или куртке игрока слева, используя только одну руку или зубы."
+    },
+    {
+      "type": "DARE",
+      "TR": "5 Santim Kuralı: Karşındaki kişiyle aranızdaki mesafeyi 5 santime kadar indirip hiç kıpırdamadan ve gözleri ayırmadan 20 saniye durun.",
+      "EN": "The 5-Centimeter Rule: Stand 5 cm away from the person across from you, gazing into each other’s eyes without moving for 20 seconds.",
+      "DE": "Die 5-Zentimeter-Regel: Stehe 20 Sekunden lang nur 5 cm von deinem Gegenüber entfernt und schaut euch ununterbrochen in die Augen.",
+      "ES": "La Regla de los 5 cm: Quédate a 5 centímetros de la persona frente a ti, mirándose a los ojos fijamente durante 20 segundos.",
+      "FR": "La Règle des 5 cm : Reste à 5 cm de la personne en face de toi, les yeux dans les yeux, sans bouger pendant 20 secondes.",
+      "RU": "Правило 5 сантиметров: Приблизьтесь на расстояние 5 см друг к другу и смотрите в глаза не шевелясь 20 секунд."
+    },
+    {
+      "type": "DARE",
+      "TR": "Dudak İllüzyonu: Karşındaki kişinin dudaklarına sadece 1 milimetre kalana kadar yaklaş, 5 saniye bekle ama asla öpme ve geri çekil.",
+      "EN": "Lip Tease: Move in until you are 1 millimeter away from someone’s lips, hold for 5 seconds without kissing, then pull back.",
+      "DE": "Lippen-Illusion: Nähere dich den Lippen deines Gegenübers bis auf 1 Millimeter, halte 5 Sekunden ohne Kuss und weiche zurück.",
+      "ES": "Ilusión de Labios: Acércate a 1 milímetro de los labios de alguien, aguanta 5 segundos sin besar y luego apártate.",
+      "FR": "Illusion des Lèvres : Approche-toi à 1 millimètre des lèvres de quelqu’un, maintiens 5 secondes sans embrasser et recule.",
+      "RU": "Иллюзия поцелуя: Приблизься к губам партнера на расстояние 1 миллиметра, задержись на 5 секунд без поцелуя и отойди."
+    },
+    {
+      "type": "DARE",
+      "TR": "Gizli Galeri: Telefonundaki en cüretkar veya özel fotoğrafını gruptan seçtiğin sadece tek bir kişiye 3 saniye göster ve hemen kapat.",
+      "EN": "Secret Gallery: Flash the most daring private photo on your phone to just one chosen player for exactly 3 seconds, then lock it.",
+      "DE": "Geheime Galerie: Zeige das gewagteste private Foto auf deinem Handy einer einzigen Person für exakt 3 Sekunden und sperre es sofort.",
+      "ES": "Galería Secreta: Muestra la foto privada más atrevida de tu móvil a solo una persona elegida durante 3 segundos y ciérrala de inmediato.",
+      "FR": "Galerie Secrète : Montre la photo privée la plus osée de ton téléphone à une seule personne pendant 3 secondes puis verrouille-le.",
+      "RU": "Тайная галерея: Покажи самое смелое личное фото на телефоне только одному выбранному игроку ровно на 3 секунды и сразу спрячь."
     }
   ]
 }

@@ -26,6 +26,13 @@ class RoomLobbyScreen extends StatefulWidget {
 class _RoomLobbyScreenState extends State<RoomLobbyScreen> {
   final RoomService _roomService = RoomService();
 
+  static const List<String> _partyEmojis = [
+    '🥳', '😎', '😈', '💋', '🍻', '🤪', '🔥', '👑',
+    '💀', '🤡', '🤠', '🦄', '👻', '👽', '🦊', '🐱',
+    '🐶', '🦁', '🐼', '🐸', '🐵', '💃', '🕺', '🚀',
+    '⚡', '💎', '🍕', '🍾',
+  ];
+
   String _t(String en, String tr, String de, String es, String fr, [String? ru]) {
     return widget.loc(en, tr, de, es, fr, ru);
   }
@@ -37,18 +44,104 @@ class _RoomLobbyScreenState extends State<RoomLobbyScreen> {
       "Komm zu meiner Wobbly Bottle Party! 🍾\nRaumcode: #${state.roomCode}\nPIN: ${state.pin}",
       "¡Únete a mi fiesta de Wobbly Bottle! 🍾\nCódigo de sala: #${state.roomCode}\nPIN: ${state.pin}",
       "Rejoins ma soirée Wobbly Bottle ! 🍾\nCode de salle : #${state.roomCode}\nPIN : ${state.pin}",
+      "Присоединяйся к моей вечеринке Wobbly Bottle! 🍾\nКод комнаты: #${state.roomCode}\nПИН: ${state.pin}",
     );
     Clipboard.setData(ClipboardData(text: text));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(_t("Room code & PIN copied! 📋", "Oda kodu ve şifre kopyalandı! 📋", "Raumcode kopiert! 📋", "¡Código copiado! 📋", "Code copié ! 📋")),
+        content: Text(_t(
+          "Room code & PIN copied! 📋",
+          "Oda kodu ve şifre kopyalandı! 📋",
+          "Raumcode kopiert! 📋",
+          "¡Código copiado! 📋",
+          "Code copié ! 📋",
+          "Код комнаты и ПИН скопированы! 📋",
+        )),
         backgroundColor: const Color(0xFF00F2FE),
         behavior: SnackBarBehavior.floating,
       ),
     );
   }
 
-  void _showPlayerActionSheet(NetworkPlayer player) {
+  void _showMyEmojiPickerSheet(NetworkPlayer me) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 22),
+        decoration: BoxDecoration(
+          color: const Color(0xFF0F172A),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(26)),
+          border: Border.all(color: me.color, width: 2),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 44,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.white24,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 14),
+            Text(
+              _t(
+                "CHOOSE YOUR AVATAR EMOJI",
+                "PROFİL EMOJİNİ SEÇ",
+                "WÄHLE DEIN EMOJI",
+                "ELIGE TU EMOJI",
+                "CHOISIS TON ÉMOJI",
+                "ВЫБЕРИТЕ ЭМОДЗИ ПРОФИЛЯ",
+              ),
+              style: const TextStyle(
+                color: Color(0xFFFFCC00),
+                fontSize: 16,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 1.1,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Wrap(
+              spacing: 10,
+              runSpacing: 10,
+              alignment: WrapAlignment.center,
+              children: _partyEmojis.map((emoji) {
+                final isSelected = me.emoji == emoji;
+                return GestureDetector(
+                  onTap: () {
+                    _roomService.updateMyEmoji(emoji);
+                    Navigator.pop(ctx);
+                  },
+                  child: Container(
+                    width: 46,
+                    height: 46,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: isSelected
+                          ? me.color.withValues(alpha: 0.3)
+                          : Colors.white.withValues(alpha: 0.06),
+                      border: Border.all(
+                        color: isSelected ? me.color : Colors.white24,
+                        width: isSelected ? 2.5 : 1,
+                      ),
+                    ),
+                    child: Center(
+                      child: Text(emoji, style: const TextStyle(fontSize: 23)),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 12),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showPlayerActionSheet(NetworkPlayer player, {required bool isHost}) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -75,11 +168,11 @@ class _RoomLobbyScreenState extends State<RoomLobbyScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 CircleAvatar(
-                  backgroundColor: player.color,
-                  radius: 16,
+                  backgroundColor: player.color.withValues(alpha: 0.25),
+                  radius: 18,
                   child: Text(
-                    player.name.isNotEmpty ? player.name[0].toUpperCase() : '?',
-                    style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
+                    player.emoji,
+                    style: const TextStyle(fontSize: 20),
                   ),
                 ),
                 const SizedBox(width: 10),
@@ -91,59 +184,133 @@ class _RoomLobbyScreenState extends State<RoomLobbyScreen> {
                     fontWeight: FontWeight.w900,
                   ),
                 ),
+                if (player.isVip) ...[
+                  const SizedBox(width: 6),
+                  const Text("👑", style: TextStyle(fontSize: 18)),
+                ],
               ],
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 18),
 
-            // Option 1: Transfer Host
-            ListTile(
-              leading: Container(
-                padding: const EdgeInsets.all(8),
+            // Option 0: Gift VIP to Player (Available to EVERYONE if target is not VIP!)
+            if (!player.isVip) ...[
+              Container(
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFFCC00).withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(12),
+                  gradient: LinearGradient(
+                    colors: [
+                      const Color(0xFFFFCC00).withValues(alpha: 0.22),
+                      const Color(0xFFFF0844).withValues(alpha: 0.16),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: const Color(0xFFFFCC00), width: 1.5),
                 ),
-                child: const Text("👑", style: TextStyle(fontSize: 20)),
-              ),
-              title: Text(
-                _t("Transfer Host Role", "Host Yetkisini Devret", "Host-Rechte übertragen", "Transferir anfitrión", "Transférer le rôle d'hôte"),
-                style: const TextStyle(color: Color(0xFFFFCC00), fontWeight: FontWeight.w900),
-              ),
-              subtitle: Text(
-                _t("Make this player the room admin", "Bu oyuncuyu odanın kurucusu yap", "Diesen Spieler zum Host machen", "Hacer anfitrión a este jugador", "Rendre ce joueur hôte"),
-                style: const TextStyle(color: Colors.white60, fontSize: 12),
-              ),
-              onTap: () {
-                Navigator.pop(ctx);
-                _confirmTransferHost(player);
-              },
-            ),
-
-            const Divider(color: Colors.white12),
-
-            // Option 2: Kick Player
-            ListTile(
-              leading: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFF0844).withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(12),
+                child: ListTile(
+                  leading: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFCC00).withValues(alpha: 0.25),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Text("🎁", style: TextStyle(fontSize: 22)),
+                  ),
+                  title: Text(
+                    _t(
+                      "Gift VIP to ${player.name}",
+                      "${player.name} Adlı Oyuncuya VIP Hediye Et",
+                      "${player.name} VIP schenken",
+                      "Regalar VIP a ${player.name}",
+                      "Offrir VIP à ${player.name}",
+                      "Подарить VIP игроку ${player.name}",
+                    ),
+                    style: const TextStyle(color: Color(0xFFFFCC00), fontWeight: FontWeight.w900, fontSize: 14.5),
+                  ),
+                  subtitle: Text(
+                    _t(
+                      "Surprise your friend with VIP crown & unlock VIP perks for the whole room!",
+                      "Arkadaşına 👑 VIP tacı hediye et ve tüm odayı VIP odaya dönüştür!",
+                      "Schenke deinem Freund die VIP-Krone & schalte VIP für den Raum frei!",
+                      "¡Sorprende a tu amigo con la corona VIP y activa sala VIP para todos!",
+                      "Offrez la couronne VIP à votre ami et débloquez la salle VIP !",
+                      "Подарите другу корону 👑 VIP и откройте VIP-комнату для всех!",
+                    ),
+                    style: const TextStyle(color: Colors.white70, fontSize: 11.5),
+                  ),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    _roomService.onRequestGiftPurchase?.call(player);
+                  },
                 ),
-                child: const Icon(Icons.remove_circle, color: Color(0xFFFF0844), size: 24),
               ),
-              title: Text(
-                _t("Kick from Room (10 Min)", "Odadan At (10 Dk)", "Aus Raum kicken (10 Min)", "Expulsar de la sala (10 min)", "Expulser de la salle (10 min)"),
-                style: const TextStyle(color: Color(0xFFFF0844), fontWeight: FontWeight.w900),
+              if (isHost) const SizedBox(height: 10),
+            ] else if (!isHost) ...[
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Text(
+                  _t(
+                    "👑 ${player.name} is already a VIP member!",
+                    "👑 ${player.name} zaten VIP üyesi!",
+                    "👑 ${player.name} ist bereits VIP-Mitglied!",
+                    "👑 ¡${player.name} ya es miembro VIP!",
+                    "👑 ${player.name} est déjà membre VIP !",
+                    "👑 ${player.name} уже является VIP-участником!",
+                  ),
+                  style: const TextStyle(color: Color(0xFFFFCC00), fontWeight: FontWeight.bold),
+                ),
               ),
-              subtitle: Text(
-                _t("Ban for 10 minutes from this room", "10 dakika boyunca bu odaya giremez", "10 Minuten für diesen Raum sperren", "Bloquear durante 10 minutos", "Bannir pendant 10 minutes"),
-                style: const TextStyle(color: Colors.white60, fontSize: 12),
+            ],
+
+            if (isHost) ...[
+              // Option 1: Transfer Host
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFCC00).withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Text("👑", style: TextStyle(fontSize: 20)),
+                ),
+                title: Text(
+                  _t("Transfer Host Role", "Host Yetkisini Devret", "Host-Rechte übertragen", "Transferir anfitrión", "Transférer le rôle d'hôte", "Передать права хоста"),
+                  style: const TextStyle(color: Color(0xFFFFCC00), fontWeight: FontWeight.w900),
+                ),
+                subtitle: Text(
+                  _t("Make this player the room admin", "Bu oyuncuyu odanın kurucusu yap", "Diesen Spieler zum Host machen", "Hacer anfitrión a este jugador", "Rendre ce joueur hôte", "Сделать этого игрока создателем комнаты"),
+                  style: const TextStyle(color: Colors.white60, fontSize: 12),
+                ),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _confirmTransferHost(player);
+                },
               ),
-              onTap: () {
-                Navigator.pop(ctx);
-                _confirmKick(player);
-              },
-            ),
+
+              const Divider(color: Colors.white12),
+
+              // Option 2: Kick Player
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFF0844).withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.remove_circle, color: Color(0xFFFF0844), size: 24),
+                ),
+                title: Text(
+                  _t("Kick from Room (10 Min)", "Odadan At (10 Dk)", "Aus Raum kicken (10 Min)", "Expulsar de la sala (10 min)", "Expulser de la salle (10 min)", "Исключить из комнаты (10 мин)"),
+                  style: const TextStyle(color: Color(0xFFFF0844), fontWeight: FontWeight.w900),
+                ),
+                subtitle: Text(
+                  _t("Ban for 10 minutes from this room", "10 dakika boyunca bu odaya giremez", "10 Minuten für diesen Raum sperren", "Bloquear durante 10 minutos", "Bannir pendant 10 minutes", "Заблокировать вход в комнату на 10 минут"),
+                  style: const TextStyle(color: Colors.white60, fontSize: 12),
+                ),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _confirmKick(player);
+                },
+              ),
+            ],
           ],
         ),
       ),
@@ -160,7 +327,7 @@ class _RoomLobbyScreenState extends State<RoomLobbyScreen> {
           side: const BorderSide(color: Color(0xFFFFCC00), width: 2),
         ),
         title: Text(
-          _t("Transfer Host?", "Host Yetkisini Devret?", "Host übertragen?", "¿Transferir anfitrión?", "Transférer l'hôte ?"),
+          _t("Transfer Host?", "Host Yetkisini Devret?", "Host übertragen?", "¿Transferir anfitrión?", "Transférer l'hôte ?", "Передать права хоста?"),
           style: const TextStyle(color: Color(0xFFFFCC00), fontWeight: FontWeight.bold),
         ),
         content: Text(
@@ -170,13 +337,14 @@ class _RoomLobbyScreenState extends State<RoomLobbyScreen> {
             "Möchtest du die Host-Rechte an ${player.name} übertragen? Du wirst normaler Spieler.",
             "¿Seguro que quieres transferir el anfitrión a ${player.name}? Serás jugador normal.",
             "Êtes-vous sûr de vouloir transférer l'hôte à ${player.name} ? Vous deviendrez un joueur ordinaire.",
+            "Вы уверены, что хотите передать права хоста игроку ${player.name}? Вы станете обычным игроком.",
           ),
           style: const TextStyle(color: Colors.white70),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text(_t("Cancel", "İptal", "Abbrechen", "Cancelar", "Annuler"), style: const TextStyle(color: Colors.white60)),
+            child: Text(_t("Cancel", "İptal", "Abbrechen", "Cancelar", "Annuler", "Отмена"), style: const TextStyle(color: Colors.white60)),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFFFCC00), foregroundColor: Colors.black),
@@ -184,7 +352,7 @@ class _RoomLobbyScreenState extends State<RoomLobbyScreen> {
               Navigator.pop(ctx);
               _roomService.transferHost(player.id);
             },
-            child: Text(_t("Yes, Transfer", "Evet, Devret", "Ja, übertragen", "Sí, transferir", "Oui, transférer"), style: const TextStyle(fontWeight: FontWeight.bold)),
+            child: Text(_t("Yes, Transfer", "Evet, Devret", "Ja, übertragen", "Sí, transferir", "Oui, transférer", "Да, передать"), style: const TextStyle(fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -201,7 +369,7 @@ class _RoomLobbyScreenState extends State<RoomLobbyScreen> {
           side: const BorderSide(color: Color(0xFFFF0844), width: 2),
         ),
         title: Text(
-          _t("Kick Player?", "Oyuncuyu At?", "Spieler kicken?", "¿Expulsar jugador?", "Expulser le joueur ?"),
+          _t("Kick Player?", "Oyuncuyu At?", "Spieler kicken?", "¿Expulsar jugador?", "Expulser le joueur ?", "Исключить игрока?"),
           style: const TextStyle(color: Color(0xFFFF0844), fontWeight: FontWeight.bold),
         ),
         content: Text(
@@ -211,13 +379,14 @@ class _RoomLobbyScreenState extends State<RoomLobbyScreen> {
             "Möchtest du ${player.name} kicken? 10 Minuten gesperrt.",
             "¿Seguro que quieres expulsar a ${player.name}? 10 minutos de bloqueo.",
             "Voulez-vous expulser ${player.name} ? Il sera banni pendant 10 minutes.",
+            "Вы уверены, что хотите исключить ${player.name}? Вход будет заблокирован на 10 минут.",
           ),
           style: const TextStyle(color: Colors.white70),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text(_t("Cancel", "İptal", "Abbrechen", "Cancelar", "Annuler"), style: const TextStyle(color: Colors.white60)),
+            child: Text(_t("Cancel", "İptal", "Abbrechen", "Cancelar", "Annuler", "Отмена"), style: const TextStyle(color: Colors.white60)),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFFF0844), foregroundColor: Colors.white),
@@ -225,7 +394,7 @@ class _RoomLobbyScreenState extends State<RoomLobbyScreen> {
               Navigator.pop(ctx);
               _roomService.kickPlayer(player.id);
             },
-            child: Text(_t("Kick", "At", "Kicken", "Expulsar", "Expulser"), style: const TextStyle(fontWeight: FontWeight.bold)),
+            child: Text(_t("Kick", "At", "Kicken", "Expulsar", "Expulser", "Исключить"), style: const TextStyle(fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -316,8 +485,8 @@ class _RoomLobbyScreenState extends State<RoomLobbyScreen> {
                           ),
                           child: Text(
                             state.mode == WobblyGameMode.party
-                                ? _t("🍻 HOUSE PARTY (IN-PERSON)", "🍻 EV PARTİSİ (AYNI ODADAYIZ)", "🍻 HAUSPARTY (VOR ORT)", "🍻 FIESTA EN CASA", "🍻 SOIRÉE MAISON")
-                                : _t("🌍 REMOTE PARTY (ONLINE)", "🌍 UZAKTAN MOD (ONLINE)", "🌍 ONLINE-PARTY", "🌍 FIESTA A DISTANCIA", "🌍 SOIRÉE EN LIGNE"),
+                                ? _t("🍻 HOUSE PARTY (IN-PERSON)", "🍻 EV PARTİSİ (AYNI ODADAYIZ)", "🍻 HAUSPARTY (VOR ORT)", "🍻 FIESTA EN CASA", "🍻 SOIRÉE MAISON", "🍻 ДОМАШНЯЯ ВЕЧЕРИНКА")
+                                : _t("🌍 REMOTE PARTY (ONLINE)", "🌍 UZAKTAN MOD (ONLINE)", "🌍 ONLINE-PARTY", "🌍 FIESTA A DISTANCIA", "🌍 SOIRÉE EN LIGNE", "🌍 ОНЛАЙН-ВЕЧЕРИНКА"),
                             style: TextStyle(
                               color: state.mode == WobblyGameMode.party ? const Color(0xFFFFCC00) : const Color(0xFFFF0844),
                               fontWeight: FontWeight.bold,
@@ -405,7 +574,8 @@ class _RoomLobbyScreenState extends State<RoomLobbyScreen> {
                                "OYUNCULAR (${state.players.length}/10)",
                                "SPIELER (${state.players.length}/10)",
                                "JUGADORES (${state.players.length}/10)",
-                               "JOUEURS (${state.players.length}/10)"),
+                               "JOUEURS (${state.players.length}/10)",
+                               "ИГРОКИ (${state.players.length}/10)"),
                             style: const TextStyle(
                               color: Color(0xFF00F2FE),
                               fontWeight: FontWeight.w900,
@@ -415,11 +585,20 @@ class _RoomLobbyScreenState extends State<RoomLobbyScreen> {
                           ),
                           if (isHost)
                             Text(
-                              _t("YOU ARE HOST", "SEN ODA KURUCUSUSUN", "DU BIST HOST", "ERES EL ANFITRIÓN", "VOUS ÊTES L'HÔTE"),
+                              _t("YOU ARE HOST", "SEN ODA KURUCUSUSUN", "DU BIST HOST", "ERES EL ANFITRIÓN", "VOUS ÊTES L'HÔTE", "ВЫ ХОСТ КОМНАТЫ"),
                               style: const TextStyle(
                                 color: Color(0xFFFFCC00),
                                 fontWeight: FontWeight.w900,
                                 fontSize: 11.5,
+                              ),
+                            )
+                          else
+                            Text(
+                              _t("🎁 Tap a friend to Gift VIP", "🎁 VIP hediye etmek için oyuncuya dokun", "🎁 Tippe für VIP-Geschenk", "🎁 Toca para regalar VIP", "🎁 Touchez pour offrir VIP", "🎁 Нажмите на друга, чтобы подарить VIP"),
+                              style: const TextStyle(
+                                color: Color(0xFFFFCC00),
+                                fontWeight: FontWeight.bold,
+                                fontSize: 10.5,
                               ),
                             ),
                         ],
@@ -460,8 +639,10 @@ class _RoomLobbyScreenState extends State<RoomLobbyScreen> {
 
                             return GestureDetector(
                               onTap: () {
-                                if (isHost && !isMe) {
-                                  _showPlayerActionSheet(p);
+                                if (isMe) {
+                                  _showMyEmojiPickerSheet(p);
+                                } else {
+                                  _showPlayerActionSheet(p, isHost: isHost);
                                 }
                               },
                               child: Container(
@@ -482,7 +663,7 @@ class _RoomLobbyScreenState extends State<RoomLobbyScreen> {
                                 ),
                                 child: Row(
                                   children: [
-                                    // Avatar circle with color + VIP Crown (Crown ONLY for VIP!)
+                                    // Avatar circle with Emoji + VIP Crown (Crown ONLY for VIP!)
                                     Stack(
                                       clipBehavior: Clip.none,
                                       alignment: Alignment.center,
@@ -497,12 +678,8 @@ class _RoomLobbyScreenState extends State<RoomLobbyScreen> {
                                           ),
                                           child: Center(
                                             child: Text(
-                                              p.name.isNotEmpty ? p.name[0].toUpperCase() : '?',
-                                              style: TextStyle(
-                                                color: p.color,
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold,
-                                              ),
+                                              p.emoji,
+                                              style: const TextStyle(fontSize: 20),
                                             ),
                                           ),
                                         ),
@@ -523,7 +700,7 @@ class _RoomLobbyScreenState extends State<RoomLobbyScreen> {
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            isMe ? "${p.name} (${_t('You', 'Sen', 'Du', 'Tú', 'Toi')})" : p.name,
+                                            isMe ? "${p.name} (${_t('You', 'Sen', 'Du', 'Tú', 'Toi', 'Вы')})" : p.name,
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
                                             style: const TextStyle(
@@ -569,8 +746,12 @@ class _RoomLobbyScreenState extends State<RoomLobbyScreen> {
                                       ),
                                     ),
 
-                                    // Host indicator dots / icon if host can manage player
-                                    if (isHost && !isMe)
+                                    // Action icon: Edit emoji for self, Gift/Manage for others
+                                    if (isMe)
+                                      Icon(Icons.mood, color: p.color.withValues(alpha: 0.8), size: 17)
+                                    else if (!p.isVip)
+                                      const Text("🎁", style: TextStyle(fontSize: 15))
+                                    else if (isHost)
                                       Icon(Icons.more_vert, color: Colors.white.withValues(alpha: 0.5), size: 16),
                                   ],
                                 ),
@@ -607,8 +788,8 @@ class _RoomLobbyScreenState extends State<RoomLobbyScreen> {
                             ),
                             child: Text(
                               state.players.length >= 2
-                                  ? _t("CONTINUE TO OBJECTS ➔", "NESNELERE DEVAM ET ➔", "WEITER ZU OBJEKTEN ➔", "CONTINUAR A OBJETOS ➔", "CONTINUER AUX OBJETS ➔")
-                                  : _t("WAITING FOR PLAYERS (MIN 2)...", "OYUNCU BEKLENİYOR (MİN 2)...", "WARTE AUF SPIELER (MIN 2)...", "ESPERANDO JUGADORES (MIN 2)...", "EN ATTENTE DE JOUEURS (MIN 2)..."),
+                                  ? _t("CONTINUE TO OBJECTS ➔", "NESNELERE DEVAM ET ➔", "WEITER ZU OBJEKTEN ➔", "CONTINUAR A OBJETOS ➔", "CONTINUER AUX OBJETS ➔", "ПЕРЕЙТИ К ПРЕДМЕТАМ ➔")
+                                  : _t("WAITING FOR PLAYERS (MIN 2)...", "OYUNCU BEKLENİYOR (MİN 2)...", "WARTE AUF SPIELER (MIN 2)...", "ESPERANDO JUGADORES (MIN 2)...", "EN ATTENTE DE JOUEURS (MIN 2)...", "ОЖИДАНИЕ ИГРОКОВ (МИН 2)..."),
                               style: TextStyle(
                                 color: state.players.length >= 2 ? Colors.black : Colors.white38,
                                 fontSize: 15,
@@ -636,7 +817,7 @@ class _RoomLobbyScreenState extends State<RoomLobbyScreen> {
                               ),
                               const SizedBox(width: 12),
                               Text(
-                                _t("Waiting for host to proceed... ⏳", "Oda kurucusunun devam etmesi bekleniyor... ⏳", "Warte auf Spielleiter... ⏳", "Esperando al anfitrión... ⏳", "En attente de l'hôte... ⏳"),
+                                _t("Waiting for host to proceed... ⏳", "Oda kurucusunun devam etmesi bekleniyor... ⏳", "Warte auf Spielleiter... ⏳", "Esperando al anfitrión... ⏳", "En attente de l'hôte... ⏳", "Ожидание хоста комнаты... ⏳"),
                                 style: const TextStyle(color: Color(0xFF00F2FE), fontWeight: FontWeight.bold, fontSize: 13.5),
                               ),
                             ],

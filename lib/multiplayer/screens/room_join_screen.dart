@@ -31,13 +31,22 @@ class _RoomJoinScreenState extends State<RoomJoinScreen>
 
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _codeController = TextEditingController();
-  final TextEditingController _pinController = TextEditingController();
+  final TextEditingController _createPinController = TextEditingController();
+  final TextEditingController _joinPinController = TextEditingController();
 
   int _selectedColorIndex = 0;
+  String _selectedEmoji = '🥳';
   bool _isLoading = false;
   String? _errorMessage;
 
   late WobblyGameMode _selectedMode;
+
+  static const List<String> _partyEmojis = [
+    '🥳', '😎', '😈', '💋', '🍻', '🤪', '🔥', '👑',
+    '💀', '🤡', '🤠', '🦄', '👻', '👽', '🦊', '🐱',
+    '🐶', '🦁', '🐼', '🐸', '🐵', '💃', '🕺', '🚀',
+    '⚡', '💎', '🍕', '🍾',
+  ];
 
   static const List<Color> _playerColors = [
     Color(0xFF00F2FE), // Cyan
@@ -57,8 +66,10 @@ class _RoomJoinScreenState extends State<RoomJoinScreen>
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     _selectedMode = widget.initialMode;
-    // Default PIN: 4-digit random
-    _pinController.text = (1000 + (DateTime.now().microsecond % 9000)).toString();
+    // Default PIN for host creation: 4-digit random
+    _createPinController.text = (1000 + (DateTime.now().microsecond % 9000)).toString();
+    // Joining player starts with completely empty PIN field
+    _joinPinController.text = "";
   }
 
   @override
@@ -66,7 +77,8 @@ class _RoomJoinScreenState extends State<RoomJoinScreen>
     _tabController.dispose();
     _nameController.dispose();
     _codeController.dispose();
-    _pinController.dispose();
+    _createPinController.dispose();
+    _joinPinController.dispose();
     super.dispose();
   }
 
@@ -77,12 +89,26 @@ class _RoomJoinScreenState extends State<RoomJoinScreen>
   Future<void> _handleCreateRoom() async {
     final name = _nameController.text.trim();
     if (name.isEmpty) {
-      setState(() => _errorMessage = _t("Please enter your name!", "Lütfen isminizi girin!", "Bitte gib deinen Namen ein!", "¡Por favor ingresa tu nombre!", "Veuillez entrer votre nom !"));
+      setState(() => _errorMessage = _t(
+            "Please enter your name!",
+            "Lütfen isminizi girin!",
+            "Bitte gib deinen Namen ein!",
+            "¡Por favor ingresa tu nombre!",
+            "Veuillez entrer votre nom !",
+            "Пожалуйста, введите ваше имя!",
+          ));
       return;
     }
-    final pin = _pinController.text.trim();
+    final pin = _createPinController.text.trim();
     if (pin.length < 4) {
-      setState(() => _errorMessage = _t("PIN must be 4 digits!", "Şifre 4 haneli olmalıdır!", "PIN muss 4-stellig sein!", "¡El PIN debe tener 4 dígitos!", "Le code PIN doit comporter 4 chiffres !"));
+      setState(() => _errorMessage = _t(
+            "PIN must be 4 digits!",
+            "Şifre 4 haneli olmalıdır!",
+            "PIN muss 4-stellig sein!",
+            "¡El PIN debe tener 4 dígitos!",
+            "Le code PIN doit comporter 4 chiffres !",
+            "ПИН-код должен состоять из 4 цифр!",
+          ));
       return;
     }
 
@@ -97,6 +123,7 @@ class _RoomJoinScreenState extends State<RoomJoinScreen>
       name: name,
       colorIndex: _selectedColorIndex,
       isVip: widget.isVip,
+      emoji: _selectedEmoji,
     );
 
     final success = await roomService.createRoom(
@@ -111,24 +138,52 @@ class _RoomJoinScreenState extends State<RoomJoinScreen>
     if (success) {
       widget.onRoomCreatedOrJoined();
     } else {
-      setState(() => _errorMessage = _t("Failed to create room. Please check internet connection.", "Oda kurulamadı. Lütfen internet bağlantınızı kontrol edin.", "Raum konnte nicht erstellt werden.", "Error al crear sala.", "Échec de création de la salle."));
+      setState(() => _errorMessage = _t(
+            "Failed to create room. Please check internet connection.",
+            "Oda kurulamadı. Lütfen internet bağlantınızı kontrol edin.",
+            "Raum konnte nicht erstellt werden.",
+            "Error al crear sala.",
+            "Échec de création de la salle.",
+            "Не удалось создать комнату. Проверьте подключение к интернету.",
+          ));
     }
   }
 
   Future<void> _handleJoinRoom() async {
     final name = _nameController.text.trim();
     if (name.isEmpty) {
-      setState(() => _errorMessage = _t("Please enter your name!", "Lütfen isminizi girin!", "Bitte gib deinen Namen ein!", "¡Por favor ingresa tu nombre!", "Veuillez entrer votre nom !"));
+      setState(() => _errorMessage = _t(
+            "Please enter your name!",
+            "Lütfen isminizi girin!",
+            "Bitte gib deinen Namen ein!",
+            "¡Por favor ingresa tu nombre!",
+            "Veuillez entrer votre nom !",
+            "Пожалуйста, введите ваше имя!",
+          ));
       return;
     }
     final code = _codeController.text.trim().replaceAll(" ", "");
     if (code.length != 6) {
-      setState(() => _errorMessage = _t("Room code must be 6 digits!", "Oda kodu 6 haneli olmalıdır!", "Raumcode muss 6-stellig sein!", "¡El código de sala debe ser de 6 dígitos!", "Le code de salle doit comporter 6 chiffres !"));
+      setState(() => _errorMessage = _t(
+            "Room code must be 6 digits!",
+            "Oda kodu 6 haneli olmalıdır!",
+            "Raumcode muss 6-stellig sein!",
+            "¡El código de sala debe ser de 6 dígitos!",
+            "Le code de salle doit comporter 6 chiffres !",
+            "Код комнаты должен состоять из 6 цифр!",
+          ));
       return;
     }
-    final pin = _pinController.text.trim();
+    final pin = _joinPinController.text.trim();
     if (pin.length < 4) {
-      setState(() => _errorMessage = _t("Please enter the 4-digit PIN!", "Lütfen 4 haneli oda şifresini girin!", "Bitte gib die 4-stellige PIN ein!", "¡Introduce el PIN de 4 dígitos!", "Veuillez entrer le code PIN à 4 chiffres !"));
+      setState(() => _errorMessage = _t(
+            "Please enter the 4-digit PIN!",
+            "Lütfen 4 haneli oda şifresini girin!",
+            "Bitte gib die 4-stellige PIN ein!",
+            "¡Introduce el PIN de 4 dígitos!",
+            "Veuillez entrer le code PIN à 4 chiffres !",
+            "Введите 4-значный ПИН-код комнаты!",
+          ));
       return;
     }
 
@@ -142,6 +197,7 @@ class _RoomJoinScreenState extends State<RoomJoinScreen>
       name: name,
       colorIndex: _selectedColorIndex,
       isVip: widget.isVip,
+      emoji: _selectedEmoji,
     );
 
     final err = await roomService.joinRoom(
@@ -192,8 +248,8 @@ class _RoomJoinScreenState extends State<RoomJoinScreen>
                       const Spacer(),
                       Text(
                         _selectedMode == WobblyGameMode.party
-                            ? _t("HOUSE PARTY ROOM", "EV PARTİSİ ODASI", "HAUSPARTY-RAUM", "SALA DE FIESTA", "SALLE DE SOIRÉE")
-                            : _t("REMOTE PARTY ROOM", "UZAKTAN PARTİ ODASI", "ONLINE-PARTY-RAUM", "SALA A DISTANCIA", "SALLE À DISTANCE"),
+                            ? _t("HOUSE PARTY ROOM", "EV PARTİSİ ODASI", "HAUSPARTY-RAUM", "SALA DE FIESTA", "SALLE DE SOIRÉE", "КОМНАТА ДОМАШНЕЙ ВЕЧЕРИНКИ")
+                            : _t("REMOTE PARTY ROOM", "UZAKTAN PARTİ ODASI", "ONLINE-PARTY-RAUM", "SALA A DISTANCIA", "SALLE À DISTANCE", "ОНЛАЙН-КОМНАТА"),
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w900,
@@ -235,8 +291,8 @@ class _RoomJoinScreenState extends State<RoomJoinScreen>
                       unselectedLabelColor: Colors.white70,
                       labelStyle: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 0.5),
                       tabs: [
-                        Tab(text: _t("CREATE ROOM (HOST)", "ODA KUR (HOST)", "RAUM ERSTELLEN", "CREAR SALA", "CRÉER SALLE")),
-                        Tab(text: _t("JOIN ROOM", "ODAYA KATIL", "BEITRETEN", "UNIRSE", "REJOINDRE")),
+                        Tab(text: _t("CREATE ROOM (HOST)", "ODA KUR (HOST)", "RAUM ERSTELLEN", "CREAR SALA", "CRÉER SALLE", "СОЗДАТЬ (ХОСТ)")),
+                        Tab(text: _t("JOIN ROOM", "ODAYA KATIL", "BEITRETEN", "UNIRSE", "REJOINDRE", "ВОЙТИ")),
                       ],
                     ),
                   ),
@@ -269,12 +325,12 @@ class _RoomJoinScreenState extends State<RoomJoinScreen>
 
         // Room PIN input
         Text(
-          _t("ROOM PIN / PASSWORD (4 DIGITS)", "ODA ŞİFRESİ (4 HANELİ PIN)", "RAUM-PIN (4 ZIFFERN)", "PIN DE SALA (4 DÍGITOS)", "CODE PIN DE SALLE (4 CHIFFRES)"),
+          _t("ROOM PIN / PASSWORD (4 DIGITS)", "ODA ŞİFRESİ (4 HANELİ PIN)", "RAUM-PIN (4 ZIFFERN)", "PIN DE SALA (4 DÍGITOS)", "CODE PIN DE SALLE (4 CHIFFRES)", "ПИН-КОД КОМНАТЫ (4 ЦИФРЫ)"),
           style: const TextStyle(color: Color(0xFF00F2FE), fontSize: 13, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 6),
         TextField(
-          controller: _pinController,
+          controller: _createPinController,
           keyboardType: TextInputType.number,
           maxLength: 4,
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
@@ -313,7 +369,8 @@ class _RoomJoinScreenState extends State<RoomJoinScreen>
                        "VIP ODA AKTİF: +18 Baharatlı ve Altın Şampanya odanızdaki herkese hediye açıldı!",
                        "VIP-RAUM AKTIV: +18 Scharf & Champagner für alle freigeschaltet!",
                        "¡SALA VIP ACTIVA: +18 Picante y Champán desbloqueados para todos!",
-                       "SALLE VIP ACTIVÉE : +18 Épicé et Champagne débloqués pour tous !"),
+                       "SALLE VIP ACTIVÉE : +18 Épicé et Champagne débloqués pour tous !",
+                       "VIP-КОМНАТА АКТИВНА: Набор 18+ и Золотое Шампанское открыты для всех игроков в вашей комнате!"),
                     style: const TextStyle(color: Color(0xFFFFCC00), fontSize: 12, fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -348,7 +405,7 @@ class _RoomJoinScreenState extends State<RoomJoinScreen>
                   child: CircularProgressIndicator(color: Colors.black, strokeWidth: 3),
                 )
               : Text(
-                  _t("CREATE ROOM 🚀", "ODAYI OLUŞTUR 🚀", "RAUM ERSTELLEN 🚀", "CREAR SALA 🚀", "CRÉER LA SALLE 🚀"),
+                  _t("CREATE ROOM 🚀", "ODAYI OLUŞTUR 🚀", "RAUM ERSTELLEN 🚀", "CREAR SALA 🚀", "CRÉER LA SALLE 🚀", "СОЗДАТЬ КОМНАТУ 🚀"),
                   style: const TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.w900, letterSpacing: 1.2),
                 ),
         ),
@@ -365,7 +422,7 @@ class _RoomJoinScreenState extends State<RoomJoinScreen>
 
         // Room Code Input (6 digits)
         Text(
-          _t("6-DIGIT ROOM CODE", "6 HANELİ ODA KODU", "6-STELLIGER RAUMCODE", "CÓDIGO DE SALA DE 6 DÍGITOS", "CODE DE SALLE À 6 CHIFFRES"),
+          _t("6-DIGIT ROOM CODE", "6 HANELİ ODA KODU", "6-STELLIGER RAUMCODE", "CÓDIGO DE SALA DE 6 DÍGITOS", "CODE DE SALLE À 6 CHIFFRES", "6-ЗНАЧНЫЙ КОД КОМНАТЫ"),
           style: const TextStyle(color: Color(0xFF00F2FE), fontSize: 13, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 6),
@@ -389,12 +446,12 @@ class _RoomJoinScreenState extends State<RoomJoinScreen>
 
         // Room PIN Input (4 digits)
         Text(
-          _t("ROOM PIN / PASSWORD (4 DIGITS)", "ODA ŞİFRESİ (4 HANELİ PIN)", "RAUM-PIN (4 ZIFFERN)", "PIN DE SALA (4 DÍGITOS)", "CODE PIN DE SALLE (4 CHIFFRES)"),
+          _t("ROOM PIN / PASSWORD (4 DIGITS)", "ODA ŞİFRESİ (4 HANELİ PIN)", "RAUM-PIN (4 ZIFFERN)", "PIN DE SALA (4 DÍGITOS)", "CODE PIN DE SALLE (4 CHIFFRES)", "ПИН-КОД КОМНАТЫ (4 ЦИФРЫ)"),
           style: const TextStyle(color: Color(0xFF00F2FE), fontSize: 13, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 6),
         TextField(
-          controller: _pinController,
+          controller: _joinPinController,
           keyboardType: TextInputType.number,
           maxLength: 4,
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
@@ -437,7 +494,7 @@ class _RoomJoinScreenState extends State<RoomJoinScreen>
                   child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3),
                 )
               : Text(
-                  _t("JOIN ROOM 🎮", "ODAYA BAĞLAN 🎮", "RAUM BEITRETEN 🎮", "UNIRSE A SALA 🎮", "REJOINDRE LA SALLE 🎮"),
+                  _t("JOIN ROOM 🎮", "ODAYA BAĞLAN 🎮", "RAUM BEITRETEN 🎮", "UNIRSE A SALA 🎮", "REJOINDRE LA SALLE 🎮", "ВОЙТИ В КОМНАТУ 🎮"),
                   style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w900, letterSpacing: 1.2),
                 ),
         ),
@@ -451,7 +508,7 @@ class _RoomJoinScreenState extends State<RoomJoinScreen>
       children: [
         // Name input
         Text(
-          _t("YOUR NAME / NICKNAME", "İSMİNİZ / NICK", "DEIN NAME", "TU NOMBRE", "VOTRE NOM"),
+          _t("YOUR NAME / NICKNAME", "İSMİNİZ / NICK", "DEIN NAME", "TU NOMBRE", "VOTRE NOM", "ВАШЕ ИМЯ / НИК"),
           style: const TextStyle(color: Color(0xFF00F2FE), fontSize: 13, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 6),
@@ -461,24 +518,78 @@ class _RoomJoinScreenState extends State<RoomJoinScreen>
           style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
           decoration: InputDecoration(
             counterText: "",
-            hintText: _t("e.g. Alex", "Örn. Ayşe", "z.B. Max", "ej. Carlos", "ex. Thomas"),
+            hintText: _t("e.g. Alex", "Örn. Ayşe", "z.B. Max", "ej. Carlos", "ex. Thomas", "напр. Алекс"),
             hintStyle: const TextStyle(color: Colors.white30),
             filled: true,
             fillColor: Colors.white.withValues(alpha: 0.06),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
-            prefixIcon: const Icon(Icons.person, color: Color(0xFF00F2FE)),
+            prefixIcon: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Text(_selectedEmoji, style: const TextStyle(fontSize: 20)),
+            ),
           ),
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: 12),
+
+        // Emoji selector (Free Party Emojis)
+        Text(
+          _t("CHOOSE YOUR AVATAR EMOJI (FREE)", "PROFİL EMOJİNİ SEÇ (ÜCRETSİZ)", "WÄHLE DEIN EMOJI (GRATIS)", "ELIGE TU EMOJI (GRATIS)", "CHOISIS TON ÉMOJI (GRATUIT)", "ВЫБЕРИТЕ ЭМОДЗИ ПРОФИЛЯ (БЕСПЛАТНО)"),
+          style: const TextStyle(color: Color(0xFFFFCC00), fontSize: 12.5, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 6),
+        SizedBox(
+          height: 46,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            physics: const BouncingScrollPhysics(),
+            itemCount: _partyEmojis.length,
+            itemBuilder: (ctx, idx) {
+              final emoji = _partyEmojis[idx];
+              final isSelected = _selectedEmoji == emoji;
+              final activeColor = _playerColors[_selectedColorIndex];
+              return GestureDetector(
+                onTap: () => setState(() => _selectedEmoji = emoji),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 160),
+                  width: 42,
+                  height: 42,
+                  margin: const EdgeInsets.only(right: 8),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: isSelected
+                        ? activeColor.withValues(alpha: 0.28)
+                        : Colors.white.withValues(alpha: 0.06),
+                    border: Border.all(
+                      color: isSelected ? activeColor : Colors.white24,
+                      width: isSelected ? 2.5 : 1.2,
+                    ),
+                    boxShadow: isSelected
+                        ? [
+                            BoxShadow(
+                              color: activeColor.withValues(alpha: 0.55),
+                              blurRadius: 10,
+                            ),
+                          ]
+                        : null,
+                  ),
+                  child: Center(
+                    child: Text(emoji, style: const TextStyle(fontSize: 21)),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+        const SizedBox(height: 12),
 
         // Color selector
         Text(
-          _t("CHOOSE YOUR NEON COLOR", "NEON RENGİNİ SEÇ", "NEON-FARBE WÄHLEN", "ELIGE TU COLOR NEÓN", "CHOISISSEZ VOTRE COULEUR NÉON"),
+          _t("CHOOSE YOUR NEON COLOR", "NEON RENGİNİ SEÇ", "NEON-FARBE WÄHLEN", "ELIGE TU COLOR NEÓN", "CHOISISSEZ VOTRE COULEUR NÉON", "ВЫБЕРИТЕ НЕОНОВЫЙ ЦВЕТ"),
           style: const TextStyle(color: Color(0xFF00F2FE), fontSize: 13, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8),
         SizedBox(
-          height: 48,
+          height: 46,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             physics: const BouncingScrollPhysics(),
@@ -489,8 +600,8 @@ class _RoomJoinScreenState extends State<RoomJoinScreen>
               return GestureDetector(
                 onTap: () => setState(() => _selectedColorIndex = idx),
                 child: Container(
-                  width: 44,
-                  height: 44,
+                  width: 42,
+                  height: 42,
                   margin: const EdgeInsets.only(right: 10),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,

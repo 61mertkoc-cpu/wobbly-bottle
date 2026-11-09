@@ -26,6 +26,7 @@ class NetworkPlayer {
   final String id;
   String name;
   int colorIndex;
+  String emoji;
   bool isHost;
   bool isVip;
   bool isAfk;
@@ -37,6 +38,7 @@ class NetworkPlayer {
     required this.id,
     required this.name,
     required this.colorIndex,
+    this.emoji = '🥳',
     this.isHost = false,
     this.isVip = false,
     this.isAfk = false,
@@ -49,6 +51,7 @@ class NetworkPlayer {
     'id': id,
     'name': name,
     'colorIndex': colorIndex,
+    'emoji': emoji,
     'isHost': isHost,
     'isVip': isVip,
     'isAfk': isAfk,
@@ -61,6 +64,7 @@ class NetworkPlayer {
     id: json['id'] as String,
     name: json['name'] as String? ?? 'Player',
     colorIndex: json['colorIndex'] as int? ?? 0,
+    emoji: json['emoji'] as String? ?? '🥳',
     isHost: json['isHost'] as bool? ?? false,
     isVip: json['isVip'] as bool? ?? false,
     isAfk: json['isAfk'] as bool? ?? false,
@@ -146,11 +150,7 @@ class RoomState {
         bannedPlayers = bannedPlayers ?? {};
 
   bool get isVipRoom {
-    final host = players.cast<NetworkPlayer?>().firstWhere(
-      (p) => p?.id == hostId,
-      orElse: () => null,
-    );
-    return host?.isVip ?? false;
+    return players.any((p) => p.isVip);
   }
 
   Map<String, dynamic> toJson() => {
