@@ -39,6 +39,43 @@ class RoomService {
   Timer? _turnTimer;
   Timer? _bgGraceTimer;
 
+  // Remote Config / Dynamic Server URL cache
+  static String? _cachedServerTemplate;
+  static DateTime? _lastConfigFetch;
+
+  /// Fetches dynamic server template without blocking the game
+  static Future<String> getActiveServerTemplate() async {
+    // Return cached if fetched in last 10 minutes
+    if (_cachedServerTemplate != null &&
+        _lastConfigFetch != null &&
+        DateTime.now().difference(_lastConfigFetch!).inMinutes < 10) {
+      return _cachedServerTemplate!;
+    }
+
+    try {
+      // Free public resilient remote config endpoint (raw json)
+      final client = HttpClient()..connectionTimeout = const Duration(seconds: 2);
+      final request = await client.getUrl(Uri.parse(
+          'https://raw.githubusercontent.com/CodexOfficial/wobbly_config/main/server_config.json'));
+      final response = await request.close().timeout(const Duration(seconds: 2));
+      if (response.statusCode == 200) {
+        final body = await response.transform(utf8.decoder).join();
+        final data = jsonDecode(body) as Map<String, dynamic>;
+        final dynamicUrl = data['ws_template'] as String?;
+        if (dynamicUrl != null && dynamicUrl.startsWith('wss://')) {
+          _cachedServerTemplate = dynamicUrl;
+          _lastConfigFetch = DateTime.now();
+          return dynamicUrl;
+        }
+      }
+    } catch (_) {
+      // Fallback silently if offline or endpoint not reachable
+    }
+
+    // Default robust fallback server template
+    return 'wss://free.blr2.piesocket.com/v3/wb_room_{ROOM_CODE}?api_key=B9UKgvptNTWrZxfCUTquFp7nKVsYqu2LtmBao5Jg&notify_self=1';
+  }
+
   // Stream for UI listening
   final StreamController<RoomState> _roomStateController =
       StreamController<RoomState>.broadcast();
@@ -519,9 +556,10 @@ class RoomService {
   // =========================================================================
   Future<bool> _connectSocket(String roomCode) async {
     try {
-      // Free public resilient WebSocket pub/sub channel
-      final uri = Uri.parse(
-          'wss://free.blr2.piesocket.com/v3/wb_room_$roomCode?api_key=B9UKgvptNTWrZxfCUTquFp7nKVsYqu2LtmBao5Jg&notify_self=1');
+      final template = await getActiveServerTemplate();
+      final urlString = template.replaceAll('{ROOM_CODE}', roomCode);
+      final uri = Uri.parse(urlString);
+
       _socket = await WebSocket.connect(uri.toString())
           .timeout(const Duration(seconds: 4));
 

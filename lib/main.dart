@@ -144,16 +144,18 @@ class WobblyBottleAppGame {
     "Enter name or tap + to quick add...": "Entrez un nom ou appuyez sur +...",
     "PICK COLOR:": "COULEUR :",
     "No players added yet.\nAdd at least 2 players to start!": "Aucun joueur ajouté.\nAjoutez au moins 2 joueurs pour commencer !",
-    "CONTINUE TO OBJECTS": "CONTINUER AUX OBJETS",
+    "CONTINUE TO OBJECTS": "CHOIX BOUTEILLE",
+    "PICK BOTTLE": "CHOIX BOUTEILLE",
     "PLAYERS": "JOUEURS",
-    "CHOOSE YOUR OBJECT": "CHOISIS TON OBJET",
+    "CHOOSE YOUR OBJECT": "CHOIX BOUTEILLE",
     "SELECTED": "SÉLECTIONNÉ",
     "WATCH AD": "VOIR PUB",
     "UNLOCKED": "DÉBLOQUÉ",
     "Unlock as VIP": "Débloquer en VIP",
     "Unlock with 1 Video": "Débloquer avec 1 Vidéo",
-    "CONTINUE TO PACKS": "CONTINUER AUX PACKS",
-    "CHOOSE YOUR PACKS": "CHOISIS TES PACKS",
+    "CONTINUE TO PACKS": "CHOIX DES PACKS",
+    "PICK PACKS": "CHOIX DES PACKS",
+    "CHOOSE YOUR PACKS": "CHOIX DES PACKS",
     "START GAME": "LANCER LA PARTIE",
     "⚡ MAKE YOUR CHOICE": "⚡ FAIS TON CHOIX",
     "Truth, Dare, or Ask Yourselves?": "Action, Vérité ou Question Libre ?",
@@ -208,16 +210,18 @@ class WobblyBottleAppGame {
     "Enter name or tap + to quick add...": "Введите имя или нажмите +, чтобы добавить...",
     "PICK COLOR:": "ВЫБЕРИТЕ ЦВЕТ:",
     "No players added yet.\nAdd at least 2 players to start!": "Игроки еще не добавлены.\nДобавьте минимум 2 игроков для старта!",
-    "CONTINUE TO OBJECTS": "ПЕРЕЙТИ К ПРЕДМЕТАМ",
+    "CONTINUE TO OBJECTS": "ВЫБОР БУТЫЛКИ",
+    "PICK BOTTLE": "ВЫБОР БУТЫЛКИ",
     "PLAYERS": "ИГРОКИ",
-    "CHOOSE YOUR OBJECT": "ВЫБЕРИТЕ ПРЕДМЕТ",
+    "CHOOSE YOUR OBJECT": "ВЫБОР БУТЫЛКИ",
     "SELECTED": "ВЫБРАНО",
     "WATCH AD": "СМОТРЕТЬ РЕКЛАМУ",
     "UNLOCKED": "РАЗБЛОКИРОВАНО",
     "Unlock as VIP": "Открыть с VIP",
     "Unlock with 1 Video": "Открыть за 1 видео",
-    "CONTINUE TO PACKS": "ПЕРЕЙТИ К НАБОРАМ",
-    "CHOOSE YOUR PACKS": "ВЫБЕРИТЕ НАБОРЫ",
+    "CONTINUE TO PACKS": "ВЫБОР НАБОРОВ",
+    "PICK PACKS": "ВЫБОР НАБОРОВ",
+    "CHOOSE YOUR PACKS": "ВЫБОР НАБОРОВ",
     "START GAME": "НАЧАТЬ ИГРУ",
     "⚡ MAKE YOUR CHOICE": "⚡ СДЕЛАЙТЕ ВЫБОР",
     "? MAKE YOUR CHOICE": "⚡ СДЕЛАЙТЕ ВЫБОР",
@@ -350,6 +354,30 @@ class MainGameScreen extends StatefulWidget {
 
 class _MainGameScreenState extends State<MainGameScreen>
     with TickerProviderStateMixin, WidgetsBindingObserver {
+  // ===========================================================================
+  // TEK KODLA ESKİ ŞİŞE BOYUTUNA VE AÇISINA DÖNÜŞ ŞALTERİ:
+  // Şişeyi eski boyutuna ve eski hizalamasına döndürmek için buradaki 'true'
+  // değerini 'false' yapmanız yeterlidir.
+  // ===========================================================================
+  static const bool USE_NEW_BOTTLE_ALIGNMENT = true;
+
+  // ===========================================================================
+  // TEK KODLA ESKİ SABİT ARKA PLANA DÖNÜŞ ŞALTERİ:
+  // Hareketli spot ışıklarını ve neon parçacıkları kapatıp eski sabit arka plana
+  // dönmek için buradaki 'true' değerini 'false' yapmanız yeterlidir.
+  // ===========================================================================
+  static const bool USE_ANIMATED_BACKGROUND = true;
+
+  // Native Android Audio Channel (100% Full Volume BGM & Click SFX)
+  static const MethodChannel _audioChannel = MethodChannel('com.wobblybottle/audio');
+
+  void _triggerTapFeedback() {
+    HapticFeedback.lightImpact();
+    if (!isMuted) {
+      _audioChannel.invokeMethod('playClick').catchError((_) {});
+    }
+  }
+
   // Navigation: 0 = 3-Mode Selection, 1 = Setup, 2 = Objects, 3 = Packs, 4 = Arena, 5 = RoomJoin, 6 = RoomLobby
   int currentScreen = 0; // Starts on the 3-Mode Selection Screen!
   WobblyGameMode _activeGameMode = WobblyGameMode.table;
@@ -495,6 +523,7 @@ class _MainGameScreenState extends State<MainGameScreen>
     _loadBannerAd();
     _initInAppPurchase();
     _initMultiplayerListener();
+    _audioChannel.invokeMethod('startBgm').catchError((_) {});
 
     _wobbleController = AnimationController(
       vsync: this,
@@ -1487,7 +1516,8 @@ class _MainGameScreenState extends State<MainGameScreen>
             RoomService().broadcastVipGift(
               targetPlayerId: recipient.id,
               targetPlayerName: recipient.name,
-              isLifetime: purchase.productID == _vipProductId,
+              isLifetime: purchase.productID == _vipProductId ||
+                  purchase.productID == _vipGiftProductId,
             );
           } else {
             final isPerm = purchase.productID == _vipProductId;
@@ -2477,6 +2507,7 @@ class _MainGameScreenState extends State<MainGameScreen>
   }
 
   void _addPlayer() {
+    _triggerTapFeedback();
     if (_players.length >= 10) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -2829,18 +2860,87 @@ class _MainGameScreenState extends State<MainGameScreen>
   }
 
   void _removePlayer(int index) {
+    _triggerTapFeedback();
     setState(() {
       _players.removeAt(index);
     });
   }
 
   // --- BOTTLE SPIN & BEND ALGORITHM ---
+  (double, String) _computeBottleAlignment(int questioner, int answerer, int count) {
+    final basePlayerAngle = -math.pi / 2 + (questioner * 2 * math.pi / count);
+    final answererAngle = -math.pi / 2 + (answerer * 2 * math.pi / count);
+
+    if (USE_NEW_BOTTLE_ALIGNMENT) {
+      // In the 800x800 sprite, the bottle's base points straight down (+pi/2)
+      // and the unbent neck ("0") points straight up (-pi/2) from the waist pivot (400, 500).
+      // Rotating by baseRotation = basePlayerAngle - (pi/2) points the base directly at Questioner
+      // and the straight neck at straightNeckAngle = basePlayerAngle - pi.
+      final double baseRotation = basePlayerAngle - (math.pi / 2);
+      final double straightNeckAngle = basePlayerAngle - math.pi;
+
+      double delta = (answererAngle - straightNeckAngle) % (2 * math.pi);
+      if (delta > math.pi) delta -= 2 * math.pi;
+      if (delta < -math.pi) delta += 2 * math.pi;
+      final double deltaDeg = delta * 180.0 / math.pi;
+
+      // Select the closest of the 7 pre-rendered directional bend sprites:
+      // "0" (0°), "ur" (+45°), "r" (+82°), "dr" (+115°), "ul" (-45°), "l" (-82°), "dl" (-115°)
+      String bendVariant = "0";
+      double spriteBendDeg = 0.0;
+      if (deltaDeg >= -22.5 && deltaDeg <= 22.5) {
+        bendVariant = "0";
+        spriteBendDeg = 0.0;
+      } else if (deltaDeg > 22.5 && deltaDeg <= 66.0) {
+        bendVariant = "ur";
+        spriteBendDeg = 45.0;
+      } else if (deltaDeg > 66.0 && deltaDeg <= 102.0) {
+        bendVariant = "r";
+        spriteBendDeg = 82.0;
+      } else if (deltaDeg > 102.0) {
+        bendVariant = "dr";
+        spriteBendDeg = 115.0;
+      } else if (deltaDeg < -22.5 && deltaDeg >= -66.0) {
+        bendVariant = "ul";
+        spriteBendDeg = -45.0;
+      } else if (deltaDeg < -66.0 && deltaDeg >= -102.0) {
+        bendVariant = "l";
+        spriteBendDeg = -82.0;
+      } else {
+        bendVariant = "dl";
+        spriteBendDeg = -115.0;
+      }
+
+      final double residualRad = ((deltaDeg - spriteBendDeg) * math.pi / 180.0) * 0.45;
+      final double finalBottleAngle = baseRotation + residualRad;
+      return (finalBottleAngle, bendVariant);
+    } else {
+      final oppositeAngle = basePlayerAngle + math.pi; // straight across from questioner
+      double delta = (answererAngle - oppositeAngle) % (2 * math.pi);
+      if (delta > math.pi) delta -= 2 * math.pi;
+      if (delta < -math.pi) delta += 2 * math.pi;
+
+      String bendVariant = "0";
+      if (delta < -0.15) {
+        bendVariant = "l"; // Bends Left towards Answerer
+      } else if (delta > 0.15) {
+        bendVariant = "r"; // Bends Right towards Answerer
+      } else {
+        bendVariant = "0"; // Straight
+      }
+
+      final finalBottleAngle = oppositeAngle + (math.pi / 2) + (delta * 0.35);
+      return (finalBottleAngle, bendVariant);
+    }
+  }
+
   void _spinBottle() {
     if (!_isOnline) {
       _checkInternetConnectivity();
       return;
     }
     if (_isSpinning || _players.length < 2) return;
+    _triggerTapFeedback();
 
     final rand = math.Random();
     final rotations = 4 + rand.nextInt(3); // 4-6 full spins
@@ -2872,6 +2972,7 @@ class _MainGameScreenState extends State<MainGameScreen>
   }
 
   void _onSpinFinished() {
+    HapticFeedback.mediumImpact();
     final count = _players.length;
     final rand = math.Random();
 
@@ -2903,27 +3004,8 @@ class _MainGameScreenState extends State<MainGameScreen>
     final answerer = candidates[rand.nextInt(candidates.length)];
 
     // 3. Align base with Questioner and neck with Answerer
-    final basePlayerAngle = -math.pi / 2 + (questioner * 2 * math.pi / count);
-    final oppositeAngle = basePlayerAngle + math.pi; // straight across from questioner
-    final answererAngle = -math.pi / 2 + (answerer * 2 * math.pi / count);
-
-    // 4. Calculate signed delta angle to Answerer
-    double delta = (answererAngle - oppositeAngle) % (2 * math.pi);
-    if (delta > math.pi) delta -= 2 * math.pi;
-    if (delta < -math.pi) delta += 2 * math.pi;
-
-    // 5. Select BEND SPRITE based on angle delta!
-    String bendVariant = "0";
-    if (delta < -0.15) {
-      bendVariant = "l"; // Bends Left towards Answerer
-    } else if (delta > 0.15) {
-      bendVariant = "r"; // Bends Right towards Answerer
-    } else {
-      bendVariant = "0"; // Straight
-    }
-
-    // 6. Point neck directly at Answerer and base at Questioner!
-    final finalBottleAngle = oppositeAngle + (math.pi / 2) + (delta * 0.35);
+    final (finalBottleAngle, bendVariant) =
+        _computeBottleAlignment(questioner, answerer, count);
 
     setState(() {
       _isSpinning = false;
@@ -2951,6 +3033,7 @@ class _MainGameScreenState extends State<MainGameScreen>
   // --- CARD & QUESTION PICKING ---
   void _showCard(String mode) {
     if (_players.isEmpty) return;
+    _triggerTapFeedback();
     if (_answererIndex < 0 || _answererIndex >= _players.length) {
       _answererIndex = 0;
     }
@@ -2962,6 +3045,34 @@ class _MainGameScreenState extends State<MainGameScreen>
 
     String promptText = "";
     String cardTitle = "";
+    final List<Map<String, dynamic>> candidateCards = [];
+    int? pickedPackIdx;
+    int? pickedQIdx;
+
+    void drawNextQuestionFromPool() {
+      if (candidateCards.isNotEmpty) {
+        var freshCards = candidateCards
+            .where((c) => !_usedQuestionKeys.contains("${c['packIndex']}_${c['questionIndex']}"))
+            .toList();
+
+        if (freshCards.length <= (candidateCards.length * 0.15).ceil() || freshCards.isEmpty) {
+          _usedQuestionKeys.clear();
+          freshCards = List.from(candidateCards);
+        }
+
+        final rand = math.Random();
+        final picked = freshCards[rand.nextInt(freshCards.length)];
+        promptText = picked['text'] as String;
+        pickedPackIdx = picked['packIndex'] as int;
+        pickedQIdx = picked['questionIndex'] as int;
+
+        _usedQuestionKeys.add('${pickedPackIdx}_$pickedQIdx');
+      } else {
+        promptText = mode == 'TRUTH'
+            ? _loc("What is the most memorable party moment in your life?", "Hayatındaki en unutulmaz parti anın neydi?", "Was war dein verrücktester Partymoment?", "¿Cuál ha sido tu momento de fiesta más loco?")
+            : _loc("Do your best 10-second funny dance right now!", "Şu an en komik dansını 10 saniye boyunca yap!", "Mache 10 Sekunden lang deinen lustigsten Tanz!", "¡Haz tu baile más divertido durante 10 segundos!");
+      }
+    }
 
     if (mode == 'FREE') {
       cardTitle = _loc("FREE QUESTION", "SERBEST SORU", "FREIE FRAGE", "PREGUNTA LIBRE", "QUESTION LIBRE", "СВОБОДНЫЙ ВОПРОС");
@@ -2989,10 +3100,7 @@ class _MainGameScreenState extends State<MainGameScreen>
           ? _loc("TRUTH FOR $targetName", "$targetName İÇİN DOĞRULUK", "WAHRHEIT FÜR $targetName", "VERDAD PARA $targetName")
           : _loc("DARE FOR $targetName", "$targetName İÇİN CESARET", "PFLICHT FÜR $targetName", "RETO PARA $targetName");
 
-      final List<Map<String, dynamic>> candidateCards = [];
       final langKey = _currentLangKey;
-      int? pickedPackIdx;
-      int? pickedQIdx;
 
       if (_questionsLoaded && _questionsDb.isNotEmpty) {
         final packKeys = ["pack0_party", "pack1_deep", "pack2_challenge", "pack3_flirt", "pack4_spicy"];
@@ -3018,30 +3126,7 @@ class _MainGameScreenState extends State<MainGameScreen>
         }
       }
 
-      if (candidateCards.isNotEmpty) {
-        // Smart Infinite Deck: filter out already used questions in this session
-        var freshCards = candidateCards
-            .where((c) => !_usedQuestionKeys.contains("${c['packIndex']}_${c['questionIndex']}"))
-            .toList();
-
-        // Reshuffle threshold: if 85%+ of deck is played or fresh pool exhausted, silently reset for infinite cycle
-        if (freshCards.length <= (candidateCards.length * 0.15).ceil() || freshCards.isEmpty) {
-          _usedQuestionKeys.clear();
-          freshCards = List.from(candidateCards);
-        }
-
-        final rand = math.Random();
-        final picked = freshCards[rand.nextInt(freshCards.length)];
-        promptText = picked['text'] as String;
-        pickedPackIdx = picked['packIndex'] as int;
-        pickedQIdx = picked['questionIndex'] as int;
-
-        _usedQuestionKeys.add('${pickedPackIdx}_$pickedQIdx');
-      } else {
-        promptText = mode == 'TRUTH'
-            ? _loc("What is the most memorable party moment in your life?", "Hayatındaki en unutulmaz parti anın neydi?", "Was war dein verrücktester Partymoment?", "¿Cuál ha sido tu momento de fiesta más loco?")
-            : _loc("Do your best 10-second funny dance right now!", "Şu an en komik dansını 10 saniye boyunca yap!", "Mache 10 Sekunden lang deinen lustigsten Tanz!", "¡Haz tu baile más divertido durante 10 segundos!");
-      }
+      drawNextQuestionFromPool();
 
       if (RoomService().isInRoom) {
         RoomService().publishCard(
@@ -3059,65 +3144,104 @@ class _MainGameScreenState extends State<MainGameScreen>
     showDialog(
       context: context,
       builder: (ctx) {
-        return Dialog(
-          backgroundColor: const Color(0xFF0F172A),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(28),
-            side: BorderSide(
-              color: mode == 'TRUTH'
-                  ? const Color(0xFF00F2FE)
-                  : (mode == 'DARE' ? const Color(0xFFFF0844) : const Color(0xFFFFCC00)),
-              width: 3,
-            ),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 30.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  cardTitle,
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w900,
-                    color: mode == 'TRUTH'
-                        ? const Color(0xFF00F2FE)
-                        : (mode == 'DARE' ? const Color(0xFFFF0844) : const Color(0xFFFFCC00)),
-                  ),
-                  textAlign: TextAlign.center,
+        return StatefulBuilder(
+          builder: (dialogCtx, setDialogState) {
+            return Dialog(
+              backgroundColor: const Color(0xFF0F172A),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(28),
+                side: BorderSide(
+                  color: mode == 'TRUTH'
+                      ? const Color(0xFF00F2FE)
+                      : (mode == 'DARE' ? const Color(0xFFFF0844) : const Color(0xFFFFCC00)),
+                  width: 3,
                 ),
-                const SizedBox(height: 20),
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.4),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    promptText,
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600, height: 1.4),
-                    textAlign: TextAlign.center,
-                  ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 28.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      cardTitle,
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w900,
+                        color: mode == 'TRUTH'
+                            ? const Color(0xFF00F2FE)
+                            : (mode == 'DARE' ? const Color(0xFFFF0844) : const Color(0xFFFFCC00)),
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 18),
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.4),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        promptText,
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600, height: 1.4),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    const SizedBox(height: 22),
+                    if (mode != 'FREE') ...[
+                      SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton(
+                          onPressed: () {
+                            _triggerTapFeedback();
+                            setDialogState(() {
+                              drawNextQuestionFromPool();
+                            });
+                          },
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: const Color(0xFFFFCC00),
+                            side: const BorderSide(color: Color(0xFFFFCC00), width: 2),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          ),
+                          child: Text(
+                            _loc(
+                              "NEW QUESTION 🔄",
+                              "BAŞKA SORU 🔄",
+                              "ANDERE FRAGE 🔄",
+                              "OTRA PREGUNTA 🔄",
+                              "AUTRE QUESTION 🔄",
+                              "ДРУГОЙ ВОПРОС 🔄",
+                            ),
+                            style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14.5),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                    ],
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          _triggerTapFeedback();
+                          Navigator.of(ctx).pop();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF00F2FE),
+                          foregroundColor: Colors.black,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        ),
+                        child: Text(
+                          _loc("DONE / NEXT ROUND", "TAMAM / SIRADAKİ TUR", "FERTIG / NÄCHSTE RUNDE", "HECHO / SIGUIENTE RONDA"),
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 24),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(ctx).pop();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF00F2FE),
-                    foregroundColor: Colors.black,
-                    padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  ),
-                  child: Text(
-                    _loc("DONE / NEXT ROUND", "TAMAM / SIRADAKİ TUR", "FERTIG / NÄCHSTE RUNDE", "HECHO / SIGUIENTE RONDA"),
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-                  ),
-                ),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         );
       },
     );
@@ -3130,7 +3254,14 @@ class _MainGameScreenState extends State<MainGameScreen>
       children: [
         // Sound Mute Toggle
         GestureDetector(
-          onTap: () => setState(() => isMuted = !isMuted),
+          onTap: () {
+            HapticFeedback.lightImpact();
+            setState(() => isMuted = !isMuted);
+            _audioChannel.invokeMethod('setMuted', {'muted': isMuted}).catchError((_) {});
+            if (!isMuted) {
+              _audioChannel.invokeMethod('playClick').catchError((_) {});
+            }
+          },
           child: Container(
             width: 44,
             height: 44,
@@ -3153,7 +3284,10 @@ class _MainGameScreenState extends State<MainGameScreen>
 
         // Language Dropdown
         PopupMenuButton<int>(
-          onSelected: (idx) => setState(() => _currentLangIndex = idx),
+          onSelected: (idx) {
+            _triggerTapFeedback();
+            setState(() => _currentLangIndex = idx);
+          },
           color: const Color(0xFF0A1828),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
@@ -3323,13 +3457,16 @@ class _MainGameScreenState extends State<MainGameScreen>
     required VoidCallback onTap,
   }) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: () {
+        _triggerTapFeedback();
+        onTap();
+      },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.05),
+          color: const Color(0xFF071120).withValues(alpha: 0.72),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: accentColor.withValues(alpha: 0.8), width: 2),
+          border: Border.all(color: accentColor.withValues(alpha: 0.85), width: 2),
           boxShadow: [
             BoxShadow(
               color: accentColor.withValues(alpha: 0.25),
@@ -3344,7 +3481,7 @@ class _MainGameScreenState extends State<MainGameScreen>
               width: 50,
               height: 50,
               decoration: BoxDecoration(
-                color: accentColor.withValues(alpha: 0.15),
+                color: accentColor.withValues(alpha: 0.18),
                 borderRadius: BorderRadius.circular(15),
                 border: Border.all(color: accentColor, width: 1.5),
               ),
@@ -3369,10 +3506,14 @@ class _MainGameScreenState extends State<MainGameScreen>
                   const SizedBox(height: 4),
                   Text(
                     desc,
-                    style: const TextStyle(
-                      color: Colors.white70,
-                      fontSize: 11.5,
-                      height: 1.25,
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.88),
+                      fontSize: 12.2,
+                      fontWeight: FontWeight.w600,
+                      height: 1.28,
+                      shadows: const [
+                        Shadow(color: Colors.black87, blurRadius: 4),
+                      ],
                     ),
                   ),
                 ],
@@ -3397,7 +3538,10 @@ class _MainGameScreenState extends State<MainGameScreen>
             children: [
               IconButton(
                 icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF00F2FE), size: 22),
-                onPressed: () => setState(() => currentScreen = 0),
+                onPressed: () {
+                  _triggerTapFeedback();
+                  setState(() => currentScreen = 0);
+                },
               ),
               Expanded(
                 child: Center(
@@ -3426,7 +3570,10 @@ class _MainGameScreenState extends State<MainGameScreen>
                 ),
               ),
               GestureDetector(
-                onTap: () => _showOnboardingModal(1),
+                onTap: () {
+                  _triggerTapFeedback();
+                  _showOnboardingModal(1);
+                },
                 child: Container(
                   width: 30,
                   height: 30,
@@ -3651,6 +3798,7 @@ class _MainGameScreenState extends State<MainGameScreen>
             child: ElevatedButton(
               onPressed: _players.length >= 2
                   ? () {
+                      _triggerTapFeedback();
                       setState(() => currentScreen = 2);
                       WidgetsBinding.instance.addPostFrameCallback((_) {
                         _checkAndShowOnboarding(2);
@@ -3668,7 +3816,7 @@ class _MainGameScreenState extends State<MainGameScreen>
               child: Column(
                 children: [
                   Text(
-                    _loc("CONTINUE TO OBJECTS", "NESNELERE DEVAM ET", "WEITER ZU OBJEKTEN", "CONTINUAR A OBJETOS"),
+                    _loc("PICK BOTTLE", "ŞİŞENİ SEÇ", "FLASCHE WÄHLEN", "ELEGIR BOTELLA", "CHOIX BOUTEILLE", "ВЫБОР БУТЫЛКИ"),
                     style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
                   ),
                   const SizedBox(height: 2),
@@ -3701,6 +3849,7 @@ class _MainGameScreenState extends State<MainGameScreen>
                   children: [
                     GestureDetector(
                       onTap: () {
+                        _triggerTapFeedback();
                         if (RoomService().isInRoom) {
                           if (RoomService().isHost) {
                             RoomService().setStatus(RoomStatus.lobby);
@@ -3724,11 +3873,11 @@ class _MainGameScreenState extends State<MainGameScreen>
                     const SizedBox(width: 10),
                     Flexible(
                       child: Text(
-                        _loc("CHOOSE YOUR OBJECT", "NESNENİ SEÇ", "WÄHLE DEIN OBJEKT", "ELIGE TU OBJETO"),
+                        _loc("PICK BOTTLE", "ŞİŞE SEÇ", "FLASCHE WÄHLEN", "ELEGIR BOTELLA", "CHOIX BOUTEILLE", "ВЫБОР БУТЫЛКИ"),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
-                          fontSize: 16,
+                          fontSize: 15,
                           fontWeight: FontWeight.w900,
                           color: Color(0xFFFFCC00),
                         ),
@@ -3736,7 +3885,10 @@ class _MainGameScreenState extends State<MainGameScreen>
                     ),
                     const SizedBox(width: 8),
                     GestureDetector(
-                      onTap: () => _showOnboardingModal(2),
+                      onTap: () {
+                        _triggerTapFeedback();
+                        _showOnboardingModal(2);
+                      },
                       child: Container(
                         width: 28,
                         height: 28,
@@ -3784,6 +3936,7 @@ class _MainGameScreenState extends State<MainGameScreen>
                     if (RoomService().isInRoom && !RoomService().isHost) {
                       return; // Guest only watches host
                     }
+                    _triggerTapFeedback();
                     if (isVipItem && !_vip) {
                       _openVipModal();
                     } else if (!isUnlocked) {
@@ -3949,6 +4102,7 @@ class _MainGameScreenState extends State<MainGameScreen>
               ),
               child: ElevatedButton(
                 onPressed: () {
+                  _triggerTapFeedback();
                   if (RoomService().isInRoom) {
                     RoomService().proceedToPacks(selectedObjectIndex: _selectedObjectIndex);
                   }
@@ -3966,7 +4120,7 @@ class _MainGameScreenState extends State<MainGameScreen>
                   ),
                 ),
                 child: Text(
-                  _loc("CONTINUE TO PACKS", "PAKETLERE DEVAM ET", "WEITER ZU PAKETEN", "CONTINUAR A PAQUETES"),
+                  _loc("PICK PACKS", "PAKETLERİ SEÇ", "PAKETE WÄHLEN", "ELEGIR PACKS", "CHOIX DES PACKS", "ВЫБОР НАБОРОВ"),
                   style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
                 ),
               ),
@@ -3980,7 +4134,7 @@ class _MainGameScreenState extends State<MainGameScreen>
   Widget _buildPacksScreen() {
     return Padding(
       key: const ValueKey(3),
-      padding: const EdgeInsets.all(20.0),
+      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 14.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -3992,6 +4146,7 @@ class _MainGameScreenState extends State<MainGameScreen>
                   children: [
                     GestureDetector(
                       onTap: () {
+                        _triggerTapFeedback();
                         if (RoomService().isInRoom) {
                           if (RoomService().isHost) {
                             RoomService().setStatus(RoomStatus.objects);
@@ -4015,11 +4170,11 @@ class _MainGameScreenState extends State<MainGameScreen>
                     const SizedBox(width: 10),
                     Flexible(
                       child: Text(
-                        _loc("CHOOSE YOUR PACKS", "PAKETLERİNİ SEÇ", "WÄHLE DEINE PAKETE", "ELIGE TUS PAQUETES"),
+                        _loc("PICK PACKS", "PAKET SEÇ", "PAKETE WÄHLEN", "ELEGIR PACKS", "CHOIX DES PACKS", "ВЫБОР НАБОРОВ"),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
-                          fontSize: 16,
+                          fontSize: 15,
                           fontWeight: FontWeight.w900,
                           color: Color(0xFFFFCC00),
                         ),
@@ -4027,7 +4182,10 @@ class _MainGameScreenState extends State<MainGameScreen>
                     ),
                     const SizedBox(width: 8),
                     GestureDetector(
-                      onTap: () => _showOnboardingModal(3),
+                      onTap: () {
+                        _triggerTapFeedback();
+                        _showOnboardingModal(3);
+                      },
                       child: Container(
                         width: 28,
                         height: 28,
@@ -4047,16 +4205,17 @@ class _MainGameScreenState extends State<MainGameScreen>
               _buildHeaderControls(),
             ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 10),
 
-          // 2x3 Grid of Packs with pack_sheet.png sliced illustrations
+          // 2x3 Grid of Packs with pack_sheet.png sliced illustrations (Fits on 1 screen without scrolling!)
           Expanded(
             child: GridView.builder(
+              physics: const BouncingScrollPhysics(),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
                 crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                childAspectRatio: 0.85,
+                mainAxisSpacing: 10,
+                childAspectRatio: 1.08,
               ),
               itemCount: 6,
               itemBuilder: (ctx, idx) {
@@ -4071,6 +4230,7 @@ class _MainGameScreenState extends State<MainGameScreen>
                     if (RoomService().isInRoom && !RoomService().isHost) {
                       return; // Guest only watches host
                     }
+                    _triggerTapFeedback();
                     if (isVipPack && !_vip) {
                       _openVipModal();
                     } else {
@@ -4180,6 +4340,7 @@ class _MainGameScreenState extends State<MainGameScreen>
               ),
               child: ElevatedButton(
                 onPressed: () {
+                  _triggerTapFeedback();
                   if (RoomService().isInRoom) {
                     RoomService().proceedToArena(selectedPacks: _selectedPacks);
                     _startMultiplayerGame();
@@ -4190,7 +4351,7 @@ class _MainGameScreenState extends State<MainGameScreen>
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF051725),
                   foregroundColor: const Color(0xFFFFCC00),
-                  padding: const EdgeInsets.symmetric(vertical: 18),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
                   ),
@@ -4210,24 +4371,37 @@ class _MainGameScreenState extends State<MainGameScreen>
   Widget _buildArenaScreen() {
     final count = _players.length;
     if (!_isSpinning && count >= 2) {
+      bool initializedPair = false;
       if (_answererIndex < 0 || _answererIndex >= count) {
         _answererIndex = 0;
+        initializedPair = true;
       }
       if (_questionerIndex < 0 || _questionerIndex >= count) {
         _questionerIndex = 1;
+        initializedPair = true;
+      }
+      if (initializedPair && USE_NEW_BOTTLE_ALIGNMENT) {
+        final (alignedAngle, alignedBend) =
+            _computeBottleAlignment(_questionerIndex, _answererIndex, count);
+        _currentAngle = alignedAngle;
+        _currentBendVariant = alignedBend;
       }
     }
 
-    return Padding(
-      key: const ValueKey(4),
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-      child: Column(
-        children: [
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 480),
+        child: Padding(
+          key: const ValueKey(4),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+          child: Column(
+            children: [
           // Header Bar: Back Button + Enlarged Logo near back button + Spacer + Controls
           Row(
             children: [
               GestureDetector(
                 onTap: () {
+                  _triggerTapFeedback();
                   if (RoomService().isInRoom) {
                     setState(() => currentScreen = 6); // Return to lobby
                   } else {
@@ -4283,12 +4457,19 @@ class _MainGameScreenState extends State<MainGameScreen>
                         final double avatarSize = count > 8 ? 44.0 : 52.0;
                         final double iconSize = count > 8 ? 26.0 : 32.0;
 
+                        final bool isActiveSpotlight = _isSpinning ||
+                            _questionerIndex < 0 ||
+                            _answererIndex < 0 ||
+                            isA ||
+                            isQ;
+
                         return Positioned(
                           left: px - 38,
                           top: py - (avatarSize / 2 + 6),
                           width: 76,
                           child: GestureDetector(
                             onTap: () {
+                              _triggerTapFeedback();
                               if (RoomService().isInRoom) {
                                 final roomPlayers = RoomService().currentRoom?.players ?? [];
                                 if (i < roomPlayers.length) {
@@ -4301,114 +4482,118 @@ class _MainGameScreenState extends State<MainGameScreen>
                                 _editPlayerDialog(i);
                               }
                             },
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Stack(
-                                  clipBehavior: Clip.none,
-                                  alignment: Alignment.center,
-                                  children: [
-                                    Container(
-                                      width: avatarSize,
-                                      height: avatarSize,
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: _players[i].color.withValues(alpha: 0.28),
-                                        border: Border.all(
-                                          color: isA
-                                              ? const Color(0xFFFF0844)
-                                              : (isQ ? const Color(0xFF00F2FE) : _players[i].color),
-                                          width: (isA || isQ) ? 4 : 2.5,
+                            child: AnimatedOpacity(
+                              duration: const Duration(milliseconds: 250),
+                              opacity: isActiveSpotlight ? 1.0 : 0.30,
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Stack(
+                                    clipBehavior: Clip.none,
+                                    alignment: Alignment.center,
+                                    children: [
+                                      Container(
+                                        width: avatarSize,
+                                        height: avatarSize,
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: _players[i].color.withValues(
+                                            alpha: isActiveSpotlight ? 0.36 : 0.22,
+                                          ),
+                                          border: Border.all(
+                                            color: _players[i].color,
+                                            width: (isA || isQ) ? 4.0 : (isActiveSpotlight ? 3.2 : 2.5),
+                                          ),
+                                          boxShadow: isActiveSpotlight
+                                              ? [
+                                                  BoxShadow(
+                                                    color: _players[i].color.withValues(
+                                                      alpha: (isA || isQ) ? 0.95 : 0.80,
+                                                    ),
+                                                    blurRadius: (isA || isQ) ? 22 : 16,
+                                                    spreadRadius: (isA || isQ) ? 6 : 3,
+                                                  )
+                                                ]
+                                              : [
+                                                  BoxShadow(
+                                                    color: _players[i].color.withValues(alpha: 0.25),
+                                                    blurRadius: 6,
+                                                  )
+                                                ],
                                         ),
-                                        boxShadow: (isA || isQ)
-                                            ? [
-                                                BoxShadow(
-                                                  color: isA ? const Color(0xFFFF0844) : const Color(0xFF00F2FE),
-                                                  blurRadius: 20,
-                                                  spreadRadius: 6,
-                                                )
-                                              ]
-                                            : [
-                                                BoxShadow(
-                                                  color: _players[i].color.withValues(alpha: 0.35),
-                                                  blurRadius: 8,
-                                                )
-                                              ],
-                                      ),
-                                      child: Center(
-                                        child: Text(
-                                          _players[i].emoji,
-                                          style: TextStyle(
-                                            fontSize: iconSize * 0.85,
+                                        child: Center(
+                                          child: Text(
+                                            _players[i].emoji,
+                                            style: TextStyle(
+                                              fontSize: iconSize * 0.85,
+                                            ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                    // Floating Golden Crown: STRICTLY FOR VIP ONLY
-                                    if (RoomService().isInRoom
-                                        ? (i < (RoomService().currentRoom?.players.length ?? 0) &&
-                                            RoomService().currentRoom!.players[i].isVip)
-                                        : (_vip && i == 0))
-                                      const Positioned(
-                                        top: -13,
-                                        child: Text(
-                                          "👑",
-                                          style: TextStyle(fontSize: 15),
+                                      // Floating Golden Crown: STRICTLY FOR VIP ONLY
+                                      if (RoomService().isInRoom
+                                          ? (i < (RoomService().currentRoom?.players.length ?? 0) &&
+                                              RoomService().currentRoom!.players[i].isVip)
+                                          : (_vip && i == 0))
+                                        const Positioned(
+                                          top: -13,
+                                          child: Text(
+                                            "👑",
+                                            style: TextStyle(fontSize: 15),
+                                          ),
                                         ),
-                                      ),
-                                  ],
-                                ),
-                                const SizedBox(height: 3),
-                                Text(
-                                  _players[i].name,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize: count > 8 ? 11.5 : 13,
-                                    fontWeight: FontWeight.bold,
-                                    color: isA
-                                        ? const Color(0xFFFF0844)
-                                        : (isQ ? const Color(0xFF00F2FE) : Colors.white),
+                                    ],
                                   ),
-                                ),
-                                if (RoomService().isInRoom &&
-                                    i < (RoomService().currentRoom?.players.length ?? 0)) ...[
-                                  () {
-                                    final p = RoomService().currentRoom!.players[i];
-                                    String? badge;
-                                    Color badgeColor = const Color(0xFF00F2FE);
-                                    if (p.isHost && p.isVip) {
-                                      badge = "VIP HOST";
-                                      badgeColor = const Color(0xFFFFCC00);
-                                    } else if (p.isHost) {
-                                      badge = "HOST";
-                                      badgeColor = const Color(0xFF00F2FE);
-                                    } else if (p.isVip) {
-                                      badge = "VIP";
-                                      badgeColor = const Color(0xFFFFCC00);
-                                    }
-                                    if (badge == null) return const SizedBox.shrink();
-                                    return Container(
-                                      margin: const EdgeInsets.only(top: 2),
-                                      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
-                                      decoration: BoxDecoration(
-                                        color: badgeColor.withValues(alpha: 0.2),
-                                        borderRadius: BorderRadius.circular(4),
-                                        border: Border.all(color: badgeColor, width: 0.8),
-                                      ),
-                                      child: Text(
-                                        badge,
-                                        style: TextStyle(
-                                          fontSize: 8,
-                                          fontWeight: FontWeight.w900,
-                                          color: badgeColor,
+                                  const SizedBox(height: 3),
+                                  Text(
+                                    _players[i].name,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: count > 8 ? 11.5 : 13,
+                                      fontWeight: FontWeight.bold,
+                                      color: (isA || isQ) ? _players[i].color : Colors.white,
+                                    ),
+                                  ),
+                                  if (RoomService().isInRoom &&
+                                      i < (RoomService().currentRoom?.players.length ?? 0)) ...[
+                                    () {
+                                      final p = RoomService().currentRoom!.players[i];
+                                      String? badge;
+                                      Color badgeColor = const Color(0xFF00F2FE);
+                                      if (p.isHost && p.isVip) {
+                                        badge = "VIP HOST";
+                                        badgeColor = const Color(0xFFFFCC00);
+                                      } else if (p.isHost) {
+                                        badge = "HOST";
+                                        badgeColor = const Color(0xFF00F2FE);
+                                      } else if (p.isVip) {
+                                        badge = "VIP";
+                                        badgeColor = const Color(0xFFFFCC00);
+                                      }
+                                      if (badge == null) return const SizedBox.shrink();
+                                      return Container(
+                                        margin: const EdgeInsets.only(top: 2),
+                                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                                        decoration: BoxDecoration(
+                                          color: badgeColor.withValues(alpha: 0.2),
+                                          borderRadius: BorderRadius.circular(4),
+                                          border: Border.all(color: badgeColor, width: 0.8),
                                         ),
-                                      ),
-                                    );
-                                  }(),
+                                        child: Text(
+                                          badge,
+                                          style: TextStyle(
+                                            fontSize: 8,
+                                            fontWeight: FontWeight.w900,
+                                            color: badgeColor,
+                                          ),
+                                        ),
+                                      );
+                                    }(),
+                                  ],
                                 ],
-                              ],
+                              ),
                             ),
                           ),
                         );
@@ -4416,16 +4601,15 @@ class _MainGameScreenState extends State<MainGameScreen>
                     ],
 
                     // CENTER WOBBLY BOTTLE
-                    Positioned(
-                      left: center.dx - 110,
-                      top: center.dy - 110,
-                      child: GestureDetector(
-                        onTap: _isSpinning ? null : _spinBottle,
-                        child: Transform.rotate(
-                          angle: _currentAngle,
+                    if (USE_NEW_BOTTLE_ALIGNMENT) ...[
+                      // Centered Neon Aura Glow
+                      Positioned(
+                        left: center.dx - 105,
+                        top: center.dy - 105,
+                        child: IgnorePointer(
                           child: Container(
-                            width: 220,
-                            height: 220,
+                            width: 210,
+                            height: 210,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               boxShadow: [
@@ -4434,23 +4618,73 @@ class _MainGameScreenState extends State<MainGameScreen>
                                           ? const Color(0xFFFFCC00)
                                           : const Color(0xFF00F2FE))
                                       .withValues(alpha: _isSpinning ? 0.65 : 0.3),
-                                  blurRadius: _isSpinning ? 40 : 20,
+                                  blurRadius: _isSpinning ? 42 : 22,
                                   spreadRadius: _isSpinning ? 10 : 4,
                                 ),
                               ],
                             ),
-                            child: Center(
+                          ),
+                        ),
+                      ),
+                      // +20% Larger Bottle (232x232) Pinned & Rotated at its Exact Waist (400, 500) -> Alignment(0.0, 0.25)
+                      Positioned(
+                        left: center.dx - (232.0 * 0.5),
+                        top: center.dy - (232.0 * 0.625),
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.translucent,
+                          onTap: _isSpinning ? null : _spinBottle,
+                          child: Transform.rotate(
+                            angle: _currentAngle,
+                            alignment: const Alignment(0.0, 0.25),
+                            child: SizedBox(
+                              width: 232,
+                              height: 232,
                               child: Image.asset(
                                 'assets/bent_${_selectedObjectIndex}_$_currentBendVariant.png',
-                                width: 190,
-                                height: 190,
+                                width: 232,
+                                height: 232,
                                 fit: BoxFit.contain,
                               ),
                             ),
                           ),
                         ),
                       ),
-                    ),
+                    ] else
+                      Positioned(
+                        left: center.dx - 110,
+                        top: center.dy - 110,
+                        child: GestureDetector(
+                          onTap: _isSpinning ? null : _spinBottle,
+                          child: Transform.rotate(
+                            angle: _currentAngle,
+                            child: Container(
+                              width: 220,
+                              height: 220,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: (_selectedObjectIndex == 4
+                                            ? const Color(0xFFFFCC00)
+                                            : const Color(0xFF00F2FE))
+                                        .withValues(alpha: _isSpinning ? 0.65 : 0.3),
+                                    blurRadius: _isSpinning ? 40 : 20,
+                                    spreadRadius: _isSpinning ? 10 : 4,
+                                  ),
+                                ],
+                              ),
+                              child: Center(
+                                child: Image.asset(
+                                  'assets/bent_${_selectedObjectIndex}_$_currentBendVariant.png',
+                                  width: 190,
+                                  height: 190,
+                                  fit: BoxFit.contain,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                   ],
                 );
               },
@@ -4480,7 +4714,7 @@ class _MainGameScreenState extends State<MainGameScreen>
               ],
             ),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
               decoration: BoxDecoration(
                 color: const Color(0xFF060D1A),
                 borderRadius: BorderRadius.circular(23.5),
@@ -4523,102 +4757,142 @@ class _MainGameScreenState extends State<MainGameScreen>
                         ),
                       ),
                     ] else ...[
-                      // Top Matchup Header: [SORAN] ──⚡──► [CEVAPLAYAN]
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF00F2FE).withValues(alpha: 0.12),
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(color: const Color(0xFF00F2FE), width: 1.5),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: const Color(0xFF00F2FE).withValues(alpha: 0.25),
-                                    blurRadius: 8,
-                                  ),
-                                ],
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(_players[_questionerIndex].emoji, style: const TextStyle(fontSize: 13)),
-                                  const SizedBox(width: 4),
-                                  Flexible(
-                                    child: Text(
-                                      "${_loc("ASKER", "SORAN", "FRAGER", "PREGUNTA", "POSEUR", "ВОПРОС")}: ${_players[_questionerIndex].name.toUpperCase()}",
+                      // Top Matchup Header: 2-Line [SORAN: / İsim] ──⚡──► [CEVAPLAYAN: / İsim]
+                      () {
+                        final Color qColor = _players[_questionerIndex].color;
+                        final Color aColor = _players[_answererIndex].color;
+                        return Row(
+                          children: [
+                            Expanded(
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                                decoration: BoxDecoration(
+                                  color: qColor.withValues(alpha: 0.24),
+                                  borderRadius: BorderRadius.circular(18),
+                                  border: Border.all(color: qColor, width: 2.0),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: qColor.withValues(alpha: 0.40),
+                                      blurRadius: 12,
+                                      spreadRadius: 1,
+                                    ),
+                                  ],
+                                ),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      "${_loc("ASKER", "SORAN", "FRAGER", "PREGUNTA", "POSEUR", "ВОПРОС")}:",
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(
-                                        fontSize: 10.5,
+                                      style: TextStyle(
+                                        fontSize: 10,
                                         fontWeight: FontWeight.w900,
-                                        color: Color(0xFF00F2FE),
-                                        letterSpacing: 0.4,
+                                        color: qColor,
+                                        letterSpacing: 0.8,
                                       ),
                                     ),
-                                  ),
-                                ],
+                                    const SizedBox(height: 2),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Text(_players[_questionerIndex].emoji, style: const TextStyle(fontSize: 14)),
+                                        const SizedBox(width: 4),
+                                        Flexible(
+                                          child: Text(
+                                            _players[_questionerIndex].name.toUpperCase(),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: const TextStyle(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w900,
+                                              color: Colors.white,
+                                              letterSpacing: 0.4,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 6.0),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Container(
-                                  width: 10,
-                                  height: 2,
-                                  color: const Color(0xFF00F2FE),
-                                ),
-                                const Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 2.0),
-                                  child: Icon(Icons.bolt_rounded, color: Color(0xFFFFCC00), size: 18),
-                                ),
-                                const Icon(Icons.arrow_forward_ios_rounded, color: Color(0xFFFF0844), size: 12),
-                              ],
-                            ),
-                          ),
-                          Expanded(
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFFF0844).withValues(alpha: 0.14),
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(color: const Color(0xFFFF0844), width: 1.5),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: const Color(0xFFFF0844).withValues(alpha: 0.25),
-                                    blurRadius: 8,
-                                  ),
-                                ],
-                              ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 6.0),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Text(_players[_answererIndex].emoji, style: const TextStyle(fontSize: 13)),
-                                  const SizedBox(width: 4),
-                                  Flexible(
-                                    child: Text(
-                                      "${_loc("TARGET", "CEVAPLAYAN", "ANTWORT", "RESPONDE", "CIBLE", "ОТВЕТ")}: ${_players[_answererIndex].name.toUpperCase()}",
+                                  Container(
+                                    width: 10,
+                                    height: 2,
+                                    color: qColor,
+                                  ),
+                                  const Padding(
+                                    padding: EdgeInsets.symmetric(horizontal: 2.0),
+                                    child: Icon(Icons.bolt_rounded, color: Color(0xFFFFCC00), size: 18),
+                                  ),
+                                  Icon(Icons.arrow_forward_ios_rounded, color: aColor, size: 12),
+                                ],
+                              ),
+                            ),
+                            Expanded(
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                                decoration: BoxDecoration(
+                                  color: aColor.withValues(alpha: 0.24),
+                                  borderRadius: BorderRadius.circular(18),
+                                  border: Border.all(color: aColor, width: 2.0),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: aColor.withValues(alpha: 0.40),
+                                      blurRadius: 12,
+                                      spreadRadius: 1,
+                                    ),
+                                  ],
+                                ),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      "${_loc("TARGET", "CEVAPLAYAN", "ANTWORT", "RESPONDE", "CIBLE", "ОТВЕТ")}:",
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(
-                                        fontSize: 10.5,
+                                      style: TextStyle(
+                                        fontSize: 10,
                                         fontWeight: FontWeight.w900,
-                                        color: Color(0xFFFF0844),
-                                        letterSpacing: 0.4,
+                                        color: aColor,
+                                        letterSpacing: 0.8,
                                       ),
                                     ),
-                                  ),
-                                ],
+                                    const SizedBox(height: 2),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Text(_players[_answererIndex].emoji, style: const TextStyle(fontSize: 14)),
+                                        const SizedBox(width: 4),
+                                        Flexible(
+                                          child: Text(
+                                            _players[_answererIndex].name.toUpperCase(),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: const TextStyle(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w900,
+                                              color: Colors.white,
+                                              letterSpacing: 0.4,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
+                          ],
+                        );
+                      }(),
+                      const SizedBox(height: 9),
 
                       // Middle Row: 3 Hologram Neon Icon Cards (DOĞRULUK | CESARET | ÖZEL)
                       Row(
@@ -4858,6 +5132,7 @@ class _MainGameScreenState extends State<MainGameScreen>
                   child: InkWell(
                     borderRadius: const BorderRadius.horizontal(left: Radius.circular(18)),
                     onTap: () async {
+                      _triggerTapFeedback();
                       if (RoomService().isInRoom) {
                         await RoomService().leaveRoom();
                       }
@@ -4895,7 +5170,10 @@ class _MainGameScreenState extends State<MainGameScreen>
                 Expanded(
                   child: InkWell(
                     borderRadius: const BorderRadius.horizontal(right: Radius.circular(18)),
-                    onTap: () => setState(() => _profileDrawerOpen = true),
+                    onTap: () {
+                      _triggerTapFeedback();
+                      setState(() => _profileDrawerOpen = true);
+                    },
                     child: Center(
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -4921,7 +5199,9 @@ class _MainGameScreenState extends State<MainGameScreen>
           ),
         ],
       ),
-    );
+    ),
+  ),
+);
   }
 
   // RIGHT-SIDE SLIDE-OVER PROFILE / VIP QUICK DRAWER (Matches GameView.java drawProfile)
@@ -5573,6 +5853,12 @@ class _MainGameScreenState extends State<MainGameScreen>
   }
 
   void _showSyncedMultiplayerCard(RoomState room) {
+    if (_activeSyncedCardCtx != null) {
+      if (_activeSyncedCardCtx!.mounted && Navigator.of(_activeSyncedCardCtx!).canPop()) {
+        Navigator.of(_activeSyncedCardCtx!).pop();
+      }
+      _activeSyncedCardCtx = null;
+    }
     if (_players.isEmpty && room.players.isNotEmpty) {
       for (var p in room.players) {
         _players.add(Player(name: p.name, color: p.color, emoji: p.emoji));
@@ -5694,11 +5980,42 @@ class _MainGameScreenState extends State<MainGameScreen>
                 ),
                 const SizedBox(height: 22),
                 if (isMe || !RoomService().isInRoom) ...[
+                  if (mode != 'FREE') ...[
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton(
+                        onPressed: () {
+                          _showCard(mode);
+                        },
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: const Color(0xFFFFCC00),
+                          side: const BorderSide(color: Color(0xFFFFCC00), width: 2),
+                          padding: const EdgeInsets.symmetric(vertical: 11),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        child: Text(
+                          _loc(
+                            "NEW QUESTION 🔄",
+                            "BAŞKA SORU 🔄",
+                            "ANDERE FRAGE 🔄",
+                            "OTRA PREGUNTA 🔄",
+                            "AUTRE QUESTION 🔄",
+                            "ДРУГОЙ ВОПРОС 🔄",
+                          ),
+                          style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13.5),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                  ],
                   Row(
                     children: [
                       Expanded(
                         child: ElevatedButton(
                           onPressed: () {
+                            _triggerTapFeedback();
                             Navigator.pop(ctx);
                             if (RoomService().isInRoom) {
                               RoomService().completeTurn(tookPenalty: false);
@@ -5722,6 +6039,7 @@ class _MainGameScreenState extends State<MainGameScreen>
                       Expanded(
                         child: ElevatedButton(
                           onPressed: () {
+                            _triggerTapFeedback();
                             Navigator.pop(ctx);
                             if (RoomService().isInRoom) {
                               RoomService().completeTurn(tookPenalty: true);
@@ -5829,19 +6147,25 @@ class _MainGameScreenState extends State<MainGameScreen>
           : null,
       body: Stack(
         children: [
-          // Background Neon Party Atmosphere Image
-          Positioned.fill(
-            child: Image.asset(
-              'assets/game_bg.png',
-              fit: BoxFit.cover,
+          if (USE_ANIMATED_BACKGROUND)
+            Positioned.fill(
+              child: AnimatedPartyBackground(isSpinning: _isSpinning),
+            )
+          else ...[
+            // Background Neon Party Atmosphere Image
+            Positioned.fill(
+              child: Image.asset(
+                'assets/game_bg.png',
+                fit: BoxFit.cover,
+              ),
             ),
-          ),
-          // Dark ambient overlay for crisp readability
-          Positioned.fill(
-            child: Container(
-              color: Colors.black.withValues(alpha: 0.60),
+            // Dark ambient overlay for crisp readability
+            Positioned.fill(
+              child: Container(
+                color: Colors.black.withValues(alpha: 0.60),
+              ),
             ),
-          ),
+          ],
           // Screen Content
           SafeArea(
             child: AnimatedSwitcher(
@@ -5938,6 +6262,238 @@ class RingLinePainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant RingLinePainter oldDelegate) =>
       oldDelegate.center != center || oldDelegate.radius != radius;
+}
+
+// =========================================================================
+// ANIMATED VIP PARTY BACKGROUND (Sweeping Club Spotlights & Neon Bokeh)
+// =========================================================================
+class AnimatedPartyBackground extends StatefulWidget {
+  final bool isSpinning;
+  const AnimatedPartyBackground({super.key, this.isSpinning = false});
+
+  @override
+  State<AnimatedPartyBackground> createState() => _AnimatedPartyBackgroundState();
+}
+
+class _AnimatedPartyBackgroundState extends State<AnimatedPartyBackground>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _bgController;
+
+  @override
+  void initState() {
+    super.initState();
+    _bgController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 16),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _bgController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return RepaintBoundary(
+      child: AnimatedBuilder(
+        animation: _bgController,
+        builder: (context, _) {
+          final double t = _bgController.value * 2 * math.pi;
+          final double breatheScale = 1.0 + 0.022 * math.sin(t);
+
+          return Stack(
+            fit: StackFit.expand,
+            children: [
+              Transform.scale(
+                scale: breatheScale,
+                child: Image.asset(
+                  'assets/game_bg.png',
+                  fit: BoxFit.cover,
+                ),
+              ),
+              Container(
+                color: Colors.black.withValues(alpha: 0.50),
+              ),
+              CustomPaint(
+                painter: _PartyAtmospherePainter(
+                  progress: _bgController.value,
+                  isSpinning: widget.isSpinning,
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _PartyAtmospherePainter extends CustomPainter {
+  final double progress;
+  final bool isSpinning;
+
+  _PartyAtmospherePainter({
+    required this.progress,
+    required this.isSpinning,
+  });
+
+  static const List<Color> _neonPalette = [
+    Color(0xFF00F2FE), // Cyan
+    Color(0xFFFF0844), // Hot Pink
+    Color(0xFFBF4FFF), // Neon Purple
+    Color(0xFFFFCC00), // Gold
+  ];
+
+  void _drawSpotlightBeam({
+    required Canvas canvas,
+    required Offset origin,
+    required double angleRad,
+    required double length,
+    required double spreadHalfAngle,
+    required Color color,
+    required double intensity,
+  }) {
+    final double a1 = angleRad - spreadHalfAngle;
+    final double a2 = angleRad + spreadHalfAngle;
+
+    // Angle 0 points straight down (+Y), positive angle swings right (+X), negative swings left (-X)
+    final Offset endCenter = Offset(
+      origin.dx + math.sin(angleRad) * length,
+      origin.dy + math.cos(angleRad) * length,
+    );
+    final Offset p1 = Offset(
+      origin.dx + math.sin(a1) * length,
+      origin.dy + math.cos(a1) * length,
+    );
+    final Offset p2 = Offset(
+      origin.dx + math.sin(a2) * length,
+      origin.dy + math.cos(a2) * length,
+    );
+
+    final Path beamPath = Path()
+      ..moveTo(origin.dx, origin.dy)
+      ..lineTo(p1.dx, p1.dy)
+      ..lineTo(p2.dx, p2.dy)
+      ..close();
+
+    final Paint beamPaint = Paint()
+      ..blendMode = BlendMode.plus
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 28)
+      ..shader = ui.Gradient.linear(
+        origin,
+        endCenter,
+        [
+          color.withValues(alpha: (0.34 * intensity).clamp(0.0, 1.0)),
+          color.withValues(alpha: (0.14 * intensity).clamp(0.0, 1.0)),
+          Colors.transparent,
+        ],
+        const [0.0, 0.48, 1.0],
+      );
+
+    canvas.drawPath(beamPath, beamPaint);
+
+    // Bright source flare at the spotlight lamp origin
+    final Paint flarePaint = Paint()
+      ..blendMode = BlendMode.plus
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 14)
+      ..color = color.withValues(alpha: (0.45 * intensity).clamp(0.0, 1.0));
+    canvas.drawCircle(origin, 14, flarePaint);
+  }
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final double w = size.width;
+    final double h = size.height;
+    final double t = progress * 2 * math.pi;
+    final double boost = isSpinning ? 1.32 : 1.0;
+
+    // 1. Volumetric Sweeping Club Spotlights matching game_bg.png light fixtures
+    // Top-Left Cyan Spotlight
+    _drawSpotlightBeam(
+      canvas: canvas,
+      origin: Offset(w * 0.07, h * 0.015),
+      angleRad: 0.42 + 0.26 * math.sin(t * 2.0),
+      length: h * 0.72,
+      spreadHalfAngle: 0.20,
+      color: const Color(0xFF00F2FE),
+      intensity: (0.85 + 0.15 * math.sin(t * 3.0)) * boost,
+    );
+
+    // Top-Center Purple Spotlight
+    _drawSpotlightBeam(
+      canvas: canvas,
+      origin: Offset(w * 0.48, h * 0.012),
+      angleRad: 0.32 * math.sin(t * 1.0 + 1.4),
+      length: h * 0.68,
+      spreadHalfAngle: 0.18,
+      color: const Color(0xFFBF4FFF),
+      intensity: (0.80 + 0.20 * math.cos(t * 2.0)) * boost,
+    );
+
+    // Top-Right Pink/Magenta Spotlight
+    _drawSpotlightBeam(
+      canvas: canvas,
+      origin: Offset(w * 0.94, h * 0.025),
+      angleRad: -0.42 + 0.26 * math.cos(t * 2.0 + 0.8),
+      length: h * 0.72,
+      spreadHalfAngle: 0.20,
+      color: const Color(0xFFFF0844),
+      intensity: (0.85 + 0.15 * math.sin(t * 2.0 + 2.1)) * boost,
+    );
+
+    // Upper-Right Gold Spotlight
+    _drawSpotlightBeam(
+      canvas: canvas,
+      origin: Offset(w * 0.93, h * 0.175),
+      angleRad: -0.52 + 0.20 * math.sin(t * 3.0 + 2.5),
+      length: h * 0.55,
+      spreadHalfAngle: 0.15,
+      color: const Color(0xFFFFCC00),
+      intensity: (0.75 + 0.20 * math.sin(t * 4.0)) * boost,
+    );
+
+    // 2. Floating Neon Bokeh Orbs & Twinkling Party Sparkles (30 particles)
+    final Paint bokehPaint = Paint()
+      ..blendMode = BlendMode.plus
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 7);
+    final Paint sparklePaint = Paint()..blendMode = BlendMode.plus;
+
+    for (int i = 0; i < 30; i++) {
+      final Color col = _neonPalette[i % _neonPalette.length];
+      final double seedX = ((i * 37) % 100) / 100.0;
+      final double seedY = ((i * 61) % 100) / 100.0;
+      final int speedMult = (i % 3) + 1;
+
+      // Seamless upward drift (0.0 -> 1.0 wrap-around)
+      final double yNorm = (seedY - (progress * speedMult)) % 1.0;
+      final double dy = (yNorm < 0 ? yNorm + 1.0 : yNorm) * h;
+
+      // Gentle horizontal sway
+      final double sway = math.sin(t * speedMult + i * 1.3) * (12.0 + (i % 4) * 5.0);
+      final double dx = (seedX * w + sway).clamp(0.0, w);
+
+      // Twinkle / breathing pulse
+      final double pulse = 0.5 + 0.5 * math.sin(t * (2 + (i % 3)) + i * 0.9);
+
+      if (i % 2 == 0) {
+        // Soft ambient bokeh orb
+        final double radius = 6.0 + (i % 5) * 2.8;
+        bokehPaint.color = col.withValues(alpha: (0.07 + 0.14 * pulse) * boost);
+        canvas.drawCircle(Offset(dx, dy), radius, bokehPaint);
+      } else {
+        // Crisp twinkling neon sparkle
+        final double radius = 1.6 + (i % 3) * 0.9;
+        sparklePaint.color = col.withValues(alpha: (0.18 + 0.52 * pulse).clamp(0.0, 1.0));
+        canvas.drawCircle(Offset(dx, dy), radius, sparklePaint);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _PartyAtmospherePainter oldDelegate) =>
+      oldDelegate.progress != progress || oldDelegate.isSpinning != isSpinning;
 }
 
 // =========================================================================
