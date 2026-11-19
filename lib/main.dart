@@ -5935,8 +5935,8 @@ class _MainGameScreenState extends State<MainGameScreen>
     final targetName = _players.isNotEmpty ? _players[ansIdx].name : "Player";
     final askerName = _players.isNotEmpty ? _players[askIdx].name : "Player";
 
-    final mode = room.activeCardMode ?? 'TRUTH';
-    final isMe = room.answererIndex == RoomService().myPlayerIndex;
+    final mode = room.activeMode ?? 'TRUTH';
+    final isMe = _players.isNotEmpty && ansIdx < _players.length && _players[ansIdx].name == RoomService().myPlayerName;
 
     String cardTitle = mode == 'TRUTH'
         ? _loc("TRUTH FOR $targetName", "$targetName İÇİN DOĞRULUK", "WAHRHEIT FÜR $targetName", "VERDAD PARA $targetName", "VÉRITÉ POUR $targetName", "ПРАВДА ДЛЯ $targetName")
