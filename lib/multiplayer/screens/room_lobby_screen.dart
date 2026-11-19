@@ -1,3 +1,4 @@
+import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../models/room_models.dart';
@@ -37,28 +38,129 @@ class _RoomLobbyScreenState extends State<RoomLobbyScreen> {
     return widget.loc(en, tr, de, es, fr, ru);
   }
 
-  void _copyRoomDetails(RoomState state) {
-    final text = _t(
-      "Join my Wobbly Bottle party! 🍾\nRoom Code: #${state.roomCode}\nPIN: ${state.pin}",
-      "Wobbly Bottle partime katıl! 🍾\nOda Kodu: #${state.roomCode}\nŞifre: ${state.pin}",
-      "Komm zu meiner Wobbly Bottle Party! 🍾\nRaumcode: #${state.roomCode}\nPIN: ${state.pin}",
-      "¡Únete a mi fiesta de Wobbly Bottle! 🍾\nCódigo de sala: #${state.roomCode}\nPIN: ${state.pin}",
-      "Rejoins ma soirée Wobbly Bottle ! 🍾\nCode de salle : #${state.roomCode}\nPIN : ${state.pin}",
-      "Присоединяйся к моей вечеринке Wobbly Bottle! 🍾\nКод комнаты: #${state.roomCode}\nПИН: ${state.pin}",
+    void _copyRoomDetails(RoomState state) {
+    _showShareInviteModal(state);
+  }
+
+  void _showShareInviteModal(RoomState state) {
+    final roomLink = "https://61mertkoc-cpu.github.io/wobbly-bottle/join.html?room=${state.roomCode}&pin=${state.pin}";
+    final shareMessage = _t(
+      "Join my Wobbly Bottle party! 🍾\nRoom Code: #${state.roomCode} (PIN: ${state.pin})\nTap to join or download:\n$roomLink",
+      "Wobbly Bottle partime katıl! 🍾\nOda Kodu: #${state.roomCode} (Şifre: ${state.pin})\nKatılmak için tıkla:\n$roomLink",
+      "Komm zu meiner Wobbly Bottle Party! 🍾\nRaumcode: #${state.roomCode} (PIN: ${state.pin})\nKlicke zum Beitreten:\n$roomLink",
+      "¡Únete a mi fiesta de Wobbly Bottle! 🍾\nCódigo de sala: #${state.roomCode} (PIN: ${state.pin})\nToca para unirte:\n$roomLink",
+      "Rejoins ma soirée Wobbly Bottle ! 🍾\nCode de salle : #${state.roomCode} (PIN : ${state.pin})\nClique pour rejoindre :\n$roomLink",
+      "Присоединяйся к моей вечеринке Wobbly Bottle! 🍾\nКод комнаты: #${state.roomCode} (ПИН: ${state.pin})\nНажми для входа:\n$roomLink",
     );
-    Clipboard.setData(ClipboardData(text: text));
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(_t(
-          "Room code & PIN copied! 📋",
-          "Oda kodu ve şifre kopyalandı! 📋",
-          "Raumcode kopiert! 📋",
-          "¡Código copiado! 📋",
-          "Code copié ! 📋",
-          "Код комнаты и ПИН скопированы! 📋",
-        )),
-        backgroundColor: const Color(0xFF00F2FE),
-        behavior: SnackBarBehavior.floating,
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 22),
+        decoration: BoxDecoration(
+          color: const Color(0xFF0F172A),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(26)),
+          border: Border.all(color: const Color(0xFF00F2FE), width: 2),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(2))),
+            const SizedBox(height: 16),
+            Text(
+              _t("INVITE FRIENDS TO PARTY 🚀", "ARKADAŞLARINI DAVET ET 🚀", "FREUNDE EINLADEN 🚀", "INVITAR AMIGOS 🚀", "INVITER DES AMIS 🚀", "ПРИГЛАСИТЬ ДРУЗЕЙ 🚀"),
+              style: const TextStyle(color: Color(0xFF00F2FE), fontWeight: FontWeight.w900, fontSize: 16, letterSpacing: 1),
+            ),
+            const SizedBox(height: 18),
+
+            // Option 1: WhatsApp Direct Share
+            Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFF25D366).withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: const Color(0xFF25D366), width: 1.5),
+              ),
+              child: ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(color: const Color(0xFF25D366).withValues(alpha: 0.2), borderRadius: BorderRadius.circular(12)),
+                  child: const Icon(Icons.chat, color: Color(0xFF25D366), size: 24),
+                ),
+                title: const Text("WhatsApp ile Gönder", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14.5)),
+                subtitle: const Text("Direkt mesaj olarak gönder, tek tıkla katılsınlar", style: TextStyle(color: Colors.white60, fontSize: 11.5)),
+                onTap: () async {
+                  Navigator.pop(ctx);
+                  final uri = Uri.parse("https://wa.me/?text=${Uri.encodeComponent(shareMessage)}");
+                  try {
+                    await launchUrl(uri, mode: LaunchMode.externalApplication);
+                  } catch (_) {}
+                },
+              ),
+            ),
+            const SizedBox(height: 10),
+
+            // Option 2: Copy Smart Link (for Instagram Stories / DMs)
+            Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFFE1306C).withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: const Color(0xFFE1306C), width: 1.5),
+              ),
+              child: ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(color: const Color(0xFFE1306C).withValues(alpha: 0.2), borderRadius: BorderRadius.circular(12)),
+                  child: const Icon(Icons.link, color: Color(0xFFE1306C), size: 24),
+                ),
+                title: const Text("Instagram / DM Linkini Kopyala", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14.5)),
+                subtitle: const Text("Hikaye veya DM'ye yapıştır, varsa uygulama açılır yoksa mağazaya yönlendirir", style: TextStyle(color: Colors.white60, fontSize: 11.5)),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  Clipboard.setData(ClipboardData(text: roomLink));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(_t("Instagram / DM Link copied! 📋", "Instagram / DM Linki kopyalandı! 📋", "Link kopiert! 📋", "¡Enlace copiado! 📋", "Lien copié ! 📋", "Ссылка скопирована! 📋")),
+                      backgroundColor: const Color(0xFFE1306C),
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 10),
+
+            // Option 3: Full Invite Text
+            Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFF00F2FE).withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: const Color(0xFF00F2FE), width: 1.5),
+              ),
+              child: ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(color: const Color(0xFF00F2FE).withValues(alpha: 0.2), borderRadius: BorderRadius.circular(12)),
+                  child: const Icon(Icons.copy_all, color: Color(0xFF00F2FE), size: 24),
+                ),
+                title: const Text("Tüm Davet Metnini Kopyala", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14.5)),
+                subtitle: Text("Oda: #${state.roomCode} | PIN: ${state.pin}", style: const TextStyle(color: Colors.white60, fontSize: 11.5)),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  Clipboard.setData(ClipboardData(text: shareMessage));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(_t("Full party invite copied! 📋", "Tüm davet metni kopyalandı! 📋", "Einladung kopiert! 📋", "¡Invitación copiada! 📋", "Invitation copiée ! 📋", "Приглашение скопировано! 📋")),
+                      backgroundColor: const Color(0xFF00F2FE),
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 12),
+          ],
+        ),
       ),
     );
   }
@@ -559,6 +661,49 @@ class _RoomLobbyScreenState extends State<RoomLobbyScreen> {
                               ),
                               const SizedBox(width: 8),
                               const Icon(Icons.copy, color: Color(0xFF00F2FE), size: 18),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Glowing Invite Friends Button
+                      GestureDetector(
+                        onTap: () => _showShareInviteModal(state),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFF00F2FE), Color(0xFF0072FF)],
+                            ),
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFF00F2FE).withValues(alpha: 0.35),
+                                blurRadius: 10,
+                                spreadRadius: 1,
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.share, color: Colors.black, size: 20),
+                              const SizedBox(width: 8),
+                              Text(
+                                _t("INVITE FRIENDS (WHATSAPP / LINK) 🚀",
+                                   "ARKADAŞLARINI DAVET ET (WHATSAPP / LINK) 🚀",
+                                   "FREUNDE EINLADEN (WHATSAPP / LINK) 🚀",
+                                   "INVITAR AMIGOS (WHATSAPP / ENLACE) 🚀",
+                                   "INVITER DES AMIS (WHATSAPP / LIEN) 🚀",
+                                   "ПРИГЛАСИТЬ ДРУЗЕЙ (WHATSAPP / ССЫЛКА) 🚀"),
+                                style: const TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 13,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
                             ],
                           ),
                         ),

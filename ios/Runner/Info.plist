@@ -122,5 +122,18 @@
 		<dict><key>SKAdNetworkIdentifier</key><string>97r2b46745.skadnetwork</string></dict>
 		<dict><key>SKAdNetworkIdentifier</key><string>3qcr597p9d.skadnetwork</string></dict>
 	</array>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.wobblybottle.game</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>wobblybottle</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

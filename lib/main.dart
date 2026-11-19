@@ -3115,6 +3115,10 @@ class _MainGameScreenState extends State<MainGameScreen>
                 if (itemType != null && itemType != mode) {
                   continue;
                 }
+                final isRemote = RoomService().isInRoom && RoomService().currentRoom?.mode == WobblyGameMode.remote;
+                if (isRemote && item['in_person_only'] == true) {
+                  continue;
+                }
                 candidateCards.add({
                   'packIndex': p,
                   'questionIndex': q,
@@ -3143,6 +3147,7 @@ class _MainGameScreenState extends State<MainGameScreen>
 
     showDialog(
       context: context,
+      barrierDismissible: true,
       builder: (ctx) {
         return StatefulBuilder(
           builder: (dialogCtx, setDialogState) {
@@ -3157,7 +3162,9 @@ class _MainGameScreenState extends State<MainGameScreen>
                   width: 3,
                 ),
               ),
-              child: Padding(
+              child: Stack(
+                children: [
+                  Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 28.0),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -3240,11 +3247,32 @@ class _MainGameScreenState extends State<MainGameScreen>
                   ],
                 ),
               ),
-            );
-          },
+              Positioned(
+                top: 10,
+                right: 10,
+                child: GestureDetector(
+                  onTap: () {
+                    _triggerTapFeedback();
+                    Navigator.of(ctx).pop();
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.12),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white24, width: 1.2),
+                    ),
+                    child: const Icon(Icons.close, color: Colors.white, size: 18),
+                  ),
+                ),
+              ),
+            ],
+          ),
         );
       },
     );
+  },
+);
   }
 
   // --- HEADER CONTROLS ---
@@ -3252,6 +3280,38 @@ class _MainGameScreenState extends State<MainGameScreen>
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
+        if (RoomService().isInRoom) ...[
+          GestureDetector(
+            onTap: () {
+              _triggerTapFeedback();
+              _showArenaInviteModal();
+            },
+            child: Container(
+              margin: const EdgeInsets.only(right: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF00F2FE), Color(0xFF0072FF)],
+                ),
+                borderRadius: BorderRadius.circular(14),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF00F2FE).withValues(alpha: 0.35),
+                    blurRadius: 8,
+                  ),
+                ],
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.share, color: Colors.black, size: 16),
+                  SizedBox(width: 4),
+                  Text("DAVET", style: TextStyle(color: Colors.black, fontWeight: FontWeight.w900, fontSize: 11.5)),
+                ],
+              ),
+            ),
+          ),
+        ],
         // Sound Mute Toggle
         GestureDetector(
           onTap: () {
@@ -5874,9 +5934,9 @@ class _MainGameScreenState extends State<MainGameScreen>
     }
     final targetName = _players.isNotEmpty ? _players[ansIdx].name : "Player";
     final askerName = _players.isNotEmpty ? _players[askIdx].name : "Player";
-    final isMe = _players.isNotEmpty &&
-        _players[ansIdx].name == RoomService().myPlayerName;
-    final mode = room.activeMode ?? 'TRUTH';
+
+    final mode = room.activeCardMode ?? 'TRUTH';
+    final isMe = room.answererIndex == RoomService().myPlayerIndex;
 
     String cardTitle = mode == 'TRUTH'
         ? _loc("TRUTH FOR $targetName", "$targetName İÇİN DOĞRULUK", "WAHRHEIT FÜR $targetName", "VERDAD PARA $targetName", "VÉRITÉ POUR $targetName", "ПРАВДА ДЛЯ $targetName")
@@ -5930,165 +5990,245 @@ class _MainGameScreenState extends State<MainGameScreen>
 
     showDialog(
       context: context,
-      barrierDismissible: false,
+      barrierDismissible: true,
       builder: (ctx) {
         _activeSyncedCardCtx = ctx;
-        return Dialog(
-          backgroundColor: const Color(0xFF0F172A),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(28),
-            side: BorderSide(
-              color: mode == 'TRUTH'
-                  ? const Color(0xFF00F2FE)
-                  : (mode == 'DARE' ? const Color(0xFFFF0844) : const Color(0xFFFFCC00)),
-              width: 3,
+        return PopScope(
+          canPop: true,
+          onPopInvokedWithResult: (didPop, _) {
+            if (didPop) {
+              _activeSyncedCardCtx = null;
+              if (isMe && RoomService().isInRoom) {
+                // If answerer dismisses card via back gesture or tapping outside, advance turn so nobody gets stuck!
+                RoomService().completeTurn(tookPenalty: false);
+              }
+            }
+          },
+          child: Dialog(
+            backgroundColor: const Color(0xFF0F172A),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(28),
+              side: BorderSide(
+                color: mode == 'TRUTH'
+                    ? const Color(0xFF00F2FE)
+                    : (mode == 'DARE' ? const Color(0xFFFF0844) : const Color(0xFFFFCC00)),
+                width: 3,
+              ),
             ),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 26.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
+            child: Stack(
               children: [
-                Text(
-                  cardTitle,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w900,
-                    color: mode == 'TRUTH'
-                        ? const Color(0xFF00F2FE)
-                        : const Color(0xFFFF0844),
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 18),
-                Container(
-                  padding: const EdgeInsets.all(18),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.4),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    promptText,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                      height: 1.4,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                const SizedBox(height: 22),
-                if (isMe || !RoomService().isInRoom) ...[
-                  if (mode != 'FREE') ...[
-                    SizedBox(
-                      width: double.infinity,
-                      child: OutlinedButton(
-                        onPressed: () {
-                          _showCard(mode);
-                        },
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: const Color(0xFFFFCC00),
-                          side: const BorderSide(color: Color(0xFFFFCC00), width: 2),
-                          padding: const EdgeInsets.symmetric(vertical: 11),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 26.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(right: 26.0),
+                        child: Text(
+                          cardTitle,
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w900,
+                            color: mode == 'TRUTH'
+                                ? const Color(0xFF00F2FE)
+                                : const Color(0xFFFF0844),
                           ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      const SizedBox(height: 18),
+                      Container(
+                        padding: const EdgeInsets.all(18),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.4),
+                          borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
-                          _loc(
-                            "NEW QUESTION 🔄",
-                            "BAŞKA SORU 🔄",
-                            "ANDERE FRAGE 🔄",
-                            "OTRA PREGUNTA 🔄",
-                            "AUTRE QUESTION 🔄",
-                            "ДРУГОЙ ВОПРОС 🔄",
-                          ),
-                          style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13.5),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                  ],
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () {
-                            _triggerTapFeedback();
-                            Navigator.pop(ctx);
-                            if (RoomService().isInRoom) {
-                              RoomService().completeTurn(tookPenalty: false);
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF34C759),
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                          ),
-                          child: Text(
-                            _loc("DID IT! ✅", "YAPTIM! ✅", "ERLEDIGT! ✅", "¡HECHO! ✅", "FAIT ! ✅", "СДЕЛАНО! ✅"),
-                            style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () {
-                            _triggerTapFeedback();
-                            Navigator.pop(ctx);
-                            if (RoomService().isInRoom) {
-                              RoomService().completeTurn(tookPenalty: true);
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFFF0844),
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                          ),
-                          child: Text(
-                            _loc("PENALTY! 💀", "CEZAMI ÇEKERİM! 💀", "STRAFE! 💀", "¡CASTIGO! 💀", "GAGE ! 💀", "ШТРАФ! 💀"),
-                            style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ] else ...[
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const SizedBox(
-                        width: 14,
-                        height: 14,
-                        child: CircularProgressIndicator(color: Color(0xFF00F2FE), strokeWidth: 2),
-                      ),
-                      const SizedBox(width: 8),
-                      Flexible(
-                        child: Text(
-                          _loc("$targetName is completing the task...",
-                               "$targetName görevi tamamlıyor...",
-                               "$targetName erfüllt die Aufgabe...",
-                               "$targetName está completando la tarea...",
-                               "$targetName est en train de faire le gage...",
-                               "$targetName выполняет задание..."),
+                          promptText,
                           style: const TextStyle(
-                            color: Color(0xFF00F2FE),
-                            fontWeight: FontWeight.bold,
-                            fontSize: 13,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                            height: 1.4,
                           ),
+                          textAlign: TextAlign.center,
                         ),
                       ),
+                      const SizedBox(height: 22),
+                      if (isMe || !RoomService().isInRoom) ...[
+                        if (mode != 'FREE') ...[
+                          SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton(
+                              onPressed: () {
+                                _showCard(mode);
+                              },
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: const Color(0xFFFFCC00),
+                                side: const BorderSide(color: Color(0xFFFFCC00), width: 2),
+                                padding: const EdgeInsets.symmetric(vertical: 11),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                              ),
+                              child: Text(
+                                _loc(
+                                  "NEW QUESTION 🔄",
+                                  "BAŞKA SORU 🔄",
+                                  "ANDERE FRAGE 🔄",
+                                  "OTRA PREGUNTA 🔄",
+                                  "AUTRE QUESTION 🔄",
+                                  "ДРУГОЙ ВОПРОС 🔄",
+                                ),
+                                style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13.5),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                        ],
+                        Row(
+                          children: [
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  _triggerTapFeedback();
+                                  Navigator.pop(ctx);
+                                  if (RoomService().isInRoom) {
+                                    RoomService().completeTurn(tookPenalty: false);
+                                  }
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF34C759),
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                ),
+                                child: Text(
+                                  _loc("DID IT! ✅", "YAPTIM! ✅", "ERLEDIGT! ✅", "¡HECHO! ✅", "FAIT ! ✅", "СДЕЛАНО! ✅"),
+                                  style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  _triggerTapFeedback();
+                                  Navigator.pop(ctx);
+                                  if (RoomService().isInRoom) {
+                                    RoomService().completeTurn(tookPenalty: true);
+                                  }
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFFFF0844),
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                ),
+                                child: Text(
+                                  _loc("PENALTY! 💀", "CEZAMI ÇEKERİM! 💀", "STRAFE! 💀", "¡CASTIGO! 💀", "GAGE ! 💀", "ШТРАФ! 💀"),
+                                  style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ] else ...[
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const SizedBox(
+                              width: 14,
+                              height: 14,
+                              child: CircularProgressIndicator(color: Color(0xFF00F2FE), strokeWidth: 2),
+                            ),
+                            const SizedBox(width: 8),
+                            Flexible(
+                              child: Text(
+                                _loc("$targetName is completing the task...",
+                                     "$targetName görevi tamamlıyor...",
+                                     "$targetName erfüllt die Aufgabe...",
+                                     "$targetName está completando la tarea...",
+                                     "$targetName est en train de faire le gage...",
+                                     "$targetName выполняет задание..."),
+                                style: const TextStyle(
+                                  color: Color(0xFF00F2FE),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 14),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            TextButton.icon(
+                              onPressed: () {
+                                _triggerTapFeedback();
+                                Navigator.pop(ctx);
+                              },
+                              icon: const Icon(Icons.visibility_off, color: Colors.white60, size: 16),
+                              label: Text(
+                                _loc("Close & Watch Arena ✕", "Kapat ve Masayı İzle ✕", "Schließen ✕", "Cerrar ✕", "Fermer ✕", "Закрыть ✕"),
+                                style: const TextStyle(color: Colors.white70, fontSize: 12),
+                              ),
+                            ),
+                            if (RoomService().isHost) ...[
+                              const SizedBox(width: 8),
+                              OutlinedButton.icon(
+                                onPressed: () {
+                                  _triggerTapFeedback();
+                                  Navigator.pop(ctx);
+                                  RoomService().completeTurn(tookPenalty: false);
+                                },
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: const Color(0xFFFFCC00),
+                                  side: const BorderSide(color: Color(0xFFFFCC00), width: 1.2),
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                ),
+                                icon: const Icon(Icons.skip_next, size: 16),
+                                label: Text(
+                                  _loc("Skip ⏭", "Pas Geç ⏭", "Überspringen ⏭", "Saltar ⏭", "Passer ⏭", "Пропустить ⏭"),
+                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11.5),
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ],
                     ],
                   ),
-                ],
+                ),
+                // Top-Right Glowing Neon Close Button
+                Positioned(
+                  top: 10,
+                  right: 10,
+                  child: GestureDetector(
+                    onTap: () {
+                      _triggerTapFeedback();
+                      Navigator.pop(ctx);
+                      if (isMe && RoomService().isInRoom) {
+                        RoomService().completeTurn(tookPenalty: false);
+                      }
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.12),
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white24, width: 1.2),
+                      ),
+                      child: const Icon(Icons.close, color: Colors.white, size: 18),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -6097,6 +6237,84 @@ class _MainGameScreenState extends State<MainGameScreen>
     ).then((_) {
       _activeSyncedCardCtx = null;
     });
+  }
+
+  
+  void _showArenaInviteModal() {
+    final room = RoomService().currentRoom;
+    if (room == null) return;
+    final roomLink = "https://61mertkoc-cpu.github.io/wobbly-bottle/join.html?room=${room.roomCode}&pin=${room.pin}";
+    final shareMessage = _loc(
+      "Join my Wobbly Bottle party! 🍾\nRoom Code: #${room.roomCode} (PIN: ${room.pin})\nTap to join or download:\n$roomLink",
+      "Wobbly Bottle partime katıl! 🍾\nOda Kodu: #${room.roomCode} (Şifre: ${room.pin})\nKatılmak için tıkla:\n$roomLink",
+      "Komm zu meiner Wobbly Bottle Party! 🍾\nRaumcode: #${room.roomCode} (PIN: ${room.pin})\nKlicke zum Beitreten:\n$roomLink",
+      "¡Únete a mi fiesta de Wobbly Bottle! 🍾\nCódigo de sala: #${room.roomCode} (PIN: ${room.pin})\nToca para unirte:\n$roomLink",
+      "Rejoins ma soirée Wobbly Bottle ! 🍾\nCode de salle : #${room.roomCode} (PIN : ${room.pin})\nClique pour rejoindre :\n$roomLink",
+      "Присоединяйся к моей вечеринке Wobbly Bottle! 🍾\nКод комнаты: #${room.roomCode} (ПИН: ${room.pin})\nНажми для входа:\n$roomLink",
+    );
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 22),
+        decoration: BoxDecoration(
+          color: const Color(0xFF0F172A),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(26)),
+          border: Border.all(color: const Color(0xFF00F2FE), width: 2),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(2))),
+            const SizedBox(height: 16),
+            Text(
+              _loc("INVITE FRIENDS TO ROOM 🚀", "ARKADAŞLARINI ODAYA DAVET ET 🚀", "FREUNDE EINLADEN 🚀", "INVITAR AMIGOS 🚀", "INVITER DES AMIS 🚀", "ПРИГЛАСИТЬ ДРУЗЕЙ 🚀"),
+              style: const TextStyle(color: Color(0xFF00F2FE), fontWeight: FontWeight.w900, fontSize: 16, letterSpacing: 1),
+            ),
+            const SizedBox(height: 18),
+            ListTile(
+              leading: const Icon(Icons.chat, color: Color(0xFF25D366), size: 28),
+              title: const Text("WhatsApp ile Gönder", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              subtitle: const Text("Tek tıkla direkt davet linki gönder", style: TextStyle(color: Colors.white60, fontSize: 11)),
+              onTap: () async {
+                Navigator.pop(ctx);
+                final uri = Uri.parse("https://wa.me/?text=${Uri.encodeComponent(shareMessage)}");
+                try {
+                  await launchUrl(uri, mode: LaunchMode.externalApplication);
+                } catch (_) {}
+              },
+            ),
+            const Divider(color: Colors.white12),
+            ListTile(
+              leading: const Icon(Icons.link, color: Color(0xFFE1306C), size: 28),
+              title: const Text("Instagram / DM Linkini Kopyala", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              subtitle: const Text("Hikaye veya DM'ye yapıştır", style: TextStyle(color: Colors.white60, fontSize: 11)),
+              onTap: () {
+                Navigator.pop(ctx);
+                Clipboard.setData(ClipboardData(text: roomLink));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Davet Linki Kopyalandı! 📋"), backgroundColor: Color(0xFFE1306C), behavior: SnackBarBehavior.floating),
+                );
+              },
+            ),
+            const Divider(color: Colors.white12),
+            ListTile(
+              leading: const Icon(Icons.copy_all, color: Color(0xFF00F2FE), size: 28),
+              title: const Text("Tüm Davet Metnini Kopyala", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              subtitle: Text("Oda: #${room.roomCode} (PIN: ${room.pin})", style: const TextStyle(color: Colors.white60, fontSize: 11)),
+              onTap: () {
+                Navigator.pop(ctx);
+                Clipboard.setData(ClipboardData(text: shareMessage));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Oda Kodu & Davet Kopyalandı! 📋"), backgroundColor: Color(0xFF00F2FE), behavior: SnackBarBehavior.floating),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   void _showSyncedAdBreak(RoomState room) {

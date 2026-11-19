@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🍾 Wobbly Bottle Partisine Katıl!</title>
+  <meta name="description" content="Arkadaşın seni Wobbly Bottle Şişe Çevirmece partisine davet etti! Tek tıkla odaya katıl veya indir.">
+  <meta property="og:title" content="🍾 Wobbly Bottle Partisine Davetlisin!">
+  <meta property="og:description" content="Odaya katılmak için tıkla! Şişeyi çevir, cesaretini göster!">
+  <meta property="og:image" content="https://61mertkoc-cpu.github.io/wobbly-bottle/assets/app_icon.png">
+  <meta property="og:type" content="website">
+  
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: radial-gradient(circle at center, #0e1e38 0%, #030712 100%);
+      color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+    }
+    .card {
+      background: rgba(15, 23, 42, 0.85);
+      border: 2px solid #00F2FE;
+      box-shadow: 0 0 30px rgba(0, 242, 254, 0.25), 0 0 60px rgba(255, 8, 68, 0.15);
+      border-radius: 28px;
+      padding: 32px 24px;
+      max-width: 420px;
+      width: 100%;
+      backdrop-filter: blur(16px);
+      animation: fadeIn 0.6s ease-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .logo {
+      width: 96px;
+      height: 96px;
+      border-radius: 22px;
+      box-shadow: 0 8px 24px rgba(0, 242, 254, 0.35);
+      margin-bottom: 16px;
+    }
+    h1 {
+      font-size: 24px;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      background: linear-gradient(135deg, #00F2FE 0%, #4FACFE 50%, #FF0844 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+    p.sub {
+      color: #94A3B8;
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+    .room-box {
+      background: rgba(0, 0, 0, 0.5);
+      border: 1.5px dashed #FFCC00;
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 24px;
+    }
+    .room-code {
+      font-size: 28px;
+      font-weight: 900;
+      color: #00F2FE;
+      letter-spacing: 3px;
+    }
+    .pin-code {
+      display: inline-block;
+      margin-top: 6px;
+      background: #FFCC00;
+      color: #000;
+      font-weight: 900;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 14px;
+    }
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      padding: 15px;
+      border-radius: 18px;
+      font-size: 16px;
+      font-weight: 800;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      margin-bottom: 12px;
+      transition: all 0.2s ease;
+    }
+    .btn-open {
+      background: linear-gradient(135deg, #00F2FE 0%, #0072FF 100%);
+      color: #000;
+      box-shadow: 0 4px 20px rgba(0, 242, 254, 0.4);
+    }
+    .btn-open:hover {
+      transform: scale(1.02);
+      box-shadow: 0 6px 25px rgba(0, 242, 254, 0.6);
+    }
+    .btn-store {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .btn-store:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+    .btn-copy {
+      background: transparent;
+      color: #FFCC00;
+      font-size: 13px;
+      padding: 8px;
+      text-decoration: underline;
+    }
+    .footer {
+      margin-top: 24px;
+      font-size: 12px;
+      color: #64748B;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <img src="assets/app_icon.png" alt="Wobbly Bottle" class="logo" onerror="this.src='assets/wobbly_logo.png'">
+    <h1>WOBBLY BOTTLE</h1>
+    <p class="sub">Arkadaşın seni partiye çağırdı! Şişe dönüyor!</p>
+
+    <div class="room-box">
+      <div style="font-size: 12px; color: #94A3B8; text-transform: uppercase; font-weight: 700; margin-bottom: 4px;">ODA KODU</div>
+      <div id="roomCodeDisplay" class="room-code">#WB-PARTY</div>
+      <div id="pinDisplay" class="pin-code">PIN: ----</div>
+    </div>
+
+    <!-- 1. Open App Button -->
+    <a id="openAppBtn" href="#" class="btn btn-open">
+      🚀 ODAYA KATIL (UYGULAMADA AÇ)
+    </a>
+
+    <!-- 2. Store Download Button -->
+    <a id="storeBtn" href="#" target="_blank" class="btn btn-store">
+      📲 UYGULAMAYI İNDİR
+    </a>
+
+    <!-- 3. Copy Details Button -->
+    <button id="copyBtn" class="btn btn-copy">
+      📋 Oda Kodunu & Şifreyi Kopyala
+    </button>
+  </div>
+
+  <div class="footer">
+    © 2026 Wobbly Bottle - Spin The Bottle Party Game
+  </div>
+
+  <script>
+    // 1. Parse URL Parameters
+    const params = new URLSearchParams(window.location.search);
+    const room = params.get('room') || 'PARTY';
+    const pin = params.get('pin') || '0000';
+
+    document.getElementById('roomCodeDisplay').innerText = '#' + room;
+    document.getElementById('pinDisplay').innerText = 'PIN: ' + pin;
+
+    // Deep link scheme
+    const deepLinkUrl = 'wobblybottle://join?room=' + encodeURIComponent(room) + '&pin=' + encodeURIComponent(pin);
+    document.getElementById('openAppBtn').href = deepLinkUrl;
+
+    // Detect OS
+    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+    const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
+    const isAndroid = /android/i.test(userAgent);
+
+    const appStoreUrl = 'https://apps.apple.com/app/id6794894168';
+    const playStoreUrl = 'https://play.google.com/store/apps/details?id=com.wobblybottle.game';
+
+    const storeBtn = document.getElementById('storeBtn');
+    if (isIOS) {
+      storeBtn.innerText = '🍎 App Store\\'dan İndir';
+      storeBtn.href = appStoreUrl;
+    } else if (isAndroid) {
+      storeBtn.innerText = '🤖 Google Play\\'den İndir';
+      storeBtn.href = playStoreUrl;
+    } else {
+      storeBtn.innerText = '📲 App Store / Google Play\\'den İndir';
+      storeBtn.href = appStoreUrl;
+    }
+
+    // Auto-launch deep link if on mobile
+    if (isIOS || isAndroid) {
+      const start = Date.now();
+      window.location.href = deepLinkUrl;
+
+      // If app isn't installed, prompt redirect to store after timeout
+      setTimeout(() => {
+        // If user stayed on page for more than 1.5 seconds, app likely didn't open
+        if (Date.now() - start < 2000) {
+          // Keep store button highlighted
+          storeBtn.style.borderColor = '#00F2FE';
+          storeBtn.style.boxShadow = '0 0 15px rgba(0, 242, 254, 0.4)';
+        }
+      }, 1500);
+    }
+
+    // Copy Button Handler
+    document.getElementById('copyBtn').addEventListener('click', () => {
+      const textToCopy = '🍾 Wobbly Bottle partime katıl!\\nOda Kodu: #' + room + '\\nPIN: ' + pin + '\\nKatılmak için tıkla: ' + window.location.href;
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        const copyBtn = document.getElementById('copyBtn');
+        copyBtn.innerText = '✅ Davet Linki ve Kodu Kopyalandı!';
+        setTimeout(() => {
+          copyBtn.innerText = '📋 Oda Kodunu & Şifreyi Kopyala';
+        }, 2500);
+      });
+    });
+  </script>
+</body>
+</html>
