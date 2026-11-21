@@ -371,6 +371,39 @@ class _MainGameScreenState extends State<MainGameScreen>
   // Native Android Audio Channel (100% Full Volume BGM & Click SFX)
   static const MethodChannel _audioChannel = MethodChannel('com.wobblybottle/audio');
 
+  Future<void> _startBgmWithFallback() async {
+    if (isMuted) return;
+    try {
+      final result = await _audioChannel.invokeMethod('startBgm');
+      if (result == false) {
+        final bgmData = await rootBundle.load('assets/bgm_party.mp3');
+        ByteData? clickData;
+        ByteData? cardData;
+        try {
+          clickData = await rootBundle.load('assets/btn_click.mp3');
+        } catch (_) {}
+        try {
+          cardData = await rootBundle.load('assets/sound_card.mp3');
+        } catch (_) {}
+        await _audioChannel.invokeMethod('loadAudioBytes', {
+          'bgm': bgmData.buffer.asUint8List(),
+          if (clickData != null) 'click': clickData.buffer.asUint8List(),
+          if (cardData != null) 'card': cardData.buffer.asUint8List(),
+        });
+      }
+    } catch (_) {}
+  }
+
+  void _toggleMute() {
+    HapticFeedback.lightImpact();
+    setState(() => isMuted = !isMuted);
+    _audioChannel.invokeMethod('setMuted', {'muted': isMuted}).catchError((_) {});
+    if (!isMuted) {
+      _startBgmWithFallback();
+      _audioChannel.invokeMethod('playClick').catchError((_) {});
+    }
+  }
+
   void _triggerTapFeedback() {
     HapticFeedback.lightImpact();
     if (!isMuted) {
@@ -523,7 +556,7 @@ class _MainGameScreenState extends State<MainGameScreen>
     _loadBannerAd();
     _initInAppPurchase();
     _initMultiplayerListener();
-    _audioChannel.invokeMethod('startBgm').catchError((_) {});
+    _startBgmWithFallback();
 
     _wobbleController = AnimationController(
       vsync: this,
@@ -567,6 +600,7 @@ class _MainGameScreenState extends State<MainGameScreen>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       RoomService().handleAppResumed();
+      _startBgmWithFallback();
       _checkInternetConnectivity();
       if (_rewardedInterstitialAd == null && _rewardedAd == null) {
         _loadRewardedAd();
@@ -681,20 +715,6 @@ class _MainGameScreenState extends State<MainGameScreen>
       _unlockedObjects[objIdx] = true;
       _selectedObjectIndex = objIdx;
     });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: const Color(0xFF34C759),
-        content: Text(
-          _loc(
-            "🎉 Unlocked: ${WobblyBottleAppGame.getObjectName(objIdx, _currentLangIndex)}!",
-            "🎉 Açıldı: ${WobblyBottleAppGame.getObjectName(objIdx, _currentLangIndex)}!",
-            "🎉 Freigeschaltet!",
-            "🎉 ¡Desbloqueado!",
-          ),
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-      ),
-    );
   }
 
   // --- ADMOB REWARDED AD (Multi-format: RewardedInterstitialAd -> RewardedAd -> Fallback) ---
@@ -1414,32 +1434,6 @@ class _MainGameScreenState extends State<MainGameScreen>
       _bannerAd = null;
       _isBannerAdLoaded = false;
     });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: const Color(0xFFFFCC00),
-        content: Text(
-          permanent
-              ? _loc(
-                  "👑 Lifetime Wobbly VIP Activated! All features unlocked forever!",
-                  "👑 Ömür Boyu Wobbly VIP Aktif Edildi! Tüm kilitler sonsuza dek açıldı!",
-                  "👑 Lifetime Wobbly VIP Aktiviert!",
-                  "👑 ¡Wobbly VIP de por vida Activado!",
-                  "👑 Wobbly VIP à vie Activé !",
-                  "👑 Пожизненный Wobbly VIP Активирован!",
-                )
-              : _loc(
-                  "⏳ 24-Hour Party VIP Pass Activated! Enjoy the party!",
-                  "⏳ 24 Saatlik Parti VIP Pasaportu Aktif Edildi! İyi eğlenceler!",
-                  "⏳ 24-Stunden Party VIP-Pass Aktiviert!",
-                  "⏳ ¡Pase VIP de 24 Horas Activado!",
-                  "⏳ Pass VIP 24 Heures Activé !",
-                  "⏳ VIP-пропуск на 24 часа активирован!",
-                ),
-          style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-        ),
-      ),
-    );
   }
 
   String _getDefaultPriceLabel({required bool isLifetime}) {
@@ -1529,22 +1523,6 @@ class _MainGameScreenState extends State<MainGameScreen>
             _isPurchasing = false;
             _pendingGiftRecipient = null;
           });
-          if (mounted && purchase.status == PurchaseStatus.error) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  _loc(
-                    "Purchase failed or canceled.",
-                    "Satın alma başarısız oldu veya iptal edildi.",
-                    "Kauf fehlgeschlagen.",
-                    "La compra falló.",
-                    "Achat échoué ou annulé.",
-                    "Покупка не удалась или была отменена.",
-                  ),
-                ),
-              ),
-            );
-          }
         }
         if (purchase.pendingCompletePurchase) {
           _iap.completePurchase(purchase);
@@ -3119,6 +3097,9 @@ class _MainGameScreenState extends State<MainGameScreen>
                 if (isRemote && item['in_person_only'] == true) {
                   continue;
                 }
+                if (!isRemote && item['remote_only'] == true) {
+                  continue;
+                }
                 candidateCards.add({
                   'packIndex': p,
                   'questionIndex': q,
@@ -3314,14 +3295,7 @@ class _MainGameScreenState extends State<MainGameScreen>
         ],
         // Sound Mute Toggle
         GestureDetector(
-          onTap: () {
-            HapticFeedback.lightImpact();
-            setState(() => isMuted = !isMuted);
-            _audioChannel.invokeMethod('setMuted', {'muted': isMuted}).catchError((_) {});
-            if (!isMuted) {
-              _audioChannel.invokeMethod('playClick').catchError((_) {});
-            }
-          },
+          onTap: _toggleMute,
           child: Container(
             width: 44,
             height: 44,
@@ -6408,6 +6382,8 @@ class _MainGameScreenState extends State<MainGameScreen>
                       loc: (en, tr, de, es, fr, [ru]) => _loc(en, tr, de, es, fr, ru),
                       onBackToMenu: () => setState(() => currentScreen = 0),
                       onRoomCreatedOrJoined: () => setState(() => currentScreen = 6),
+                      isMuted: isMuted,
+                      onToggleMute: _toggleMute,
                     );
                   case 6:
                     return RoomLobbyScreen(
@@ -6422,6 +6398,8 @@ class _MainGameScreenState extends State<MainGameScreen>
                         await RoomService().leaveRoom();
                         setState(() => currentScreen = 0);
                       },
+                      isMuted: isMuted,
+                      onToggleMute: _toggleMute,
                     );
                   default:
                     return _buildSplashScreen();

@@ -10,6 +10,8 @@ class RoomJoinScreen extends StatefulWidget {
   final Function(String en, String tr, String de, String es, String fr, [String? ru]) loc;
   final VoidCallback onBackToMenu;
   final VoidCallback onRoomCreatedOrJoined;
+  final bool isMuted;
+  final VoidCallback onToggleMute;
 
   const RoomJoinScreen({
     super.key,
@@ -19,6 +21,8 @@ class RoomJoinScreen extends StatefulWidget {
     required this.loc,
     required this.onBackToMenu,
     required this.onRoomCreatedOrJoined,
+    this.isMuted = false,
+    required this.onToggleMute,
   });
 
   @override
@@ -258,7 +262,26 @@ class _RoomJoinScreenState extends State<RoomJoinScreen>
                         ),
                       ),
                       const Spacer(),
-                      const SizedBox(width: 48),
+                      GestureDetector(
+                        onTap: widget.onToggleMute,
+                        child: Container(
+                          width: 42,
+                          height: 42,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF0A1828),
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(
+                              color: widget.isMuted ? const Color(0xFFFF0844) : const Color(0xFF00F2FE),
+                              width: 2,
+                            ),
+                          ),
+                          child: Icon(
+                            widget.isMuted ? Icons.volume_off : Icons.volume_up,
+                            color: widget.isMuted ? const Color(0xFFFF0844) : const Color(0xFF00F2FE),
+                            size: 22,
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 12),
