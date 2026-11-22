@@ -14,12 +14,9 @@ import 'multiplayer/services/room_service.dart';
 import 'multiplayer/screens/room_join_screen.dart';
 import 'multiplayer/screens/room_lobby_screen.dart';
 
-void main() async {
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-  try {
-    await MobileAds.instance.initialize();
-  } catch (_) {}
   runApp(const WobblyBottleApp());
 }
 
@@ -467,6 +464,10 @@ class _MainGameScreenState extends State<MainGameScreen>
   int _questionerIndex = -1;
   int _answererIndex = -1;
   String _currentBendVariant = "0"; // "0", "l", "r"
+  String _pendingBendVariant = "0";
+  String? _lastDisplayedCardKey;
+  Timer? _hostOverrideTimer;
+  int _hostOverrideRemainingSec = 0;
 
   // AdMob Multi-Format Ads (RewardedInterstitialAd + RewardedAd + InterstitialAd)
   RewardedInterstitialAd? _rewardedInterstitialAd;
@@ -490,9 +491,6 @@ class _MainGameScreenState extends State<MainGameScreen>
   StreamSubscription<List<PurchaseDetails>>? _iapSubscription;
   List<ProductDetails> _products = [];
   bool _isPurchasing = false;
-
-  // Splash wobble
-  late AnimationController _wobbleController;
 
   static const String _iosRewardedAdUnitId = 'ca-app-pub-7561629034641721/3183849849';
   static const String _androidRewardedAdUnitId = 'ca-app-pub-7561629034641721/2336738850';
@@ -545,23 +543,27 @@ class _MainGameScreenState extends State<MainGameScreen>
     _initDeviceLanguage();
     _loadVipStatus();
     _checkInternetConnectivity();
-    _netTimer = Timer.periodic(const Duration(seconds: 2), (_) {
+    _netTimer = Timer.periodic(const Duration(seconds: 10), (_) {
       _checkInternetConnectivity();
     });
 
     _loadQuestions();
     _loadPackSheet();
-    _loadRewardedAd();
-    _loadInterstitialAd();
-    _loadBannerAd();
-    _initInAppPurchase();
     _initMultiplayerListener();
-    _startBgmWithFallback();
 
-    _wobbleController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1400),
-    )..repeat(reverse: true);
+    // Defer heavy native SDK and BGM initialization until after first frame renders
+    // so Android startup never hangs or crashes on slow devices
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startBgmWithFallback();
+      _initInAppPurchase();
+      MobileAds.instance.initialize().then((_) {
+        if (mounted) {
+          _loadRewardedAd();
+          _loadInterstitialAd();
+          _loadBannerAd();
+        }
+      }).catchError((_) {});
+    });
 
     // 20% faster bottle spin duration (3800ms -> 3040ms)
     _spinController = AnimationController(
@@ -577,15 +579,19 @@ class _MainGameScreenState extends State<MainGameScreen>
           final t = _spinAnimation.value;
           _currentAngle = _startAngle + (_targetAngle - _startAngle) * t;
 
-          // Wobble bottle while spinning fast
+          // Wobble bottle while spinning fast, then lock to final bendVariant in the last 15%
           if (_isSpinning) {
-            final cycle = math.sin(t * 35.0);
-            if (cycle < -0.3) {
-              _currentBendVariant = "l";
-            } else if (cycle > 0.3) {
-              _currentBendVariant = "r";
+            if (t < 0.85) {
+              final cycle = math.sin(t * 35.0);
+              if (cycle < -0.3) {
+                _currentBendVariant = "l";
+              } else if (cycle > 0.3) {
+                _currentBendVariant = "r";
+              } else {
+                _currentBendVariant = "0";
+              }
             } else {
-              _currentBendVariant = "0";
+              _currentBendVariant = _pendingBendVariant;
             }
           }
         });
@@ -672,9 +678,9 @@ class _MainGameScreenState extends State<MainGameScreen>
   @override
   void dispose() {
     _multiplayerSub?.cancel();
+    _hostOverrideTimer?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     _netTimer?.cancel();
-    _wobbleController.dispose();
     _spinController.dispose();
     _nameController.dispose();
     _colorScrollController.dispose();
@@ -2912,35 +2918,119 @@ class _MainGameScreenState extends State<MainGameScreen>
     }
   }
 
+  bool get _isMeAnswerer {
+    if (!RoomService().isInRoom) return true;
+    final room = RoomService().currentRoom;
+    if (room != null && _answererIndex >= 0 && _answererIndex < room.players.length) {
+      final p = room.players[_answererIndex];
+      return p.id == RoomService().myPlayerId || p.name == RoomService().myPlayerName;
+    }
+    if (_answererIndex >= 0 && _answererIndex < _players.length) {
+      return _players[_answererIndex].name == RoomService().myPlayerName;
+    }
+    return false;
+  }
+
+  bool get _canISpinBottle {
+    if (_isSpinning || _players.length < 2) return false;
+    if (!RoomService().isInRoom) return true;
+    // First turn (before any question has been asked): Host starts the spin
+    if (_answererIndex < 0 || _answererIndex >= _players.length) {
+      return RoomService().isHost;
+    }
+    // Only the person who was just asked the question has spin authority
+    if (_isMeAnswerer) return true;
+    // After 20 seconds, Host can also spin
+    if (RoomService().isHost && _hostOverrideRemainingSec <= 0) return true;
+    return false;
+  }
+
+  void _startHostOverrideCountdown() {
+    _hostOverrideTimer?.cancel();
+    if (!RoomService().isInRoom) {
+      _hostOverrideRemainingSec = 0;
+      return;
+    }
+    setState(() {
+      _hostOverrideRemainingSec = 20;
+    });
+    _hostOverrideTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted || !RoomService().isInRoom) {
+        timer.cancel();
+        return;
+      }
+      if (_hostOverrideRemainingSec > 0) {
+        setState(() {
+          _hostOverrideRemainingSec--;
+        });
+      } else {
+        timer.cancel();
+      }
+    });
+  }
+
+  void _closeActiveQuestionModal() {
+    if (_activeSyncedCardCtx != null) {
+      if (_activeSyncedCardCtx!.mounted && Navigator.of(_activeSyncedCardCtx!).canPop()) {
+        Navigator.of(_activeSyncedCardCtx!).pop();
+      }
+      _activeSyncedCardCtx = null;
+    }
+  }
+
   void _spinBottle() {
     if (!_isOnline) {
       _checkInternetConnectivity();
       return;
     }
-    if (_isSpinning || _players.length < 2) return;
+    if (!_canISpinBottle) return;
     _triggerTapFeedback();
 
+    // Immediately close any open question modal when spinning starts
+    _closeActiveQuestionModal();
+    _lastDisplayedCardKey = null;
+    _hostOverrideTimer?.cancel();
+
+    final count = _players.length;
     final rand = math.Random();
     final rotations = 4 + rand.nextInt(3); // 4-6 full spins
-    final randomTarget = rand.nextDouble() * 2 * math.pi;
-    final startAngle = _currentAngle;
-    final targetAngle = _currentAngle + (rotations * 2 * math.pi) + randomTarget;
+
+    // 1. Pick Questioner & Answerer deterministically right at the start of the spin!
+    final int questioner = rand.nextInt(count);
+    final List<int> candidates = [];
+    for (int i = 0; i < count; i++) {
+      if (i != questioner) candidates.add(i);
+    }
+    final int answerer = candidates[rand.nextInt(candidates.length)];
+
+    // 2. Compute exact aligned final bottle angle & bend variant for (questioner -> answerer)
+    final (finalBottleAngle, bendVariant) =
+        _computeBottleAlignment(questioner, answerer, count);
+
+    final double twoPi = 2 * math.pi;
+    final double startAngle = _currentAngle;
+    final double normalizedStart = startAngle % twoPi;
+    final double normalizedFinal = finalBottleAngle % twoPi;
+    double angleDiff = (normalizedFinal - normalizedStart) % twoPi;
+    if (angleDiff < 0) angleDiff += twoPi;
+    final double targetAngle = startAngle + (rotations * twoPi) + angleDiff;
 
     if (RoomService().isInRoom) {
       RoomService().spinBottle(
         startAngle: startAngle,
         targetAngle: targetAngle,
-        bendVariant: "0",
-        answererIndex: -1,
-        questionerIndex: -1,
+        bendVariant: bendVariant,
+        answererIndex: answerer,
+        questionerIndex: questioner,
       );
     } else {
       setState(() {
         _isSpinning = true;
         _startAngle = startAngle;
         _targetAngle = targetAngle;
-        _questionerIndex = -1;
-        _answererIndex = -1;
+        _questionerIndex = questioner;
+        _answererIndex = answerer;
+        _pendingBendVariant = bendVariant;
         _currentBendVariant = "0";
       });
 
@@ -2951,58 +3041,16 @@ class _MainGameScreenState extends State<MainGameScreen>
 
   void _onSpinFinished() {
     HapticFeedback.mediumImpact();
-    final count = _players.length;
-    final rand = math.Random();
-
-    // 1. Determine Questioner by nearest player at base of bottle
-    final baseAngle = (_currentAngle + (math.pi / 2)) % (2 * math.pi);
-
-    int nearestPlayer(double targetAngle) {
-      double minDiff = double.infinity;
-      int best = 0;
-      for (int i = 0; i < count; i++) {
-        final pAngle = (-math.pi / 2 + (i * 2 * math.pi / count)) % (2 * math.pi);
-        double diff = (targetAngle - pAngle).abs();
-        if (diff > math.pi) diff = (2 * math.pi) - diff;
-        if (diff < minDiff) {
-          minDiff = diff;
-          best = i;
-        }
-      }
-      return best;
-    }
-
-    final questioner = nearestPlayer(baseAngle);
-
-    // 2. Pick Answerer (different from questioner)
-    final List<int> candidates = [];
-    for (int i = 0; i < count; i++) {
-      if (i != questioner) candidates.add(i);
-    }
-    final answerer = candidates[rand.nextInt(candidates.length)];
-
-    // 3. Align base with Questioner and neck with Answerer
-    final (finalBottleAngle, bendVariant) =
-        _computeBottleAlignment(questioner, answerer, count);
 
     setState(() {
       _isSpinning = false;
-      _questionerIndex = questioner;
-      _answererIndex = answerer;
-      _currentAngle = finalBottleAngle;
-      _currentBendVariant = bendVariant;
+      _currentAngle = _targetAngle;
+      _currentBendVariant = _pendingBendVariant;
     });
 
     if (RoomService().isInRoom) {
-      RoomService().syncSpinResult(
-        angle: finalBottleAngle,
-        bendVariant: bendVariant,
-        answererIndex: answerer,
-        questionerIndex: questioner,
-      );
-    }
-
-    if (!RoomService().isInRoom) {
+      _startHostOverrideCountdown();
+    } else {
       // Show interstitial ad every 5 bottle spins in single device mode!
       _showInterstitialAdIfNeeded();
     }
@@ -3126,6 +3174,9 @@ class _MainGameScreenState extends State<MainGameScreen>
       }
     }
 
+    final String askerEmoji = _players[_questionerIndex].emoji;
+    final String targetEmoji = _players[_answererIndex].emoji;
+
     showDialog(
       context: context,
       barrierDismissible: true,
@@ -3133,127 +3184,668 @@ class _MainGameScreenState extends State<MainGameScreen>
         return StatefulBuilder(
           builder: (dialogCtx, setDialogState) {
             return Dialog(
-              backgroundColor: const Color(0xFF0F172A),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(28),
-                side: BorderSide(
-                  color: mode == 'TRUTH'
-                      ? const Color(0xFF00F2FE)
-                      : (mode == 'DARE' ? const Color(0xFFFF0844) : const Color(0xFFFFCC00)),
-                  width: 3,
-                ),
+              backgroundColor: Colors.transparent,
+              insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+              child: _buildConcept3HologramCard(
+                mode: mode,
+                askerName: askerName,
+                askerEmoji: askerEmoji,
+                targetName: targetName,
+                targetEmoji: targetEmoji,
+                promptText: promptText,
+                isInteractiveOwner: true,
+                onNewQuestion: mode != 'FREE'
+                    ? () {
+                        _triggerTapFeedback();
+                        setDialogState(() {
+                          drawNextQuestionFromPool();
+                        });
+                      }
+                    : null,
+                onDidIt: () {
+                  _triggerTapFeedback();
+                  Navigator.of(ctx).pop();
+                },
+                onPenalty: () {
+                  _triggerTapFeedback();
+                  Navigator.of(ctx).pop();
+                },
+                onClose: () {
+                  _triggerTapFeedback();
+                  Navigator.of(ctx).pop();
+                },
               ),
-              child: Stack(
-                children: [
-                  Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 28.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      cardTitle,
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w900,
-                        color: mode == 'TRUTH'
-                            ? const Color(0xFF00F2FE)
-                            : (mode == 'DARE' ? const Color(0xFFFF0844) : const Color(0xFFFFCC00)),
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 18),
-                    Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.4),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        promptText,
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600, height: 1.4),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    const SizedBox(height: 22),
-                    if (mode != 'FREE') ...[
-                      SizedBox(
-                        width: double.infinity,
-                        child: OutlinedButton(
-                          onPressed: () {
-                            _triggerTapFeedback();
-                            setDialogState(() {
-                              drawNextQuestionFromPool();
-                            });
-                          },
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: const Color(0xFFFFCC00),
-                            side: const BorderSide(color: Color(0xFFFFCC00), width: 2),
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                          ),
-                          child: Text(
-                            _loc(
-                              "NEW QUESTION 🔄",
-                              "BAŞKA SORU 🔄",
-                              "ANDERE FRAGE 🔄",
-                              "OTRA PREGUNTA 🔄",
-                              "AUTRE QUESTION 🔄",
-                              "ДРУГОЙ ВОПРОС 🔄",
-                            ),
-                            style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14.5),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                    ],
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          _triggerTapFeedback();
-                          Navigator.of(ctx).pop();
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF00F2FE),
-                          foregroundColor: Colors.black,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                        ),
-                        child: Text(
-                          _loc("DONE / NEXT ROUND", "TAMAM / SIRADAKİ TUR", "FERTIG / NÄCHSTE RUNDE", "HECHO / SIGUIENTE RONDA"),
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Positioned(
-                top: 10,
-                right: 10,
-                child: GestureDetector(
-                  onTap: () {
-                    _triggerTapFeedback();
-                    Navigator.of(ctx).pop();
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.12),
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white24, width: 1.2),
-                    ),
-                    child: const Icon(Icons.close, color: Colors.white, size: 18),
-                  ),
-                ),
-              ),
-            ],
-          ),
+            );
+          },
         );
       },
     );
-  },
-);
+  }
+
+  // --- CONCEPT 3: HOLOGRAM ARCADE QUESTION CARD (97% Opaque High-Contrast Readability) ---
+  Widget _buildConcept3HologramCard({
+    required String mode,
+    required String askerName,
+    required String askerEmoji,
+    required String targetName,
+    required String targetEmoji,
+    required String promptText,
+    required bool isInteractiveOwner,
+    VoidCallback? onNewQuestion,
+    required VoidCallback onDidIt,
+    required VoidCallback onPenalty,
+    required VoidCallback onClose,
+  }) {
+    final bool isTruth = mode == 'TRUTH';
+    final bool isDare = mode == 'DARE';
+    final Color modeAccent = isTruth
+        ? const Color(0xFF00F2FE)
+        : (isDare ? const Color(0xFFFF2E93) : const Color(0xFFFFCC00));
+
+    final String modeBadgeLabel = isTruth
+        ? _loc("TRUTH", "DOĞRULUK", "WAHRHEIT", "VERDAD", "VÉRITÉ", "ПРАВДА")
+        : (isDare
+            ? _loc("DARE", "CESARET", "PFLICHT", "RETO", "ACTION", "ДЕЙСТВИЕ")
+            : _loc("CUSTOM", "SERBEST SORU", "FREIE FRAGE", "PREGUNTA LIBRE", "QUESTION LIBRE", "СВОБОДНЫЙ ВОПРОС"));
+
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(28),
+        gradient: const LinearGradient(
+          colors: [Color(0xFF00F2FE), Color(0xFFA855F7), Color(0xFFEC4899)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF00F2FE).withValues(alpha: 0.28),
+            blurRadius: 24,
+            spreadRadius: 1,
+          ),
+          BoxShadow(
+            color: const Color(0xFFEC4899).withValues(alpha: 0.28),
+            blurRadius: 24,
+            spreadRadius: 1,
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(2.2),
+      child: Container(
+        // 97% Opaque Deep Cosmic Interior so background bottle never bleeds into question text
+        decoration: BoxDecoration(
+          color: const Color(0xFF070A1A).withValues(alpha: 0.97),
+          borderRadius: BorderRadius.circular(26),
+        ),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // 1. TOP ANGLED ESPORTS SPLIT-HEADER: [SORAN: MERT] ➔ [CEVAPLAYAN: AYŞE]
+            SizedBox(
+              height: 64,
+              child: Row(
+                children: [
+                  // Left Cyan Wing (SORAN)
+                  Expanded(
+                    child: CustomPaint(
+                      painter: _HologramWingPainter(
+                        isLeft: true,
+                        borderColor: const Color(0xFF00F2FE),
+                        fillStart: const Color(0xFF06344D),
+                        fillEnd: const Color(0xFF051829),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 12, right: 20, top: 8, bottom: 8),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              "${_loc("ASKER", "SORAN", "FRAGER", "PREGUNTA", "POSEUR", "ВОПРОС")}:",
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                color: Color(0xFF00F2FE),
+                                fontSize: 10.5,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 1.0,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(askerEmoji, style: const TextStyle(fontSize: 14)),
+                                const SizedBox(width: 4),
+                                Flexible(
+                                  child: Text(
+                                    askerName.toUpperCase(),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14.5,
+                                      fontWeight: FontWeight.w900,
+                                      letterSpacing: 0.4,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // Center Glowing Neon Arrow
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: Container(
+                      width: 34,
+                      height: 34,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: const Color(0xFF150D30),
+                        border: Border.all(color: const Color(0xFFC084FC), width: 1.8),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFFA855F7).withValues(alpha: 0.65),
+                            blurRadius: 12,
+                            spreadRadius: 1,
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.arrow_forward_rounded,
+                        color: Color(0xFFF0ABFC),
+                        size: 20,
+                      ),
+                    ),
+                  ),
+
+                  // Right Magenta Wing (CEVAPLAYAN / SORULAN)
+                  Expanded(
+                    child: CustomPaint(
+                      painter: _HologramWingPainter(
+                        isLeft: false,
+                        borderColor: const Color(0xFFEC4899),
+                        fillStart: const Color(0xFF4A0D37),
+                        fillEnd: const Color(0xFF23071D),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 20, right: 12, top: 8, bottom: 8),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              "${_loc("TARGET", "CEVAPLAYAN", "ANTWORT", "RESPONDE", "CIBLE", "ОТВЕТ")}:",
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                color: Color(0xFFF472B6),
+                                fontSize: 10.5,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 1.0,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(targetEmoji, style: const TextStyle(fontSize: 14)),
+                                const SizedBox(width: 4),
+                                Flexible(
+                                  child: Text(
+                                    targetName.toUpperCase(),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14.5,
+                                      fontWeight: FontWeight.w900,
+                                      letterSpacing: 0.4,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 14),
+
+            // 2. FLOATING HOLOGRAM CATEGORY CREST + CLOSE BUTTON ROW
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 7),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF10152E),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: modeAccent.withValues(alpha: 0.85), width: 1.8),
+                    boxShadow: [
+                      BoxShadow(
+                        color: modeAccent.withValues(alpha: 0.35),
+                        blurRadius: 12,
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        isTruth
+                            ? Icons.remove_red_eye_rounded
+                            : (isDare ? Icons.local_fire_department_rounded : Icons.auto_awesome_rounded),
+                        color: isDare ? const Color(0xFFFF5500) : modeAccent,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 7),
+                      Text(
+                        modeBadgeLabel,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 15.5,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 1.4,
+                          shadows: [
+                            Shadow(color: modeAccent.withValues(alpha: 0.85), blurRadius: 10),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: GestureDetector(
+                    onTap: onClose,
+                    child: Container(
+                      width: 30,
+                      height: 30,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.10),
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white24, width: 1.2),
+                      ),
+                      child: const Icon(Icons.close, color: Colors.white70, size: 17),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 14),
+
+            // 3. DUAL-NEON (CYAN -> MAGENTA) BORDERED QUESTION STAGE (SOLID DARK FOR 100% READABILITY)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(2.2),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF00F2FE), Color(0xFFA855F7), Color(0xFFEC4899)],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF00F2FE).withValues(alpha: 0.22),
+                    blurRadius: 14,
+                  ),
+                  BoxShadow(
+                    color: const Color(0xFFEC4899).withValues(alpha: 0.22),
+                    blurRadius: 14,
+                  ),
+                ],
+              ),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                decoration: BoxDecoration(
+                  // Solid deep dark violet-navy so text is 100% crisp and readable
+                  color: const Color(0xFF050714),
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: Text(
+                  promptText,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 17.5,
+                    fontWeight: FontWeight.w800,
+                    height: 1.42,
+                    letterSpacing: 0.2,
+                  ),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 18),
+
+            // 4. HOLOGRAM NEON PILL BUTTONS
+            if (isInteractiveOwner) ...[
+              if (onNewQuestion != null) ...[
+                GestureDetector(
+                  onTap: onNewQuestion,
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 11),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF0D142E),
+                      borderRadius: BorderRadius.circular(999),
+                      border: Border.all(color: const Color(0xFF38BDF8), width: 2.0),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF00F2FE).withValues(alpha: 0.30),
+                          blurRadius: 12,
+                        ),
+                      ],
+                    ),
+                    child: Center(
+                      child: Text(
+                        _loc(
+                          "NEW QUESTION 🔄",
+                          "BAŞKA SORU 🔄",
+                          "ANDERE FRAGE 🔄",
+                          "OTRA PREGUNTA 🔄",
+                          "AUTRE QUESTION 🔄",
+                          "ДРУГОЙ ВОПРОС 🔄",
+                        ),
+                        style: const TextStyle(
+                          color: Color(0xFF7DD3FC),
+                          fontWeight: FontWeight.w900,
+                          fontSize: 14,
+                          letterSpacing: 0.8,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ],
+              Row(
+                children: [
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: onDidIt,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 13),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF063B27), Color(0xFF042217)],
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                          ),
+                          borderRadius: BorderRadius.circular(999),
+                          border: Border.all(color: const Color(0xFF22C55E), width: 2.2),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF22C55E).withValues(alpha: 0.40),
+                              blurRadius: 14,
+                            ),
+                          ],
+                        ),
+                        child: Center(
+                          child: Text(
+                            _loc("DID IT! ✅", "YAPTIM! ✅", "ERLEDIGT! ✅", "¡HECHO! ✅", "FAIT ! ✅", "СДЕЛАНО! ✅"),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w900,
+                              fontSize: 13.5,
+                              letterSpacing: 0.6,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: onPenalty,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 13),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF470922), Color(0xFF280513)],
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                          ),
+                          borderRadius: BorderRadius.circular(999),
+                          border: Border.all(color: const Color(0xFFFF2E63), width: 2.2),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFFFF0844).withValues(alpha: 0.40),
+                              blurRadius: 14,
+                            ),
+                          ],
+                        ),
+                        child: Center(
+                          child: Text(
+                            _loc("PENALTY! 💀", "CEZA! 💀", "STRAFE! 💀", "¡CASTIGO! 💀", "GAGE ! 💀", "ШТРАФ! 💀"),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w900,
+                              fontSize: 13.5,
+                              letterSpacing: 0.6,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ] else ...[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const SizedBox(
+                    width: 14,
+                    height: 14,
+                    child: CircularProgressIndicator(color: Color(0xFF00F2FE), strokeWidth: 2),
+                  ),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      _loc(
+                        "$targetName is completing the task...",
+                        "$targetName görevi tamamlıyor...",
+                        "$targetName erfüllt die Aufgabe...",
+                        "$targetName está completando la tarea...",
+                        "$targetName est en train de faire le gage...",
+                        "$targetName выполняет задание...",
+                      ),
+                      style: const TextStyle(
+                        color: Color(0xFF00F2FE),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TextButton.icon(
+                    onPressed: onClose,
+                    icon: const Icon(Icons.visibility_off, color: Colors.white60, size: 16),
+                    label: Text(
+                      _loc("Close & Watch Arena ✕", "Kapat ve Masayı İzle ✕", "Schließen ✕", "Cerrar ✕", "Fermer ✕", "Закрыть ✕"),
+                      style: const TextStyle(color: Colors.white70, fontSize: 12),
+                    ),
+                  ),
+                  if (RoomService().isHost) ...[
+                    const SizedBox(width: 8),
+                    OutlinedButton.icon(
+                      onPressed: onDidIt,
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFFFFCC00),
+                        side: const BorderSide(color: Color(0xFFFFCC00), width: 1.2),
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      icon: const Icon(Icons.skip_next, size: 16),
+                      label: Text(
+                        _loc("Skip ⏭", "Pas Geç ⏭", "Überspringen ⏭", "Saltar ⏭", "Passer ⏭", "Пропустить ⏭"),
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11.5),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  // --- ARENA PLAYER MANAGEMENT SHEET (GIFT VIP, TRANSFER HOST, KICK PLAYER) ---
+  void _showArenaPlayerActionSheet(NetworkPlayer player) {
+    final bool isHost = RoomService().isHost;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 22),
+        decoration: BoxDecoration(
+          color: const Color(0xFF0F172A),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          border: Border.all(color: player.color.withValues(alpha: 0.8), width: 2),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 44,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.white24,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircleAvatar(
+                  backgroundColor: player.color.withValues(alpha: 0.25),
+                  radius: 18,
+                  child: Text(player.emoji, style: const TextStyle(fontSize: 20)),
+                ),
+                const SizedBox(width: 10),
+                Text(
+                  player.name,
+                  style: TextStyle(
+                    color: player.color,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                if (player.isVip) ...[
+                  const SizedBox(width: 6),
+                  const Text("👑", style: TextStyle(fontSize: 18)),
+                ],
+              ],
+            ),
+            const SizedBox(height: 18),
+            if (!player.isVip) ...[
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      const Color(0xFFFFCC00).withValues(alpha: 0.22),
+                      const Color(0xFFFF0844).withValues(alpha: 0.16),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: const Color(0xFFFFCC00), width: 1.5),
+                ),
+                child: ListTile(
+                  leading: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFCC00).withValues(alpha: 0.25),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Text("🎁", style: TextStyle(fontSize: 22)),
+                  ),
+                  title: Text(
+                    _loc(
+                      "Gift VIP to ${player.name}",
+                      "${player.name} Adlı Oyuncuya VIP Hediye Et",
+                      "${player.name} VIP schenken",
+                      "Regalar VIP a ${player.name}",
+                      "Offrir VIP à ${player.name}",
+                      "Подарить VIP игроку ${player.name}",
+                    ),
+                    style: const TextStyle(color: Color(0xFFFFCC00), fontWeight: FontWeight.w900, fontSize: 14.5),
+                  ),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    _openGiftVipModal(player);
+                  },
+                ),
+              ),
+              if (isHost) const SizedBox(height: 10),
+            ],
+            if (isHost) ...[
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFCC00).withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Text("👑", style: TextStyle(fontSize: 20)),
+                ),
+                title: Text(
+                  _loc("Transfer Host Role", "Host Yetkisini Devret", "Host-Rechte übertragen", "Transferir anfitrión", "Transférer le rôle d'hôte", "Передать права хоста"),
+                  style: const TextStyle(color: Color(0xFFFFCC00), fontWeight: FontWeight.w900),
+                ),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  RoomService().transferHost(player.id);
+                },
+              ),
+              const Divider(color: Colors.white12),
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFF0844).withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.remove_circle, color: Color(0xFFFF0844), size: 24),
+                ),
+                title: Text(
+                  _loc("Kick from Room (10 Min)", "Odadan At (10 Dk)", "Aus Raum kicken (10 Min)", "Expulsar de la sala (10 min)", "Expulser de la salle (10 min)", "Исключить из комнаты (10 мин)"),
+                  style: const TextStyle(color: Color(0xFFFF0844), fontWeight: FontWeight.w900),
+                ),
+                subtitle: Text(
+                  _loc("Ban for 10 minutes from this room", "10 dakika boyunca bu odaya giremez", "10 Minuten für diesen Raum sperren", "Bloquear durante 10 minutos", "Bannir pendant 10 minutes", "Заблокировать вход в комнату на 10 минут"),
+                  style: const TextStyle(color: Colors.white60, fontSize: 12),
+                ),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  RoomService().kickPlayer(player.id);
+                },
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
   }
 
   // --- HEADER CONTROLS ---
@@ -4404,7 +4996,7 @@ class _MainGameScreenState extends State<MainGameScreen>
   // SCREEN 4: GAME ARENA (Connecting Ring, Glowing Players & Wobbly Bending Bottle)
   Widget _buildArenaScreen() {
     final count = _players.length;
-    if (!_isSpinning && count >= 2) {
+    if (!_isSpinning && !RoomService().isInRoom && count >= 2) {
       bool initializedPair = false;
       if (_answererIndex < 0 || _answererIndex >= count) {
         _answererIndex = 0;
@@ -4486,8 +5078,8 @@ class _MainGameScreenState extends State<MainGameScreen>
                         final pAngle = -math.pi / 2 + (i * 2 * math.pi / count);
                         final px = center.dx + ringRadius * math.cos(pAngle);
                         final py = center.dy + ringRadius * math.sin(pAngle);
-                        final isQ = _questionerIndex == i;
-                        final isA = _answererIndex == i;
+                        final isQ = !_isSpinning && _questionerIndex == i;
+                        final isA = !_isSpinning && _answererIndex == i;
                         final double avatarSize = count > 8 ? 44.0 : 52.0;
                         final double iconSize = count > 8 ? 26.0 : 32.0;
 
@@ -4508,8 +5100,8 @@ class _MainGameScreenState extends State<MainGameScreen>
                                 final roomPlayers = RoomService().currentRoom?.players ?? [];
                                 if (i < roomPlayers.length) {
                                   final netP = roomPlayers[i];
-                                  if (netP.id != RoomService().myPlayerId && !netP.isVip) {
-                                    _openGiftVipModal(netP);
+                                  if (netP.id != RoomService().myPlayerId) {
+                                    _showArenaPlayerActionSheet(netP);
                                   }
                                 }
                               } else {
@@ -4666,7 +5258,7 @@ class _MainGameScreenState extends State<MainGameScreen>
                         top: center.dy - (232.0 * 0.625),
                         child: GestureDetector(
                           behavior: HitTestBehavior.translucent,
-                          onTap: _isSpinning ? null : _spinBottle,
+                          onTap: _canISpinBottle ? _spinBottle : null,
                           child: Transform.rotate(
                             angle: _currentAngle,
                             alignment: const Alignment(0.0, 0.25),
@@ -4678,6 +5270,7 @@ class _MainGameScreenState extends State<MainGameScreen>
                                 width: 232,
                                 height: 232,
                                 fit: BoxFit.contain,
+                                gaplessPlayback: true,
                               ),
                             ),
                           ),
@@ -4688,7 +5281,7 @@ class _MainGameScreenState extends State<MainGameScreen>
                         left: center.dx - 110,
                         top: center.dy - 110,
                         child: GestureDetector(
-                          onTap: _isSpinning ? null : _spinBottle,
+                          onTap: _canISpinBottle ? _spinBottle : null,
                           child: Transform.rotate(
                             angle: _currentAngle,
                             child: Container(
@@ -4713,6 +5306,7 @@ class _MainGameScreenState extends State<MainGameScreen>
                                   width: 190,
                                   height: 190,
                                   fit: BoxFit.contain,
+                                  gaplessPlayback: true,
                                 ),
                               ),
                             ),
@@ -5089,53 +5683,90 @@ class _MainGameScreenState extends State<MainGameScreen>
                   ],
 
                   // Bottom Row: Wide Double-Neon Pill Button (ŞİŞEYİ ÇEVİR!)
-                  GestureDetector(
-                    onTap: _isSpinning ? null : _spinBottle,
-                    child: Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(vertical: 13),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: _isSpinning
-                              ? [const Color(0xFF475569), const Color(0xFF334155)]
-                              : [const Color(0xFFFFDC46), const Color(0xFFFF9500)],
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
+                  () {
+                    final bool canSpin = _canISpinBottle;
+                    final String spinnerName = (_answererIndex >= 0 && _answererIndex < _players.length)
+                        ? _players[_answererIndex].name
+                        : "Host";
+                    String btnText;
+                    if (_isSpinning) {
+                      btnText = _loc("WOBBLING...", "DÖNÜYOR...", "DREHT SICH...", "GIRANDO...", "ÇA TOURNE...", "КРУТИТСЯ...");
+                    } else if (canSpin) {
+                      if (RoomService().isInRoom && !_isMeAnswerer && RoomService().isHost && _answererIndex >= 0) {
+                        btnText = _loc("👑 SPIN BOTTLE! (HOST)", "👑 ŞİŞEYİ ÇEVİR! (HOST)", "👑 FLASCHE DREHEN! (HOST)", "👑 ¡GIRAR BOTELLA! (HOST)", "👑 TOURNER ! (HÔTE)", "👑 КРУТИТЬ! (ХОСТ)");
+                      } else {
+                        btnText = _loc("SPIN BOTTLE!", "ŞİŞEYİ ÇEVİR!", "FLASCHE DREHEN!", "¡GIRAR BOTELLA!", "TOURNER LA BOUTEILLE !", "КРУТИТЬ БУТЫЛОЧКУ!");
+                      }
+                    } else if (_answererIndex < 0) {
+                      btnText = _loc("⏳ Host is spinning first...", "⏳ İlk şişeyi oda kurucusu çeviriyor...", "⏳ Host dreht zuerst...", "⏳ El anfitrión gira primero...", "⏳ L'hôte tourne en premier...", "⏳ Хост крутит первым...");
+                    } else if (RoomService().isHost && _hostOverrideRemainingSec > 0) {
+                      btnText = _loc(
+                        "⏳ $spinnerName's turn (Host in ${_hostOverrideRemainingSec}s)",
+                        "⏳ Sıra: $spinnerName (Host yetkisi: ${_hostOverrideRemainingSec}sn)",
+                        "⏳ $spinnerName ist dran (Host in ${_hostOverrideRemainingSec}s)",
+                        "⏳ Turno de $spinnerName (Host en ${_hostOverrideRemainingSec}s)",
+                        "⏳ Tour de $spinnerName (Hôte dans ${_hostOverrideRemainingSec}s)",
+                        "⏳ Очередь $spinnerName (Хост через ${_hostOverrideRemainingSec}с)",
+                      );
+                    } else {
+                      btnText = _loc(
+                        "⏳ Waiting for $spinnerName to spin...",
+                        "⏳ Sıra: $spinnerName şişeyi çeviriyor...",
+                        "⏳ Warten auf $spinnerName...",
+                        "⏳ Esperando a que $spinnerName gire...",
+                        "⏳ En attente de $spinnerName...",
+                        "⏳ Ожидание: крутит $spinnerName...",
+                      );
+                    }
+
+                    return GestureDetector(
+                      onTap: canSpin ? _spinBottle : null,
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(vertical: 13, horizontal: 12),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: (!canSpin || _isSpinning)
+                                ? [const Color(0xFF475569), const Color(0xFF334155)]
+                                : [const Color(0xFFFFDC46), const Color(0xFFFF9500)],
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                          ),
+                          borderRadius: BorderRadius.circular(30),
+                          border: Border.all(
+                            color: (!canSpin || _isSpinning) ? Colors.white24 : const Color(0xFF00F2FE),
+                            width: 2,
+                          ),
+                          boxShadow: (!canSpin || _isSpinning)
+                              ? null
+                              : [
+                                  BoxShadow(
+                                    color: const Color(0xFFFFCC00).withValues(alpha: 0.45),
+                                    blurRadius: 14,
+                                    spreadRadius: 1,
+                                  ),
+                                  BoxShadow(
+                                    color: const Color(0xFF00F2FE).withValues(alpha: 0.30),
+                                    blurRadius: 8,
+                                  ),
+                                ],
                         ),
-                        borderRadius: BorderRadius.circular(30),
-                        border: Border.all(
-                          color: _isSpinning ? Colors.white24 : const Color(0xFF00F2FE),
-                          width: 2,
-                        ),
-                        boxShadow: _isSpinning
-                            ? null
-                            : [
-                                BoxShadow(
-                                  color: const Color(0xFFFFCC00).withValues(alpha: 0.45),
-                                  blurRadius: 14,
-                                  spreadRadius: 1,
-                                ),
-                                BoxShadow(
-                                  color: const Color(0xFF00F2FE).withValues(alpha: 0.30),
-                                  blurRadius: 8,
-                                ),
-                              ],
-                      ),
-                      child: Center(
-                        child: Text(
-                          _isSpinning
-                              ? _loc("WOBBLING...", "DÖNÜYOR...", "DREHT SICH...", "GIRANDO...", "ÇA TOURNE...", "КРУТИТСЯ...")
-                              : _loc("SPIN BOTTLE!", "ŞİŞEYİ ÇEVİR!", "FLASCHE DREHEN!", "¡GIRAR BOTELLA!", "TOURNER LA BOUTEILLE !", "КРУТИТЬ БУТЫЛОЧКУ!"),
-                          style: TextStyle(
-                            fontSize: 16.5,
-                            fontWeight: FontWeight.w900,
-                            color: _isSpinning ? Colors.white70 : Colors.black,
-                            letterSpacing: 1.2,
+                        child: Center(
+                          child: Text(
+                            btnText,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: canSpin ? 16.0 : 13.5,
+                              fontWeight: FontWeight.w900,
+                              color: (!canSpin || _isSpinning) ? Colors.white70 : Colors.black,
+                              letterSpacing: canSpin ? 1.1 : 0.4,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ),
+                    );
+                  }(),
                 ],
               ),
             ),
@@ -5773,19 +6404,31 @@ class _MainGameScreenState extends State<MainGameScreen>
     _multiplayerSub = rs.roomStateStream.listen((room) {
       if (!mounted) return;
 
-      // Sync player emojis & names if in Arena
-      if (rs.isInRoom && _players.length == room.players.length) {
-        for (int i = 0; i < room.players.length; i++) {
-          if (_players[i].emoji != room.players[i].emoji ||
-              _players[i].name != room.players[i].name) {
-            setState(() {
-              _players[i] = Player(
-                name: room.players[i].name,
-                color: room.players[i].color,
-                emoji: room.players[i].emoji,
-              );
-            });
+      // Live sync of full player list (handles 3rd/4th player joining mid-game, leaving, or emoji/name updates)
+      if (rs.isInRoom && room.players.isNotEmpty) {
+        bool playersChanged = _players.length != room.players.length;
+        if (!playersChanged) {
+          for (int i = 0; i < room.players.length; i++) {
+            if (_players[i].emoji != room.players[i].emoji ||
+                _players[i].name != room.players[i].name ||
+                _players[i].color != room.players[i].color) {
+              playersChanged = true;
+              break;
+            }
           }
+        }
+        if (playersChanged) {
+          setState(() {
+            _players
+              ..clear()
+              ..addAll(room.players.map((p) => Player(
+                    name: p.name,
+                    color: p.color,
+                    emoji: p.emoji,
+                  )));
+            if (_answererIndex >= _players.length) _answererIndex = -1;
+            if (_questionerIndex >= _players.length) _questionerIndex = -1;
+          });
         }
       }
 
@@ -5836,33 +6479,47 @@ class _MainGameScreenState extends State<MainGameScreen>
       }
 
       if (currentScreen == 4 && rs.isInRoom) {
-        if (room.status != RoomStatus.cardOpen && _activeSyncedCardCtx != null) {
-          if (_activeSyncedCardCtx!.mounted && Navigator.of(_activeSyncedCardCtx!).canPop()) {
-            Navigator.of(_activeSyncedCardCtx!).pop();
-          }
-          _activeSyncedCardCtx = null;
+        if (room.status != RoomStatus.cardOpen) {
+          _lastDisplayedCardKey = null;
+          _closeActiveQuestionModal();
         }
         if (room.status == RoomStatus.spinning && !_isSpinning) {
+          _closeActiveQuestionModal();
+          _lastDisplayedCardKey = null;
+          _hostOverrideTimer?.cancel();
           setState(() {
             _isSpinning = true;
             _startAngle = room.currentAngle;
             _targetAngle = room.targetAngle;
             _questionerIndex = room.questionerIndex;
             _answererIndex = room.answererIndex;
-            _currentBendVariant = room.bendVariant;
+            _pendingBendVariant = room.bendVariant;
+            _currentBendVariant = "0";
           });
           _spinController.reset();
           _spinController.forward();
         } else if (room.status == RoomStatus.decisionPending) {
           setState(() {
-            _isSpinning = false;
             if (room.answererIndex >= 0) _answererIndex = room.answererIndex;
             if (room.questionerIndex >= 0) _questionerIndex = room.questionerIndex;
-            if (room.targetAngle != 0) _currentAngle = room.targetAngle;
-            _currentBendVariant = room.bendVariant;
+            _pendingBendVariant = room.bendVariant;
+            if (room.targetAngle != 0) {
+              _targetAngle = room.targetAngle;
+              if (!_isSpinning) {
+                _currentAngle = room.targetAngle;
+              }
+            }
+            if (!_isSpinning) {
+              _currentBendVariant = room.bendVariant;
+            }
           });
         } else if (room.status == RoomStatus.cardOpen && room.activeMode != null) {
-          _showSyncedMultiplayerCard(room);
+          final cardKey = "${room.spinCounter}_${room.activeMode}_${room.activePackIndex}_${room.activeQuestionIndex}_${room.activePromptOverride}";
+          if (_lastDisplayedCardKey != cardKey) {
+            _lastDisplayedCardKey = cardKey;
+            _startHostOverrideCountdown();
+            _showSyncedMultiplayerCard(room);
+          }
         } else if (room.status == RoomStatus.adBreak) {
           _showSyncedAdBreak(room);
         }
@@ -5882,6 +6539,13 @@ class _MainGameScreenState extends State<MainGameScreen>
       _selectedPacks.clear();
       _selectedPacks.addAll(room.selectedPacks);
       _selectedObjectIndex = room.selectedObjectIndex;
+      _answererIndex = room.answererIndex;
+      _questionerIndex = room.questionerIndex;
+      if (room.targetAngle != 0) {
+        _currentAngle = room.targetAngle;
+      }
+      _currentBendVariant = room.bendVariant;
+      _pendingBendVariant = room.bendVariant;
       currentScreen = 4; // Arena
     });
   }
@@ -5962,6 +6626,9 @@ class _MainGameScreenState extends State<MainGameScreen>
           : _loc("Complete the dare or face the group's penalty!", "Görevi tamamla veya grubun verdiği cezayı çek!", "Erfülle die Aufgabe oder trage die Strafe der Gruppe!", "¡Cumple el reto o acepta el castigo del grupo!", "Fais le gage ou accepte la punition du groupe !", "Выполни задание или прими штраф от группы!");
     }
 
+    final String askerEmoji = _players.isNotEmpty ? _players[askIdx].emoji : "😈";
+    final String targetEmoji = _players.isNotEmpty ? _players[ansIdx].emoji : "🥳";
+
     showDialog(
       context: context,
       barrierDismissible: true,
@@ -5971,246 +6638,56 @@ class _MainGameScreenState extends State<MainGameScreen>
           canPop: true,
           onPopInvokedWithResult: (didPop, _) {
             if (didPop) {
-              _activeSyncedCardCtx = null;
+              if (_activeSyncedCardCtx == ctx) {
+                _activeSyncedCardCtx = null;
+              }
               if (isMe && RoomService().isInRoom) {
-                // If answerer dismisses card via back gesture or tapping outside, advance turn so nobody gets stuck!
                 RoomService().completeTurn(tookPenalty: false);
               }
             }
           },
           child: Dialog(
-            backgroundColor: const Color(0xFF0F172A),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(28),
-              side: BorderSide(
-                color: mode == 'TRUTH'
-                    ? const Color(0xFF00F2FE)
-                    : (mode == 'DARE' ? const Color(0xFFFF0844) : const Color(0xFFFFCC00)),
-                width: 3,
-              ),
-            ),
-            child: Stack(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 26.0),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(right: 26.0),
-                        child: Text(
-                          cardTitle,
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w900,
-                            color: mode == 'TRUTH'
-                                ? const Color(0xFF00F2FE)
-                                : const Color(0xFFFF0844),
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                      const SizedBox(height: 18),
-                      Container(
-                        padding: const EdgeInsets.all(18),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.4),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          promptText,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                            height: 1.4,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                      const SizedBox(height: 22),
-                      if (isMe || !RoomService().isInRoom) ...[
-                        if (mode != 'FREE') ...[
-                          SizedBox(
-                            width: double.infinity,
-                            child: OutlinedButton(
-                              onPressed: () {
-                                _showCard(mode);
-                              },
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: const Color(0xFFFFCC00),
-                                side: const BorderSide(color: Color(0xFFFFCC00), width: 2),
-                                padding: const EdgeInsets.symmetric(vertical: 11),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                              ),
-                              child: Text(
-                                _loc(
-                                  "NEW QUESTION 🔄",
-                                  "BAŞKA SORU 🔄",
-                                  "ANDERE FRAGE 🔄",
-                                  "OTRA PREGUNTA 🔄",
-                                  "AUTRE QUESTION 🔄",
-                                  "ДРУГОЙ ВОПРОС 🔄",
-                                ),
-                                style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13.5),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                        ],
-                        Row(
-                          children: [
-                            Expanded(
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  _triggerTapFeedback();
-                                  Navigator.pop(ctx);
-                                  if (RoomService().isInRoom) {
-                                    RoomService().completeTurn(tookPenalty: false);
-                                  }
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF34C759),
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(vertical: 12),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                ),
-                                child: Text(
-                                  _loc("DID IT! ✅", "YAPTIM! ✅", "ERLEDIGT! ✅", "¡HECHO! ✅", "FAIT ! ✅", "СДЕЛАНО! ✅"),
-                                  style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  _triggerTapFeedback();
-                                  Navigator.pop(ctx);
-                                  if (RoomService().isInRoom) {
-                                    RoomService().completeTurn(tookPenalty: true);
-                                  }
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFFFF0844),
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(vertical: 12),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                ),
-                                child: Text(
-                                  _loc("PENALTY! 💀", "CEZAMI ÇEKERİM! 💀", "STRAFE! 💀", "¡CASTIGO! 💀", "GAGE ! 💀", "ШТРАФ! 💀"),
-                                  style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ] else ...[
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const SizedBox(
-                              width: 14,
-                              height: 14,
-                              child: CircularProgressIndicator(color: Color(0xFF00F2FE), strokeWidth: 2),
-                            ),
-                            const SizedBox(width: 8),
-                            Flexible(
-                              child: Text(
-                                _loc("$targetName is completing the task...",
-                                     "$targetName görevi tamamlıyor...",
-                                     "$targetName erfüllt die Aufgabe...",
-                                     "$targetName está completando la tarea...",
-                                     "$targetName est en train de faire le gage...",
-                                     "$targetName выполняет задание..."),
-                                style: const TextStyle(
-                                  color: Color(0xFF00F2FE),
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 14),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            TextButton.icon(
-                              onPressed: () {
-                                _triggerTapFeedback();
-                                Navigator.pop(ctx);
-                              },
-                              icon: const Icon(Icons.visibility_off, color: Colors.white60, size: 16),
-                              label: Text(
-                                _loc("Close & Watch Arena ✕", "Kapat ve Masayı İzle ✕", "Schließen ✕", "Cerrar ✕", "Fermer ✕", "Закрыть ✕"),
-                                style: const TextStyle(color: Colors.white70, fontSize: 12),
-                              ),
-                            ),
-                            if (RoomService().isHost) ...[
-                              const SizedBox(width: 8),
-                              OutlinedButton.icon(
-                                onPressed: () {
-                                  _triggerTapFeedback();
-                                  Navigator.pop(ctx);
-                                  RoomService().completeTurn(tookPenalty: false);
-                                },
-                                style: OutlinedButton.styleFrom(
-                                  foregroundColor: const Color(0xFFFFCC00),
-                                  side: const BorderSide(color: Color(0xFFFFCC00), width: 1.2),
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                ),
-                                icon: const Icon(Icons.skip_next, size: 16),
-                                label: Text(
-                                  _loc("Skip ⏭", "Pas Geç ⏭", "Überspringen ⏭", "Saltar ⏭", "Passer ⏭", "Пропустить ⏭"),
-                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11.5),
-                                ),
-                              ),
-                            ],
-                          ],
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-                // Top-Right Glowing Neon Close Button
-                Positioned(
-                  top: 10,
-                  right: 10,
-                  child: GestureDetector(
-                    onTap: () {
-                      _triggerTapFeedback();
-                      Navigator.pop(ctx);
-                      if (isMe && RoomService().isInRoom) {
-                        RoomService().completeTurn(tookPenalty: false);
-                      }
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.12),
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white24, width: 1.2),
-                      ),
-                      child: const Icon(Icons.close, color: Colors.white, size: 18),
-                    ),
-                  ),
-                ),
-              ],
+            backgroundColor: Colors.transparent,
+            insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+            child: _buildConcept3HologramCard(
+              mode: mode,
+              askerName: askerName,
+              askerEmoji: askerEmoji,
+              targetName: targetName,
+              targetEmoji: targetEmoji,
+              promptText: promptText,
+              isInteractiveOwner: isMe || !RoomService().isInRoom,
+              onNewQuestion: (mode != 'FREE' && (isMe || !RoomService().isInRoom))
+                  ? () {
+                      _showCard(mode);
+                    }
+                  : null,
+              onDidIt: () {
+                _triggerTapFeedback();
+                Navigator.pop(ctx);
+                if (RoomService().isInRoom) {
+                  RoomService().completeTurn(tookPenalty: false);
+                }
+              },
+              onPenalty: () {
+                _triggerTapFeedback();
+                Navigator.pop(ctx);
+                if (RoomService().isInRoom) {
+                  RoomService().completeTurn(tookPenalty: true);
+                }
+              },
+              onClose: () {
+                _triggerTapFeedback();
+                Navigator.pop(ctx);
+                if (isMe && RoomService().isInRoom) {
+                  RoomService().completeTurn(tookPenalty: false);
+                }
+              },
             ),
           ),
         );
       },
-    ).then((_) {
-      _activeSyncedCardCtx = null;
-    });
+    );
   }
 
   
@@ -6381,7 +6858,21 @@ class _MainGameScreenState extends State<MainGameScreen>
                       currentLangIndex: _currentLangIndex,
                       loc: (en, tr, de, es, fr, [ru]) => _loc(en, tr, de, es, fr, ru),
                       onBackToMenu: () => setState(() => currentScreen = 0),
-                      onRoomCreatedOrJoined: () => setState(() => currentScreen = 6),
+                      onRoomCreatedOrJoined: () {
+                        final room = RoomService().currentRoom;
+                        if (room != null &&
+                            room.status != RoomStatus.lobby &&
+                            room.status != RoomStatus.objects &&
+                            room.status != RoomStatus.packs) {
+                          _startMultiplayerGame();
+                        } else if (room != null && room.status == RoomStatus.objects) {
+                          setState(() => currentScreen = 2);
+                        } else if (room != null && room.status == RoomStatus.packs) {
+                          setState(() => currentScreen = 3);
+                        } else {
+                          setState(() => currentScreen = 6);
+                        }
+                      },
                       isMuted: isMuted,
                       onToggleMute: _toggleMute,
                     );
@@ -6919,4 +7410,71 @@ class _WobblyBottleShowcaseState extends State<WobblyBottleShowcase>
       ],
     );
   }
+}
+
+
+// Custom Painter for Concept 3 Angled Esports Matchup Wings (SORAN -> CEVAPLAYAN)
+class _HologramWingPainter extends CustomPainter {
+  final bool isLeft;
+  final Color borderColor;
+  final Color fillStart;
+  final Color fillEnd;
+
+  _HologramWingPainter({
+    required this.isLeft,
+    required this.borderColor,
+    required this.fillStart,
+    required this.fillEnd,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final double slant = 16.0;
+    final double r = 10.0;
+    final Path path = Path();
+
+    if (isLeft) {
+      path.moveTo(r, 0);
+      path.lineTo(size.width - slant, 0);
+      path.lineTo(size.width, size.height);
+      path.lineTo(r, size.height);
+      path.quadraticBezierTo(0, size.height, 0, size.height - r);
+      path.lineTo(0, r);
+      path.quadraticBezierTo(0, 0, r, 0);
+    } else {
+      path.moveTo(slant, 0);
+      path.lineTo(size.width - r, 0);
+      path.quadraticBezierTo(size.width, 0, size.width, r);
+      path.lineTo(size.width, size.height - r);
+      path.quadraticBezierTo(size.width, size.height, size.width - r, size.height);
+      path.lineTo(0, size.height);
+      path.close();
+    }
+    path.close();
+
+    final Paint fillPaint = Paint()
+      ..shader = ui.Gradient.linear(
+        Offset(0, 0),
+        Offset(size.width, size.height),
+        [fillStart, fillEnd],
+      );
+    canvas.drawPath(path, fillPaint);
+
+    final Paint glowPaint = Paint()
+      ..color = borderColor.withValues(alpha: 0.35)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 4.0
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6);
+    canvas.drawPath(path, glowPaint);
+
+    final Paint borderPaint = Paint()
+      ..color = borderColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.0;
+    canvas.drawPath(path, borderPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _HologramWingPainter oldDelegate) =>
+      oldDelegate.isLeft != isLeft || oldDelegate.borderColor != borderColor;
 }

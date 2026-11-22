@@ -38,6 +38,8 @@ class RoomService {
   Timer? _heartbeatTimer;
   Timer? _turnTimer;
   Timer? _bgGraceTimer;
+  DateTime? _turnPhaseStartedAt;
+  int _lastScoredSpinCounter = -1;
 
   // Remote Config / Dynamic Server URL cache
   static String? _cachedServerTemplate;
@@ -93,7 +95,10 @@ class RoomService {
   String get myEmoji => _myEmoji;
   bool get myIsVip => _myIsVip;
   RoomState? get currentRoom => _currentRoom;
-  bool get isHost => _currentRoom != null && _currentRoom!.hostId == _myPlayerId;
+  bool get isHost =>
+      _currentRoom != null &&
+      (_currentRoom!.hostId == _myPlayerId ||
+          _currentRoom!.players.any((p) => p.id == _myPlayerId && p.isHost));
   bool get isInRoom => _currentRoom != null;
 
   void initPlayer({
@@ -363,9 +368,9 @@ class RoomService {
       _currentRoom!.activePackIndex = packIndex;
       _currentRoom!.activeQuestionIndex = questionIndex;
       _currentRoom!.activePromptOverride = promptOverride;
+      _turnPhaseStartedAt = DateTime.now();
 
       _broadcastSync();
-      _startTurnTimer(); // 30-second response countdown
     } else {
       _sendEvent(RoomEvent(
         type: 'PUBLISH_CARD',
@@ -407,6 +412,12 @@ class RoomService {
     final banExpires = DateTime.now().add(const Duration(minutes: 10)).millisecondsSinceEpoch;
     _currentRoom!.bannedPlayers[targetPlayerId] = banExpires;
     _currentRoom!.players.removeWhere((p) => p.id == targetPlayerId);
+    if (_currentRoom!.answererIndex >= _currentRoom!.players.length) {
+      _currentRoom!.answererIndex = -1;
+    }
+    if (_currentRoom!.questionerIndex >= _currentRoom!.players.length) {
+      _currentRoom!.questionerIndex = -1;
+    }
 
     _sendEvent(RoomEvent(
       type: 'KICK',
@@ -724,7 +735,15 @@ class RoomService {
       if (event.type == 'SYNC') {
         final stateJson = event.payload['state'] as Map<String, dynamic>?;
         if (stateJson != null) {
-          _currentRoom = RoomState.fromJson(stateJson);
+          final newState = RoomState.fromJson(stateJson);
+          final nowMs = DateTime.now().millisecondsSinceEpoch;
+          final banExp = newState.bannedPlayers[_myPlayerId];
+          if (banExp != null && banExp > nowMs) {
+            leaveRoom();
+            onKicked?.call("Oda kurucusu tarafından odadan çıkarıldınız. (10 dk ban)");
+            return;
+          }
+          _currentRoom = newState;
           _emitState();
         }
       }
@@ -783,6 +802,12 @@ class RoomService {
   void _handleLeaveRequest(RoomEvent event) {
     if (_currentRoom == null) return;
     _currentRoom!.players.removeWhere((p) => p.id == event.senderId);
+    if (_currentRoom!.answererIndex >= _currentRoom!.players.length) {
+      _currentRoom!.answererIndex = -1;
+    }
+    if (_currentRoom!.questionerIndex >= _currentRoom!.players.length) {
+      _currentRoom!.questionerIndex = -1;
+    }
 
     // Host Migration: If host left, assign 2nd player as new host!
     if (event.senderId == _currentRoom!.hostId && _currentRoom!.players.isNotEmpty) {
@@ -804,44 +829,137 @@ class RoomService {
     _broadcastSync();
   }
 
+  (double, String) _computeAuthoritativeAlignment(int questioner, int answerer, int count) {
+    final double basePlayerAngle = -pi / 2 + (questioner * 2 * pi / count);
+    final double answererAngle = -pi / 2 + (answerer * 2 * pi / count);
+    final double baseRotation = basePlayerAngle - (pi / 2);
+    final double straightNeckAngle = basePlayerAngle - pi;
+
+    double delta = (answererAngle - straightNeckAngle) % (2 * pi);
+    if (delta > pi) delta -= 2 * pi;
+    if (delta < -pi) delta += 2 * pi;
+    final double deltaDeg = delta * 180.0 / pi;
+
+    String bendVariant = "0";
+    double spriteBendDeg = 0.0;
+    if (deltaDeg >= -22.5 && deltaDeg <= 22.5) {
+      bendVariant = "0";
+      spriteBendDeg = 0.0;
+    } else if (deltaDeg > 22.5 && deltaDeg <= 66.0) {
+      bendVariant = "ur";
+      spriteBendDeg = 45.0;
+    } else if (deltaDeg > 66.0 && deltaDeg <= 102.0) {
+      bendVariant = "r";
+      spriteBendDeg = 82.0;
+    } else if (deltaDeg > 102.0) {
+      bendVariant = "dr";
+      spriteBendDeg = 115.0;
+    } else if (deltaDeg < -22.5 && deltaDeg >= -66.0) {
+      bendVariant = "ul";
+      spriteBendDeg = -45.0;
+    } else if (deltaDeg < -66.0 && deltaDeg >= -102.0) {
+      bendVariant = "l";
+      spriteBendDeg = -82.0;
+    } else {
+      bendVariant = "dl";
+      spriteBendDeg = -115.0;
+    }
+
+    final double residualRad = ((deltaDeg - spriteBendDeg) * pi / 180.0) * 0.45;
+    final double finalBottleAngle = baseRotation + residualRad;
+    return (finalBottleAngle, bendVariant);
+  }
+
   void _handleSpinEvent(RoomEvent event) {
     if (_currentRoom == null) return;
+    if (_currentRoom!.status == RoomStatus.spinning) return;
+
+    // Spin Authority check:
+    // Only the current Answerer can spin, OR Host after 20 seconds (or on the first spin when answererIndex < 0).
+    final ansIdx = _currentRoom!.answererIndex;
+    final hasValidAnswerer = ansIdx >= 0 && ansIdx < _currentRoom!.players.length;
+    if (hasValidAnswerer) {
+      final answererPlayer = _currentRoom!.players[ansIdx];
+      final isAnswerer = event.senderId == answererPlayer.id;
+      final isHostSender = event.senderId == _currentRoom!.hostId;
+      final elapsedSec = _turnPhaseStartedAt != null
+          ? DateTime.now().difference(_turnPhaseStartedAt!).inSeconds
+          : 999;
+      if (!isAnswerer && !(isHostSender && (elapsedSec >= 19 || answererPlayer.isAfk))) {
+        return;
+      }
+    } else {
+      // Very first spin of the game: Host starts
+      if (event.senderId != _currentRoom!.hostId) {
+        return;
+      }
+    }
+
     _turnTimer?.cancel();
 
+    final int count = _currentRoom!.players.length;
+    double startAngle = (event.payload['startAngle'] as num?)?.toDouble() ?? _currentRoom!.currentAngle;
+    double targetAngle = (event.payload['targetAngle'] as num?)?.toDouble() ?? startAngle;
+    String bendVariant = event.payload['bendVariant']?.toString() ?? "0";
+    int answererIndex = event.payload['answererIndex'] as int? ?? -1;
+    int questionerIndex = event.payload['questionerIndex'] as int? ?? -1;
+
+    // Backward-compatibility: If an older client sent answererIndex = -1, Host calculates authoritative target!
+    if (count >= 2 &&
+        (answererIndex < 0 ||
+            answererIndex >= count ||
+            questionerIndex < 0 ||
+            questionerIndex >= count ||
+            answererIndex == questionerIndex)) {
+      final rand = Random();
+      questionerIndex = rand.nextInt(count);
+      final List<int> candidates = [];
+      for (int i = 0; i < count; i++) {
+        if (i != questionerIndex) candidates.add(i);
+      }
+      answererIndex = candidates[rand.nextInt(candidates.length)];
+
+      final (finalBottleAngle, computedBend) =
+          _computeAuthoritativeAlignment(questionerIndex, answererIndex, count);
+      bendVariant = computedBend;
+
+      final double twoPi = 2 * pi;
+      final int rotations = 4 + rand.nextInt(3);
+      final double normalizedStart = startAngle % twoPi;
+      final double normalizedFinal = finalBottleAngle % twoPi;
+      double angleDiff = (normalizedFinal - normalizedStart) % twoPi;
+      if (angleDiff < 0) angleDiff += twoPi;
+      targetAngle = startAngle + (rotations * twoPi) + angleDiff;
+    }
+
     _currentRoom!.status = RoomStatus.spinning;
-    _currentRoom!.currentAngle = (event.payload['startAngle'] as num).toDouble();
-    _currentRoom!.targetAngle = (event.payload['targetAngle'] as num).toDouble();
-    _currentRoom!.bendVariant = event.payload['bendVariant']?.toString() ?? "0";
-    _currentRoom!.answererIndex = event.payload['answererIndex'] as int? ?? -1;
-    _currentRoom!.questionerIndex = event.payload['questionerIndex'] as int? ?? -1;
+    _currentRoom!.currentAngle = startAngle;
+    _currentRoom!.targetAngle = targetAngle;
+    _currentRoom!.bendVariant = bendVariant;
+    _currentRoom!.answererIndex = answererIndex;
+    _currentRoom!.questionerIndex = questionerIndex;
     _currentRoom!.activeMode = null;
+    _currentRoom!.activePackIndex = null;
+    _currentRoom!.activeQuestionIndex = null;
     _currentRoom!.activePromptOverride = null;
 
     _currentRoom!.spinCounter++;
     _broadcastSync();
 
-    // After 3.5s spin animation, transition to decisionPending
-    Timer(const Duration(milliseconds: 3500), () {
+    // After 3.05s spin animation (matches 3040ms controller), transition to decisionPending
+    Timer(const Duration(milliseconds: 3050), () {
       if (_currentRoom != null && _currentRoom!.status == RoomStatus.spinning) {
         _currentRoom!.status = RoomStatus.decisionPending;
+        _currentRoom!.currentAngle = _currentRoom!.targetAngle;
+        _turnPhaseStartedAt = DateTime.now();
         _broadcastSync();
-        _startTurnTimer(); // 30-second response countdown
       }
     });
   }
 
   void _handleSpinResult(RoomEvent event) {
-    if (_currentRoom == null) return;
-    _currentRoom!.status = RoomStatus.decisionPending;
-    _currentRoom!.currentAngle = (event.payload['angle'] as num).toDouble();
-    _currentRoom!.targetAngle = (event.payload['angle'] as num).toDouble();
-    _currentRoom!.bendVariant = event.payload['bendVariant']?.toString() ?? "0";
-    _currentRoom!.answererIndex = event.payload['answererIndex'] as int? ?? 0;
-    _currentRoom!.questionerIndex = event.payload['questionerIndex'] as int? ?? 0;
-    _currentRoom!.activeMode = null;
-    _currentRoom!.activePromptOverride = null;
-    _broadcastSync();
-    _startTurnTimer();
+    // Ignore client post-spin overrides: target angle, questioner, and answerer
+    // are deterministically locked at spin start so the bottle never jumps after stopping.
   }
 
   void _handleChooseEvent(RoomEvent event) {
@@ -871,9 +989,9 @@ class RoomService {
     if (questionerIndex != null && questionerIndex >= 0) {
       _currentRoom!.questionerIndex = questionerIndex;
     }
+    _turnPhaseStartedAt = DateTime.now();
 
     _broadcastSync();
-    _startTurnTimer(); // 30-second response countdown
   }
 
   void _handleDoneEvent(RoomEvent event) {
@@ -881,8 +999,10 @@ class RoomService {
     _turnTimer?.cancel();
 
     final tookPenalty = event.payload['penalty'] as bool? ?? false;
-    if (_currentRoom!.answererIndex >= 0 &&
+    if (_lastScoredSpinCounter != _currentRoom!.spinCounter &&
+        _currentRoom!.answererIndex >= 0 &&
         _currentRoom!.answererIndex < _currentRoom!.players.length) {
+      _lastScoredSpinCounter = _currentRoom!.spinCounter;
       if (tookPenalty) {
         _currentRoom!.players[_currentRoom!.answererIndex].penaltiesTaken++;
       } else {
@@ -893,21 +1013,23 @@ class RoomService {
     // Check for ad break every 5 spins
     if (_currentRoom!.spinCounter > 0 && _currentRoom!.spinCounter % 5 == 0) {
       _currentRoom!.status = RoomStatus.adBreak;
+      _currentRoom!.activeMode = null;
+      _currentRoom!.activePackIndex = null;
+      _currentRoom!.activeQuestionIndex = null;
+      _currentRoom!.activePromptOverride = null;
       _broadcastSync();
 
       // Resume back to ready after 6-second synchronized ad break
       Timer(const Duration(seconds: 6), () {
         if (_currentRoom != null && _currentRoom!.status == RoomStatus.adBreak) {
           _currentRoom!.status = RoomStatus.decisionPending;
-          _currentRoom!.activeMode = null;
-          _currentRoom!.activePromptOverride = null;
+          _turnPhaseStartedAt = DateTime.now();
           _broadcastSync();
         }
       });
     } else {
-      _currentRoom!.status = RoomStatus.decisionPending;
-      _currentRoom!.activeMode = null;
-      _currentRoom!.activePromptOverride = null;
+      // Keep status as cardOpen so the question card remains visible on other players' screens
+      // until the next bottle spin starts!
       _broadcastSync();
     }
   }
